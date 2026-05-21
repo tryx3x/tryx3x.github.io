@@ -1,0 +1,267 @@
+cat > /home/claude/index.html << 'HEREDOC'
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nightmare Spire — Политика конфиденциальности</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c14;
+    --surface: #13131f;
+    --surface-hover: #1a1a2e;
+    --border: #2a2a40;
+    --accent: #c0392b;
+    --accent-glow: #e74c3c;
+    --text: #ccc8c0;
+    --text-dim: #8a8578;
+    --heading: #e8e4db;
+    --link: #e67e22;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Sans 3', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 20% 10%, rgba(192,57,43,.07), transparent),
+      radial-gradient(ellipse 500px 500px at 80% 90%, rgba(44,62,80,.12), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .game-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 700;
+    color: var(--heading);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .game-title span {
+    color: var(--accent-glow);
+  }
+
+  .doc-title {
+    font-family: 'Source Sans 3', serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-dim);
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .effective-date {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: .85rem;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 4px 14px;
+    border-radius: 4px;
+  }
+
+  section {
+    margin-bottom: 36px;
+  }
+
+  h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--heading);
+    letter-spacing: .06em;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h2 .num {
+    color: var(--accent);
+    margin-right: 6px;
+  }
+
+  p { margin-bottom: 12px; }
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 12px;
+  }
+
+  ul li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 6px;
+  }
+
+  ul li::before {
+    content: '›';
+    position: absolute;
+    left: 4px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s;
+  }
+  a:hover { border-bottom-color: var(--link); }
+
+  strong { color: var(--heading); font-weight: 600; }
+
+  .highlight-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin: 16px 0;
+  }
+
+  .nav-link {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: .9rem;
+    color: var(--text-dim);
+  }
+
+  .nav-link a {
+    color: var(--link);
+  }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: .85rem;
+    color: var(--text-dim);
+  }
+
+  footer .version { opacity: .5; }
+
+  @media (max-width: 480px) {
+    .wrapper { padding: 32px 16px 60px; }
+    body { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="game-title">Nightmare <span>Spire</span></div>
+    <div class="doc-title">Политика конфиденциальности</div>
+    <div class="effective-date">Дата вступления в силу: 05.05.2026</div>
+  </header>
+
+  <p>Настоящая Политика описывает, какие данные собирает бот <strong>@nightmare_spire_mmorpg_bot</strong> (далее — «Бот»), как они используются и защищаются.</p>
+  <p>Оператор данных — физическое лицо, администратор Бота.<br>Связь с оператором: <a href="https://t.me/n3Xafs">@n3Xafs</a></p>
+
+  <section>
+    <h2><span class="num">1.</span> Какие данные собираются</h2>
+    <p>При использовании Бота автоматически обрабатываются:</p>
+    <ul>
+      <li>Telegram ID и username</li>
+      <li>Игровые данные: имя персонажа, уровень, статистика, инвентарь, прогресс, валюта, клан, профессии</li>
+      <li>IP-адрес и информация о браузере / устройстве</li>
+      <li>Разрешение экрана устройства</li>
+      <li>Реферальный код и информация о приглашениях</li>
+      <li>Все действия пользователя в Боте (команды, нажатия кнопок, игровые события) и их дата / время</li>
+      <li>ID чатов и групп, в которых Бот добавлен</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">2.</span> Цели обработки данных</h2>
+    <p>Данные используются исключительно для:</p>
+    <ul>
+      <li>Обеспечения работы игровых механик</li>
+      <li>Сохранения прогресса игрока</li>
+      <li>Начисления наград и ведения статистики</li>
+      <li>Предотвращения злоупотреблений и мультиаккаунтинга (сверка IP)</li>
+      <li>Технической поддержки и устранения ошибок</li>
+      <li>Отправки игровых уведомлений внутри Бота</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">3.</span> Передача данных третьим лицам</h2>
+    <div class="highlight-box">
+      Данные <strong>не продаются</strong> и <strong>не передаются</strong> третьим лицам.
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">4.</span> Хранение и защита</h2>
+    <p>Данные хранятся на защищённом сервере и доступны только администратору Бота. Срок хранения — на протяжении использования Бота. Применяются разумные технические меры для защиты данных от несанкционированного доступа.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">5.</span> Права пользователя</h2>
+    <p>Вы вправе:</p>
+    <ul>
+      <li>Запросить информацию о своих данных</li>
+      <li>Потребовать удаления всех персональных данных</li>
+      <li>Отозвать согласие на обработку данных, прекратив использование Бота</li>
+    </ul>
+    <p>Для этого свяжитесь с оператором: <a href="https://t.me/n3Xafs">@n3Xafs</a></p>
+  </section>
+
+  <section>
+    <h2><span class="num">6.</span> Удаление данных</h2>
+    <p>По запросу пользователя все персональные данные удаляются в течение 30 дней.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">7.</span> Изменения политики</h2>
+    <p>Оператор вправе обновлять настоящую Политику. Актуальная версия всегда доступна по команде <strong>/privacy</strong>.</p>
+  </section>
+
+  <p class="nav-link">📜 <a href="rules.html">Правила чата</a></p>
+
+  <footer>
+    <p>Продолжая использовать Бота, вы подтверждаете согласие с данной Политикой.</p>
+    <p class="version">Версия 1.0</p>
+  </footer>
+
+</div>
+</body>
+</html>
+HEREDOC
