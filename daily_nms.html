@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ежедневная награда — NightmareSpire</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="./fingerprint.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#0a0a0f;
+      --surface:#13131f;
+      --surface2:#1a1a2e;
+      --border:rgba(255,255,255,0.06);
+      --border-glow:rgba(155,110,243,0.25);
+      --text:#c8c4d4;
+      --muted:#5a5570;
+      --gold:#c9a84c;
+      --gold-dim:rgba(201,168,76,0.10);
+      --gold-glow:rgba(201,168,76,0.25);
+      --purple:#9b6ef3;
+      --purple-dim:rgba(155,110,243,0.12);
+      --green:#4ade80;
+      --green-dim:rgba(74,222,128,0.12);
+      --red:#f87171;
+      --vip:#f0c75e;
+      --vip-dim:rgba(240,199,94,0.08);
+      --vip-border:rgba(240,199,94,0.35);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Crimson Pro',Georgia,serif;
+      background:var(--bg); color:var(--text);
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center;
+      padding:16px 16px 40px; overflow-x:hidden;
+    }
+    body::before{
+      content:'';position:fixed;inset:0;
+      background:radial-gradient(ellipse at 50% 0%,rgba(155,110,243,0.07) 0%,transparent 60%);
+      pointer-events:none;
+    }
+
+    .logo{
+      font-family:'Cinzel',serif; font-size:11px; font-weight:600;
+      letter-spacing:0.25em; color:var(--gold); text-transform:uppercase;
+      opacity:0.7; margin-bottom:8px;
+    }
+
+    /* ── VIP бейдж ── */
+    .vip-badge{
+      display:none; align-items:center; gap:6px;
+      font-family:'Cinzel',serif; font-size:10px; font-weight:700;
+      letter-spacing:0.15em; text-transform:uppercase;
+      color:var(--vip);
+      background:var(--vip-dim);
+      border:1px solid var(--vip-border);
+      border-radius:20px; padding:4px 14px;
+      margin-bottom:14px;
+      box-shadow:0 0 16px rgba(240,199,94,0.12);
+    }
+    .vip-badge.active{display:flex;}
+
+    /* ── Переключатель недель ── */
+    .week-nav{
+      display:flex; align-items:center; gap:8px;
+      margin-bottom:16px; user-select:none;
+    }
+    .week-arrow{
+      width:32px; height:32px; border-radius:8px;
+      background:var(--surface); border:1px solid var(--border);
+      color:var(--muted); font-size:16px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .15s;
+    }
+    .week-arrow:hover{border-color:var(--purple);color:var(--purple);}
+    .week-arrow.disabled{opacity:0.25;pointer-events:none;}
+    .week-label{
+      font-family:'Cinzel',serif; font-size:13px; font-weight:600;
+      color:var(--text); min-width:120px; text-align:center;
+      letter-spacing:0.06em;
+    }
+    .week-subtitle{
+      font-size:11px; color:var(--muted); font-style:italic;
+      margin-top:1px;
+    }
+
+    /* ── Сетка дней ── */
+    .days-grid{
+      width:100%; max-width:380px;
+      display:grid; grid-template-columns:repeat(7,1fr);
+      gap:5px; margin-bottom:20px;
+    }
+    .day-cell{
+      aspect-ratio:1; border-radius:10px;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      font-family:'Cinzel',serif; font-size:12px; font-weight:600;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,0.25);
+      color:var(--muted);
+      cursor:pointer; transition:all .2s;
+      position:relative; overflow:hidden;
+    }
+    .day-cell:hover{border-color:rgba(255,255,255,0.12);}
+    .day-cell.done{
+      background:rgba(201,168,76,0.08);
+      border-color:rgba(201,168,76,0.3);
+      color:var(--gold);
+    }
+    .day-cell.done::after{
+      content:'✓'; position:absolute; top:2px; right:4px;
+      font-size:9px; color:var(--gold); opacity:0.7;
+    }
+    .day-cell.current{
+      background:var(--purple-dim);
+      border-color:rgba(155,110,243,0.5);
+      color:var(--purple);
+      box-shadow:0 0 16px rgba(155,110,243,0.25);
+      animation:pulse-current 2s ease-in-out infinite;
+    }
+    .day-cell.milestone{border-color:rgba(201,168,76,0.5);}
+    .day-cell.milestone.current{border-color:rgba(155,110,243,0.6);}
+    .day-num{font-size:13px;line-height:1;}
+    .day-icon{font-size:11px;margin-top:1px;line-height:1;}
+    .day-cell.future{opacity:0.45;}
+
+    @keyframes pulse-current{
+      0%,100%{box-shadow:0 0 12px rgba(155,110,243,0.2);}
+      50%{box-shadow:0 0 20px rgba(155,110,243,0.4);}
+    }
+
+    /* ── Карточка награды ── */
+    .reward-card{
+      width:100%; max-width:380px;
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:20px; padding:24px 20px;
+      text-align:center;
+      box-shadow:0 20px 60px rgba(0,0,0,0.5);
+      animation:slideUp .35s ease both;
+    }
+    .reward-card.milestone-card{
+      border-color:var(--gold-glow);
+      box-shadow:0 20px 60px rgba(0,0,0,0.5), 0 0 30px var(--gold-dim);
+    }
+    .reward-card.finale-card{
+      border-color:rgba(201,168,76,0.5);
+      box-shadow:0 20px 60px rgba(0,0,0,0.5), 0 0 50px rgba(201,168,76,0.15);
+    }
+
+    .reward-icon{font-size:48px;margin-bottom:8px;display:block;}
+
+    .reward-title{
+      font-family:'Cinzel',serif; font-size:17px; font-weight:900;
+      color:#e8e0f0; letter-spacing:0.04em; margin-bottom:2px;
+    }
+    .reward-day-label{
+      font-size:12px; color:var(--muted); font-style:italic; margin-bottom:16px;
+    }
+
+    .reward-items{
+      display:flex; flex-direction:column; gap:6px; margin-bottom:14px;
+    }
+    .reward-item{
+      display:flex; align-items:center; gap:10px;
+      background:rgba(0,0,0,0.2); border:1px solid var(--border);
+      border-radius:10px; padding:9px 12px;
+    }
+    .reward-item-icon{font-size:17px;flex-shrink:0;}
+    .reward-item-text{font-size:14px;color:var(--text);text-align:left;}
+    .reward-item-val{
+      font-family:'Cinzel',serif;font-size:14px;font-weight:700;
+      color:var(--gold);margin-left:auto;white-space:nowrap;
+    }
+
+    /* ── VIP-секция в карточке ── */
+    .vip-section{
+      display:none;
+      margin-bottom:14px;
+      border:1px solid var(--vip-border);
+      border-radius:14px;
+      background:var(--vip-dim);
+      padding:12px 10px 10px;
+      position:relative;
+    }
+    .vip-section.show{display:block;}
+    .vip-section-title{
+      font-family:'Cinzel',serif; font-size:11px; font-weight:700;
+      letter-spacing:0.15em; text-transform:uppercase;
+      color:var(--vip); margin-bottom:8px;
+      display:flex; align-items:center; justify-content:center; gap:6px;
+    }
+    .vip-section .reward-items{margin-bottom:0;}
+    .vip-section .reward-item{
+      background:rgba(0,0,0,0.25);
+      border-color:rgba(240,199,94,0.15);
+    }
+    .vip-section .reward-item-val{color:var(--vip);}
+
+    .claim-btn{
+      width:100%; padding:14px;
+      font-family:'Cinzel',serif; font-size:13px; font-weight:700;
+      letter-spacing:0.1em; text-transform:uppercase;
+      color:#0a0a0f; background:var(--gold);
+      border:none; border-radius:12px; cursor:pointer;
+      transition:all .2s;
+    }
+    .claim-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,0.35);}
+    .claim-btn:active{transform:translateY(0);}
+    .claim-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+
+    .already-claimed{
+      font-size:12px; color:var(--muted); font-style:italic;
+      margin-top:10px; display:none;
+    }
+    .status-msg{
+      margin-top:12px; font-size:12px; color:var(--purple);
+      font-style:italic; min-height:18px;
+    }
+
+    /* ── Прогресс бар месяца ── */
+    .month-progress{
+      width:100%; max-width:380px;
+      margin-top:16px; text-align:center;
+    }
+    .progress-bar-bg{
+      width:100%; height:6px; border-radius:3px;
+      background:rgba(255,255,255,0.05);
+      overflow:hidden; margin-bottom:6px;
+    }
+    .progress-bar-fill{
+      height:100%; border-radius:3px;
+      background:linear-gradient(90deg,var(--purple),var(--gold));
+      transition:width .4s ease;
+    }
+    .progress-text{
+      font-size:11px; color:var(--muted);
+    }
+
+    @keyframes slideUp{
+      from{opacity:0;transform:translateY(16px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+  </style>
+</head>
+<body>
+
+<div class="logo">NightmareSpire</div>
+
+<!-- VIP бейдж -->
+<div class="vip-badge" id="vip-badge">
+  <span>👑</span><span id="vip-badge-text">VIP</span>
+</div>
+
+<!-- Навигация по неделям -->
+<div class="week-nav">
+  <div class="week-arrow" id="prev-week" onclick="changeWeek(-1)">‹</div>
+  <div style="text-align:center">
+    <div class="week-label" id="week-label">Неделя 1</div>
+    <div class="week-subtitle" id="week-subtitle">Разминка</div>
+  </div>
+  <div class="week-arrow" id="next-week" onclick="changeWeek(1)">›</div>
+</div>
+
+<!-- Сетка дней -->
+<div class="days-grid" id="days-grid"></div>
+
+<!-- Карточка награды -->
+<div class="reward-card" id="reward-card">
+  <span class="reward-icon" id="reward-icon">🎁</span>
+  <div class="reward-title" id="reward-title">Ежедневная награда</div>
+  <div class="reward-day-label" id="reward-day-label">День 1</div>
+
+  <div class="reward-items" id="reward-items"></div>
+
+  <!-- VIP бонус поверх обычной награды -->
+  <div class="vip-section" id="vip-bonus-section">
+    <div class="vip-section-title">👑 VIP бонус</div>
+    <div class="reward-items" id="vip-bonus-items"></div>
+  </div>
+
+  <!-- VIP расширенная награда (дни 31+) -->
+  <div class="vip-section" id="vip-extended-section">
+    <div class="vip-section-title">⚜️ VIP награда — серия <span id="vip-ext-day"></span></div>
+    <div class="reward-items" id="vip-extended-items"></div>
+  </div>
+
+  <button class="claim-btn" id="claim-btn" onclick="claimReward()">Забрать награду</button>
+  <div class="already-claimed" id="already-claimed">Награда уже получена сегодня</div>
+  <div class="status-msg" id="status-msg"></div>
+</div>
+
+<!-- Прогресс -->
+<div class="month-progress">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+  <div class="progress-text" id="progress-text"></div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+
+/* ═══════════════════════════════════════════════════════════
+   НАГРАДЫ — 30 дней (синхронизировано с DAILY_REWARDS)
+   ═══════════════════════════════════════════════════════════ */
+const REWARDS = [
+  // Неделя 1 — Разминка
+  {day:1,  gold:5000,   exp:500,   gems:0,   box:null,                              icon:"🌑"},
+  {day:2,  gold:8000,   exp:700,   gems:0,   box:null,                              icon:"🌒"},
+  {day:3,  gold:11000,  exp:900,   gems:0,   box:{name:"Деревянный Сундук",qty:1},  icon:"🪵"},
+  {day:4,  gold:14000,  exp:1200,  gems:10,  box:null,                              icon:"🌓"},
+  {day:5,  gold:18000,  exp:1500,  gems:15,  box:{name:"Деревянный Сундук",qty:2},  icon:"🪵"},
+  {day:6,  gold:22000,  exp:1800,  gems:20,  box:null,                              icon:"🌔"},
+  {day:7,  gold:27000,  exp:2500,  gems:30,  box:{name:"Шкатулка Лунного Скитальца",qty:1}, icon:"📦"},
+
+  // Неделя 2 — Рост
+  {day:8,  gold:32000,  exp:3000,  gems:15,  box:{name:"Железный Сундук",qty:1},    icon:"⚙️"},
+  {day:9,  gold:37000,  exp:3500,  gems:20,  box:null,                              icon:"🌖"},
+  {day:10, gold:42000,  exp:4000,  gems:25,  box:{name:"Железный Сундук",qty:2},    icon:"⚙️"},
+  {day:11, gold:48000,  exp:4500,  gems:30,  box:null,                              icon:"🌗"},
+  {day:12, gold:54000,  exp:5000,  gems:35,  box:{name:"Бронзовый Сундук",qty:1},   icon:"🥉"},
+  {day:13, gold:60000,  exp:5500,  gems:40,  box:null,                              icon:"🌘"},
+  {day:14, gold:68000,  exp:6500,  gems:60,  box:{name:"Ларец Ночной Мглы",qty:1},  icon:"🌫️"},
+
+  // Неделя 3 — Опасная территория
+  {day:15, gold:75000,  exp:7000,  gems:35,  box:{name:"Бронзовый Сундук",qty:2},   icon:"🥉"},
+  {day:16, gold:82000,  exp:7500,  gems:40,  box:null,                              icon:"⚔️"},
+  {day:17, gold:90000,  exp:8000,  gems:45,  box:{name:"Серебряный Сундук",qty:1},  icon:"🥈"},
+  {day:18, gold:98000,  exp:8500,  gems:50,  box:null,                              icon:"🔮"},
+  {day:19, gold:106000, exp:9000,  gems:55,  box:{name:"Шкатулка Лунного Скитальца",qty:2}, icon:"📦"},
+  {day:20, gold:115000, exp:10000, gems:65,  box:{name:"Серебряный Сундук",qty:2},  icon:"🥈"},
+  {day:21, gold:125000, exp:11000, gems:80,  box:{name:"Реликварий Кошмара",qty:1}, icon:"💀"},
+
+  // Неделя 4 — Финальный рывок
+  {day:22, gold:135000, exp:12000, gems:50,  box:{name:"Золотой Сундук",qty:1},     icon:"🥇"},
+  {day:23, gold:148000, exp:13000, gems:60,  box:null,                              icon:"🔥"},
+  {day:24, gold:162000, exp:14000, gems:70,  box:{name:"Ларец Ночной Мглы",qty:2},  icon:"🌫️"},
+  {day:25, gold:178000, exp:15000, gems:80,  box:{name:"Золотой Сундук",qty:2},     icon:"🥇"},
+  {day:26, gold:195000, exp:16000, gems:90,  box:null,                              icon:"⚡"},
+  {day:27, gold:215000, exp:17000, gems:100, box:{name:"Реликварий Кошмара",qty:2}, icon:"💀"},
+  {day:28, gold:238000, exp:18000, gems:120, box:{name:"Золотой Сундук",qty:3},     icon:"🥇"},
+  {day:29, gold:265000, exp:20000, gems:150, box:{name:"Реликварий Кошмара",qty:3}, icon:"💀"},
+
+  // Финал
+  {day:30, gold:300000, exp:30000, gems:300, box:{name:"Сокровищница Шпиля",qty:1}, icon:"👑"},
+];
+
+/* ═══════════════════════════════════════════════════════════
+   VIP-БОНУСЫ — синхронизировано с VIP_BONUS_CYCLE (бэкенд)
+   Добавляются ПОВЕРХ обычной награды каждый день 1–30
+   ═══════════════════════════════════════════════════════════ */
+const VIP_BONUS_CYCLE = [
+  {gold:50000,   exp:5000,  gems:0,   box:null},
+  {gold:60000,   exp:5000,  gems:0,   box:null},
+  {gold:70000,   exp:8000,  gems:20,  box:null},
+  {gold:80000,   exp:8000,  gems:0,   box:null},
+  {gold:90000,   exp:10000, gems:25,  box:{name:"Железный Сундук",qty:1}},
+  {gold:100000,  exp:10000, gems:0,   box:null},
+  {gold:120000,  exp:15000, gems:50,  box:{name:"Шкатулка Лунного Скитальца",qty:1}},
+  {gold:130000,  exp:15000, gems:0,   box:null},
+  {gold:140000,  exp:15000, gems:30,  box:null},
+  {gold:150000,  exp:18000, gems:35,  box:{name:"Бронзовый Сундук",qty:1}},
+  {gold:160000,  exp:18000, gems:0,   box:null},
+  {gold:175000,  exp:20000, gems:40,  box:null},
+  {gold:190000,  exp:20000, gems:0,   box:null},
+  {gold:210000,  exp:22000, gems:60,  box:{name:"Ларец Ночной Мглы",qty:1}},
+  {gold:230000,  exp:22000, gems:0,   box:null},
+  {gold:250000,  exp:24000, gems:45,  box:null},
+  {gold:270000,  exp:24000, gems:0,   box:{name:"Серебряный Сундук",qty:1}},
+  {gold:290000,  exp:26000, gems:50,  box:null},
+  {gold:310000,  exp:26000, gems:0,   box:null},
+  {gold:340000,  exp:28000, gems:70,  box:{name:"Серебряный Сундук",qty:1}},
+  {gold:370000,  exp:28000, gems:80,  box:{name:"Реликварий Кошмара",qty:1}},
+  {gold:400000,  exp:28000, gems:0,   box:null},
+  {gold:440000,  exp:30000, gems:60,  box:null},
+  {gold:480000,  exp:30000, gems:70,  box:{name:"Ларец Ночной Мглы",qty:1}},
+  {gold:520000,  exp:30000, gems:80,  box:{name:"Золотой Сундук",qty:1}},
+  {gold:570000,  exp:30000, gems:90,  box:null},
+  {gold:630000,  exp:30000, gems:100, box:{name:"Реликварий Кошмара",qty:1}},
+  {gold:700000,  exp:30000, gems:120, box:{name:"Золотой Сундук",qty:1}},
+  {gold:850000,  exp:30000, gems:150, box:{name:"Реликварий Кошмара",qty:1}},
+  {gold:1000000, exp:30000, gems:300, box:{name:"Сокровищница Шпиля",qty:1}},
+];
+
+/* VIP расширенный цикл — дни 31+ (синхронизировано с VIP_EXTENDED_REWARDS) */
+const VIP_EXTENDED_REWARDS = [
+  {gold:400000,  exp:30000, gems:0,   box:{name:"Золотой Сундук",qty:1}},
+  {gold:450000,  exp:30000, gems:0,   box:null},
+  {gold:500000,  exp:30000, gems:50,  box:null},
+  {gold:550000,  exp:30000, gems:0,   box:{name:"Реликварий Кошмара",qty:1}},
+  {gold:600000,  exp:30000, gems:0,   box:null},
+  {gold:650000,  exp:30000, gems:80,  box:null},
+  {gold:750000,  exp:30000, gems:100, box:{name:"Сокровищница Шпиля",qty:1}},
+  {gold:600000,  exp:30000, gems:0,   box:{name:"Золотой Сундук",qty:1}},
+  {gold:650000,  exp:30000, gems:0,   box:null},
+  {gold:700000,  exp:30000, gems:60,  box:{name:"Реликварий Кошмара",qty:1}},
+  {gold:750000,  exp:30000, gems:0,   box:null},
+  {gold:800000,  exp:30000, gems:0,   box:{name:"Золотой Сундук",qty:2}},
+  {gold:850000,  exp:30000, gems:80,  box:null},
+  {gold:1000000, exp:30000, gems:150, box:{name:"Сокровищница Шпиля",qty:1}},
+];
+
+const WEEK_NAMES = [
+  {label:"Неделя 1", sub:"Разминка"},
+  {label:"Неделя 2", sub:"Рост"},
+  {label:"Неделя 3", sub:"Опасная территория"},
+  {label:"Неделя 4", sub:"Финальный рывок"},
+  {label:"Неделя 5", sub:"Финал"},
+];
+
+// Дни-вехи (конец недели / особый дроп)
+const MILESTONE_DAYS = new Set([7,14,21,30]);
+
+/* ── Параметры из URL ── */
+const params = new URLSearchParams(window.location.search);
+const streak = Math.min(Math.max(parseInt(params.get('streak') || '1'), 1), 30);
+const canClaim = params.get('can_claim') !== 'false';
+
+// VIP: vip=1 — лучший (100% бонуса), vip=2 — 70%, vip=0/нет — без бонуса
+const vipLevel = parseInt(params.get('vip') || '0') || 0;
+// Реальная (незацикленная) серия — нужна для расширенных наград 31+
+const realStreak = Math.max(parseInt(params.get('real_streak') || String(streak)) || streak, streak);
+
+const VIP_MULT = vipLevel === 1 ? 1.0 : vipLevel === 2 ? 0.7 : 0;
+const isVip = VIP_MULT > 0;
+
+function scaleVip(b) {
+  return {
+    gold: Math.floor(b.gold * VIP_MULT),
+    exp:  Math.floor(b.exp  * VIP_MULT),
+    gems: Math.floor(b.gems * VIP_MULT),
+    box:  b.box,
+  };
+}
+
+let currentWeek = Math.floor((streak - 1) / 7);
+let selectedDay = streak;
+
+/* ── VIP бейдж ── */
+if (isVip) {
+  const badge = document.getElementById('vip-badge');
+  badge.classList.add('active');
+  document.getElementById('vip-badge-text').textContent = `VIP ${vipLevel}`;
+}
+
+/* ── Рендер ── */
+function getWeekDays(weekIdx) {
+  const start = weekIdx * 7;
+  return REWARDS.slice(start, Math.min(start + 7, 30));
+}
+
+function renderWeekNav() {
+  const maxWeek = Math.ceil(30 / 7) - 1;
+  const info = WEEK_NAMES[currentWeek] || {label:`Неделя ${currentWeek+1}`, sub:""};
+  document.getElementById('week-label').textContent = info.label;
+  document.getElementById('week-subtitle').textContent = info.sub;
+  document.getElementById('prev-week').className = 'week-arrow' + (currentWeek <= 0 ? ' disabled' : '');
+  document.getElementById('next-week').className = 'week-arrow' + (currentWeek >= maxWeek ? ' disabled' : '');
+}
+
+function renderDaysGrid() {
+  const grid = document.getElementById('days-grid');
+  grid.innerHTML = '';
+  const days = getWeekDays(currentWeek);
+
+  days.forEach(r => {
+    const cell = document.createElement('div');
+    let cls = 'day-cell';
+    if (r.day < streak) cls += ' done';
+    else if (r.day === streak) cls += ' current';
+    else cls += ' future';
+    if (MILESTONE_DAYS.has(r.day)) cls += ' milestone';
+    cell.className = cls;
+    cell.innerHTML = `<span class="day-num">${r.day}</span><span class="day-icon">${r.box ? '📦' : ''}</span>`;
+    cell.onclick = () => { selectedDay = r.day; renderRewardCard(); };
+    grid.appendChild(cell);
+  });
+
+  // Заполняем пустые ячейки если < 7 дней
+  const empty = 7 - days.length;
+  for (let i = 0; i < empty; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'day-cell future';
+    cell.style.opacity = '0.15';
+    grid.appendChild(cell);
+  }
+}
+
+function buildItemsHTML(targetEl, items) {
+  targetEl.innerHTML = '';
+  items.forEach(([icon, text, val]) => {
+    targetEl.innerHTML +=
+      `<div class="reward-item">
+        <span class="reward-item-icon">${icon}</span>
+        <span class="reward-item-text">${text}</span>
+        <span class="reward-item-val">${val}</span>
+      </div>`;
+  });
+}
+
+function renderRewardCard() {
+  const r = REWARDS[selectedDay - 1];
+  if (!r) return;
+
+  const card = document.getElementById('reward-card');
+  card.className = 'reward-card';
+  if (selectedDay === 30) card.className += ' finale-card';
+  else if (MILESTONE_DAYS.has(selectedDay)) card.className += ' milestone-card';
+  card.style.animation = 'none';
+  card.offsetHeight; // reflow
+  card.style.animation = 'slideUp .35s ease both';
+
+  document.getElementById('reward-icon').textContent = r.icon;
+  document.getElementById('reward-title').textContent = selectedDay === 30 ? '🏆 Финал месяца' : `День ${r.day}`;
+
+  // Подпись
+  let label = '';
+  if (selectedDay < streak) label = 'Получено ✓';
+  else if (selectedDay === streak) {
+    const s = realStreak;
+    const ending = s % 10 === 1 && s % 100 !== 11 ? 'день'
+                 : [2,3,4].includes(s % 10) && ![12,13,14].includes(s % 100) ? 'дня'
+                 : 'дней';
+    label = `Серия: ${s} ${ending}`;
+  } else {
+    label = `До открытия: ${selectedDay - streak} дн.`;
+  }
+  document.getElementById('reward-day-label').textContent = label;
+
+  // Обычная награда
+  const items = [
+    ['🪙', 'Лунное серебро', '+' + r.gold.toLocaleString('ru')],
+    ['✨', 'Опыт', '+' + r.exp.toLocaleString('ru')],
+  ];
+  if (r.gems > 0) items.push(['💎', 'Алмазы', '+' + r.gems]);
+  if (r.box) {
+    const boxLabel = r.box.qty > 1 ? `${r.box.name} ×${r.box.qty}` : r.box.name;
+    items.push(['📦', boxLabel, '']);
+  }
+  buildItemsHTML(document.getElementById('reward-items'), items);
+
+  // ── VIP бонус (для выбранного дня) ──
+  const vipBonusSection = document.getElementById('vip-bonus-section');
+  if (isVip) {
+    const vb = scaleVip(VIP_BONUS_CYCLE[selectedDay - 1]);
+    const vipItems = [
+      ['🪙', 'Лунное серебро', '+' + vb.gold.toLocaleString('ru')],
+      ['✨', 'Опыт', '+' + vb.exp.toLocaleString('ru')],
+    ];
+    if (vb.gems > 0) vipItems.push(['💎', 'Алмазы', '+' + vb.gems]);
+    if (vb.box) {
+      const bl = vb.box.qty > 1 ? `${vb.box.name} ×${vb.box.qty}` : vb.box.name;
+      vipItems.push(['📦', bl, '']);
+    }
+    buildItemsHTML(document.getElementById('vip-bonus-items'), vipItems);
+    vipBonusSection.classList.add('show');
+  } else {
+    vipBonusSection.classList.remove('show');
+  }
+
+  // ── VIP расширенная награда (только на текущем дне, при реальной серии >30) ──
+  const vipExtSection = document.getElementById('vip-extended-section');
+  if (isVip && selectedDay === streak && realStreak > 30) {
+    const extIndex = (realStreak - 30 - 1) % VIP_EXTENDED_REWARDS.length;
+    const ve = scaleVip(VIP_EXTENDED_REWARDS[extIndex >= 0 ? extIndex : 0]);
+    document.getElementById('vip-ext-day').textContent = realStreak;
+    const extItems = [
+      ['🪙', 'Лунное серебро', '+' + ve.gold.toLocaleString('ru')],
+      ['✨', 'Опыт', '+' + ve.exp.toLocaleString('ru')],
+    ];
+    if (ve.gems > 0) extItems.push(['💎', 'Алмазы', '+' + ve.gems]);
+    if (ve.box) {
+      const bl = ve.box.qty > 1 ? `${ve.box.name} ×${ve.box.qty}` : ve.box.name;
+      extItems.push(['📦', bl, '']);
+    }
+    buildItemsHTML(document.getElementById('vip-extended-items'), extItems);
+    vipExtSection.classList.add('show');
+  } else {
+    vipExtSection.classList.remove('show');
+  }
+
+  // Кнопка
+  const btn = document.getElementById('claim-btn');
+  const claimed = document.getElementById('already-claimed');
+  const statusMsg = document.getElementById('status-msg');
+  statusMsg.textContent = '';
+  claimed.style.display = 'none';
+
+  if (selectedDay === streak && canClaim) {
+    btn.style.display = '';
+    btn.disabled = false;
+    btn.textContent = 'Забрать награду';
+  } else if (selectedDay === streak && !canClaim) {
+    btn.style.display = '';
+    btn.disabled = true;
+    btn.textContent = 'Забрать награду';
+    claimed.style.display = 'block';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function renderProgress() {
+  const pct = Math.min(((streak - 1) / 29) * 100, 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${streak - 1} / 30 дней получено`;
+}
+
+function changeWeek(dir) {
+  const maxWeek = Math.ceil(30 / 7) - 1;
+  currentWeek = Math.max(0, Math.min(maxWeek, currentWeek + dir));
+  renderWeekNav();
+  renderDaysGrid();
+  const start = currentWeek * 7 + 1;
+  const end = Math.min(start + 6, 30);
+  if (selectedDay < start || selectedDay > end) {
+    selectedDay = Math.min(Math.max(streak, start), end);
+  }
+  renderRewardCard();
+}
+
+/* ── Забрать награду ── */
+async function claimReward() {
+  const btn = document.getElementById('claim-btn');
+  const status = document.getElementById('status-msg');
+  btn.disabled = true;
+  btn.textContent = 'Получение...';
+
+  const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : {};
+  const r = REWARDS[streak - 1];
+
+  // VIP-бонусы для payload (информативно; реальное начисление делает бэкенд)
+  let vipBonus = null;
+  let vipExtended = null;
+  if (isVip) {
+    vipBonus = scaleVip(VIP_BONUS_CYCLE[streak - 1]);
+    if (realStreak > 30) {
+      const extIndex = (realStreak - 30 - 1) % VIP_EXTENDED_REWARDS.length;
+      vipExtended = scaleVip(VIP_EXTENDED_REWARDS[extIndex >= 0 ? extIndex : 0]);
+    }
+  }
+
+  // ━━━ Сбор fingerprint ━━━
+  let fingerprint = {};
+  try {
+    if (typeof NightmareFingerprint === 'undefined') {
+      fingerprint = { _error: "script_not_loaded", _src: "./fingerprint.js" };
+    } else {
+      const fp = await NightmareFingerprint.collect();
+      fingerprint = {
+        device_uuid: fp.device_uuid,
+        canvas_hash: fp.canvas_hash,
+        webgl_hash: fp.webgl_hash,
+        webgl_vendor: fp.webgl_vendor,
+        webgl_renderer: fp.webgl_renderer,
+        audio_hash: fp.audio_hash,
+        fonts_hash: fp.fonts_hash,
+        combined_hash: fp.combined_hash,
+        screen_resolution: fp.meta.screen_resolution,
+        color_depth: fp.meta.color_depth,
+        timezone_offset: fp.meta.timezone_offset,
+        language: fp.meta.language,
+        platform: fp.meta.platform,
+        hardware_concurrency: fp.meta.hardware_concurrency,
+        device_memory: fp.meta.device_memory,
+        max_touch_points: fp.meta.max_touch_points,
+      };
+      NightmareFingerprint.startSession();
+    }
+  } catch (e) {
+    fingerprint = { _error: e.message || String(e), _stack: (e.stack || "").slice(0, 300) };
+  }
+
+  const payload = {
+    action: 'daily_reward_claimed',
+    init_data: tg.initData || '',
+    telegram_id: user.id || null,
+    first_name: user.first_name || null,
+    username: user.username || null,
+    is_premium: user.is_premium || false,
+    streak: streak,
+    real_streak: realStreak,
+    reward_day: streak,
+    reward_gold: r.gold,
+    reward_exp: r.exp,
+    reward_gems: r.gems,
+    reward_box: r.box ? r.box.name : null,
+    reward_box_qty: r.box ? r.box.qty : 0,
+    vip_level: vipLevel,
+    vip_bonus: vipBonus,
+    vip_extended: vipExtended,
+    timestamp: Date.now(),
+    user_agent: navigator.userAgent,
+    screen: (tg.viewportWidth||window.screen.width)+'x'+(tg.viewportHeight||window.screen.height),
+    fingerprint: fingerprint,
+  };
+
+  tg.sendData(JSON.stringify(payload));
+  status.textContent = 'Награда получена!';
+  setTimeout(() => tg.close(), 1200);
+}
+
+/* ── Инициализация ── */
+renderWeekNav();
+renderDaysGrid();
+renderRewardCard();
+renderProgress();
+</script>
+</body>
+</html>
