@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Мировые боссы — NightmareSpire</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#08070d;--surface:#12101c;--surface2:#191625;--border:rgba(255,255,255,0.07);
+  --text:#c8c4d4;--muted:#5a5570;--heading:#ece7f5;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.10);
+  --zarkat:#c94c4c;--nuar:#4c7bc9;--nuber:#c97a4c;--murr:#4cc97a;--zerot:#a855f7;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:56px;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 70% 40% at 50% -5%,rgba(201,168,76,0.07),transparent),
+  radial-gradient(ellipse 60% 50% at 100% 100%,rgba(76,40,120,0.10),transparent);
+  pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;}
+
+.header{padding:30px 20px 18px;text-align:center;}
+.header-eyebrow{font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;opacity:.75;margin-bottom:8px;}
+.header h1{font-family:'Cinzel',serif;font-size:22px;font-weight:900;color:var(--heading);letter-spacing:0.06em;}
+.header-sub{font-size:13px;color:var(--muted);margin-top:6px;font-style:italic;}
+.header-sub b{color:#8880a0;font-weight:600;}
+
+.tabs{position:sticky;top:0;z-index:20;display:flex;gap:4px;margin:10px 14px 0;padding:4px;background:rgba(18,16,28,.92);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:12px;}
+.tab{flex:1;padding:10px 0;text-align:center;font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:0.1em;color:var(--muted);cursor:pointer;text-transform:uppercase;border-radius:8px;transition:background .2s,color .2s;user-select:none;}
+.tab.active{color:#1a1408;background:linear-gradient(160deg,#d8b85e,#b8923a);font-weight:600;}
+
+.page{display:none;padding-top:6px;}.page.active{display:block;}
+.section-title{font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:0.22em;color:var(--muted);text-transform:uppercase;padding:22px 18px 10px;}
+
+.countdown{margin:16px 14px 0;position:relative;border-radius:16px;padding:22px 18px 20px;text-align:center;background:linear-gradient(170deg,var(--surface2),var(--surface));border:1px solid rgba(201,168,76,0.25);overflow:hidden;}
+.countdown>*{position:relative;z-index:1;}
+.stars{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:inherit;}
+.star{position:absolute;top:-6px;background:#e8d9a8;border-radius:50%;
+  animation:fall linear infinite, twinkle ease-in-out infinite;
+  box-shadow:0 0 6px rgba(201,168,76,.8);}
+.star::after{content:'';position:absolute;left:50%;top:-10px;width:1px;height:10px;
+  background:linear-gradient(to top,rgba(232,217,168,.5),transparent);transform:translateX(-50%);}
+@keyframes fall{
+  from{transform:translateY(-10px);}
+  to{transform:translateY(140px);}
+}
+@keyframes twinkle{
+  0%,100%{opacity:.15;}
+  50%{opacity:1;}
+}
+.cd-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
+.cd-boss{font-family:'Cinzel',serif;font-size:19px;font-weight:900;margin-bottom:6px;letter-spacing:.04em;}
+.cd-timer{font-family:'Cinzel',serif;font-size:34px;font-weight:900;color:var(--heading);letter-spacing:.06em;line-height:1;font-variant-numeric:tabular-nums;}
+.cd-day{font-size:12.5px;color:var(--muted);margin-top:6px;font-style:italic;}
+.c-zarkat{color:var(--zarkat);}.c-nuar{color:var(--nuar);}.c-nuber{color:var(--nuber);}.c-murr{color:var(--murr);}.c-zerot{color:var(--zerot);}
+
+.week{padding:0 14px;display:flex;flex-direction:column;gap:7px;}
+.day{display:flex;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--surface);}
+.day.today{border-color:rgba(201,168,76,0.35);box-shadow:0 0 18px rgba(201,168,76,0.06);}
+.day-l{width:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);}
+.day-n{font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;}
+.day.today .day-n{color:var(--gold);}
+.slots{flex:1;display:flex;flex-direction:column;gap:1px;padding:8px 0;}
+.slot{display:flex;align-items:center;gap:9px;padding:5px 13px;}
+.slot-t{font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:#8880a0;width:44px;flex-shrink:0;font-variant-numeric:tabular-nums;}
+.slot.next .slot-t{color:var(--gold);}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.d-zarkat{background:var(--zarkat);box-shadow:0 0 6px rgba(201,76,76,.6);}
+.d-nuar{background:var(--nuar);box-shadow:0 0 6px rgba(76,123,201,.6);}
+.d-nuber{background:var(--nuber);box-shadow:0 0 6px rgba(201,122,76,.6);}
+.d-murr{background:var(--murr);box-shadow:0 0 6px rgba(76,201,122,.6);}
+.d-zerot{background:var(--zerot);box-shadow:0 0 6px rgba(168,85,247,.6);}
+.slot-n{font-size:13.5px;}
+.slot.past .slot-t,.slot.past .slot-n{opacity:.3;}
+.slot.past .dot{opacity:.2;box-shadow:none;}
+.next-badge{margin-left:auto;font-family:'Cinzel',serif;font-size:9px;padding:2px 8px;border-radius:10px;background:var(--gold-dim);border:1px solid rgba(201,168,76,.3);color:var(--gold);letter-spacing:.08em;text-transform:uppercase;}
+
+.boss{margin:0 14px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--border);border-left-width:3px;overflow:hidden;cursor:pointer;animation:fadeUp .4s ease both;}
+.boss:active{opacity:.88;}
+.boss[data-b="zarkat"]{border-left-color:var(--zarkat);}
+.boss[data-b="nuar"]{border-left-color:var(--nuar);}
+.boss[data-b="nuber"]{border-left-color:var(--nuber);}
+.boss[data-b="murr"]{border-left-color:var(--murr);}
+.boss[data-b="zerot"]{border-left-color:var(--zerot);}
+.boss-in{padding:16px;}
+.b-head{display:flex;align-items:flex-start;gap:12px;}
+.sigil{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;background:rgba(0,0,0,.3);border:1px solid var(--border);}
+.b-tb{flex:1;min-width:0;}
+.b-name{font-family:'Cinzel',serif;font-size:17px;font-weight:900;letter-spacing:.04em;line-height:1.1;}
+.b-sub{font-size:12px;color:var(--muted);margin-top:3px;font-style:italic;}
+.badge{font-family:'Cinzel',serif;font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;letter-spacing:.05em;flex-shrink:0;}
+.badge.phys{background:rgba(201,76,76,.13);color:#c97070;border:1px solid rgba(201,76,76,.25);}
+.badge.magic{background:rgba(76,123,201,.13);color:#7099c9;border:1px solid rgba(76,123,201,.25);}
+.b-desc{font-size:13px;color:#7a7490;line-height:1.55;margin-top:10px;font-style:italic;}
+.b-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;}
+.st{background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:9px;padding:8px;text-align:center;}
+.st-v{font-family:'Cinzel',serif;font-size:13.5px;font-weight:600;color:#d0c8e0;}
+.st-l{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+
+.detail{display:none;}
+.detail.open{display:block;}
+.divider{height:1px;background:var(--border);margin:13px 0 11px;}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.drow{display:flex;justify-content:space-between;align-items:center;padding:6px 9px;background:rgba(0,0,0,.16);border-radius:7px;}
+.dk{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em;}
+.dv{font-family:'Cinzel',serif;font-size:12px;color:#d0c8e0;}
+
+.p2{margin-top:13px;padding:13px;border-radius:10px;background:linear-gradient(170deg,rgba(201,168,76,0.05),rgba(0,0,0,0.25));border:1px solid rgba(201,168,76,0.18);}
+.p2-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:7px;display:flex;align-items:center;gap:7px;}
+.p2-label::before,.p2-label::after{content:'';height:1px;background:var(--gold);opacity:.35;flex:0 0 16px;}
+.p2-name{font-family:'Cinzel',serif;font-size:14px;font-weight:900;color:var(--heading);margin-bottom:5px;line-height:1.3;}
+.p2-desc{font-size:12px;color:#6a6480;line-height:1.55;font-style:italic;margin-bottom:9px;}
+.p2-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.p2-note{font-size:11px;color:#8a7a60;margin-top:9px;text-align:center;font-style:italic;line-height:1.5;}
+
+.hint{text-align:center;font-size:11px;color:var(--muted);padding:8px 0 2px;font-style:italic;}
+
+.rewards{padding:0 14px;display:flex;flex-direction:column;gap:8px;}
+.rw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;gap:14px;align-items:center;}
+.rw.gold{border-color:rgba(201,168,76,.35);background:linear-gradient(170deg,rgba(201,168,76,0.05),var(--surface));}
+.rw-m{font-size:28px;flex-shrink:0;}
+.rw-b{flex:1;}
+.rw-r{font-family:'Cinzel',serif;font-size:12px;color:var(--gold);letter-spacing:.08em;margin-bottom:5px;}
+.rw-i{font-size:13px;color:var(--text);line-height:1.7;}
+.rw-i span{color:var(--muted);}
+.rw-c{font-size:12px;color:#8a7a60;margin-top:4px;font-style:italic;}
+
+.info{margin:12px 14px 0;background:var(--gold-dim);border:1px solid rgba(201,168,76,.18);border-radius:11px;padding:14px 16px;font-size:13px;color:#9a8860;line-height:1.6;}
+.info strong{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:5px;}
+
+.drops{padding:0 14px;margin-top:4px;}
+.dbt{font-family:'Cinzel',serif;font-size:13px;font-weight:600;padding:12px 2px 7px;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;}
+.dbt .chev{margin-left:auto;font-size:10px;color:var(--muted);transition:transform .2s;}
+.dbt.open .chev{transform:rotate(180deg);}
+.dlist{display:none;}.dlist.open{display:block;}
+.dtier{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:7px 0 5px;}
+.ditem{display:flex;align-items:center;padding:6px 11px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:4px;font-size:12.5px;color:var(--text);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.boss:nth-child(2){animation-delay:.05s;}.boss:nth-child(3){animation-delay:.1s;}
+.boss:nth-child(4){animation-delay:.15s;}.boss:nth-child(5){animation-delay:.2s;}.boss:nth-child(6){animation-delay:.25s;}
+@media (prefers-reduced-motion:reduce){.boss{animation:none;}.star{display:none;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="header">
+  <div class="header-eyebrow">NightmareSpire</div>
+  <h1>Мировые боссы</h1>
+  <div class="header-sub">Фаза 1 — <b>30 мин</b> · Фаза 2 — <b>15 мин</b>, начало через 5 мин после победы</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('schedule',this)">Расписание</div>
+  <div class="tab" onclick="switchTab('bosses',this)">Боссы</div>
+  <div class="tab" onclick="switchTab('rewards',this)">Награды</div>
+</div>
+
+<div class="page active" id="page-schedule">
+  <div class="countdown">
+    <div class="stars" id="stars"></div>
+    <div class="cd-label">Следующий босс</div>
+    <div class="cd-boss" id="cd-boss">—</div>
+    <div class="cd-timer" id="cd-timer">—</div>
+    <div class="cd-day" id="cd-day">вычисляем…</div>
+  </div>
+  <div class="section-title">Расписание на неделю (МСК)</div>
+  <div class="week" id="week"></div>
+</div>
+
+<div class="page" id="page-bosses">
+  <div class="section-title">Все боссы</div>
+  <div id="boss-list"></div>
+</div>
+
+<div class="page" id="page-rewards">
+  <div class="section-title">Награды за участие</div>
+  <div class="rewards">
+    <div class="rw gold">
+      <div class="rw-m">🥇</div>
+      <div class="rw-b">
+        <div class="rw-r">1 место</div>
+        <div class="rw-i">500 000 <span>серебра</span> · 5 <span>алмазов</span> · 10 <span>альт-монет</span></div>
+        <div class="rw-c">+ гарантированный Ларец II (Ф1) / Ларец I (Ф2)</div>
+      </div>
+    </div>
+    <div class="rw">
+      <div class="rw-m">🥈</div>
+      <div class="rw-b">
+        <div class="rw-r">2–3 место</div>
+        <div class="rw-i">250 000 <span>серебра</span> · 3 <span>алмаза</span> · 5 <span>альт-монет</span></div>
+        <div class="rw-c">+ гарантированный Ларец III (Ф1) / Ларец II (Ф2)</div>
+      </div>
+    </div>
+    <div class="rw">
+      <div class="rw-m">🥉</div>
+      <div class="rw-b">
+        <div class="rw-r">4–10 место</div>
+        <div class="rw-i">100 000 <span>серебра</span> · 2 <span>алмаза</span> · 3 <span>альт-монеты</span></div>
+        <div class="rw-c">+ гарантированный Ларец III</div>
+      </div>
+    </div>
+    <div class="rw">
+      <div class="rw-m">⚔️</div>
+      <div class="rw-b">
+        <div class="rw-r">Остальные участники</div>
+        <div class="rw-i">10 000 <span>серебра</span> · 1 <span>алмаз</span> · 1 <span>альт-монета</span></div>
+        <div class="rw-c">Шанс на Ларец IV: 1% базовый + бонус за нанесённый урон (до 15%)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info"><strong>Фаза 2 — повышенные награды</strong>Во второй фазе топ-1 получает Ларец I (лучший тир), топ 2–3 — Ларец II. Фаза 2 доступна только героям с 50+ этажом башни, начинается через 5 минут после победы над первой фазой и длится 15 минут.</div>
+
+  <div class="section-title" style="margin-top:10px;">Содержимое ларцов</div>
+  <div class="drops" id="drops"></div>
+
+  <div class="info" style="margin-top:12px;"><strong>Как участвовать</strong>При появлении босса придёт уведомление в чат. Нажмите «Защита города» в главном меню. Каждый участник получает награду согласно нанесённому урону.</div>
+</div>
+
+</div>
+
+<script>
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+const BOSSES = [
+  {
+    key:'zarkat', name:'Заркат', sub:'Падший рыцарь', sigil:'⚔️', dmg:'phys',
+    desc:'Падший рыцарь древнего королевства, чей проклятый клинок высасывает душу из всего живого. Его доспехи помнят крики тысяч поверженных врагов.',
+    hp:'30M', stats:{ 'Сила':'220','Ловкость':'180','Маг. сила':'40','Физ. защита':'500','Маг. защита':'100' },
+    main:[['30M','HP'],['220','Сила'],['500','Физ. защ.']],
+    p2:{
+      name:'Заркат, Сосуд Проклятых Душ',
+      desc:'Тяжёлый шлем расколот, и сдерживаемая им тёмная энергия вырвалась наружу. Телом рыцаря управляет легион поглощённых душ — стремительное воплощение некромантии и первобытной боли.',
+      stats:[['100M','HP'],['3 600','Сила'],['700','Ловкость'],['4 800','Маг. сила'],['1.5M','Физ. защ.'],['3.5M','Маг. защ.']],
+    },
+  },
+  {
+    key:'nuar', name:'Нуар', sub:'Древний голем', sigil:'🔮', dmg:'magic',
+    desc:'Древний голем, созданный забытой цивилизацией. Его тело соткано из чёрного кристалла и чистой магии, искажающей реальность вокруг.',
+    hp:'30M', stats:{ 'Сила':'60','Ловкость':'90','Маг. сила':'280','Физ. защита':'100','Маг. защита':'500' },
+    main:[['30M','HP'],['280','Маг. сила'],['500','Маг. защ.']],
+    p2:{
+      name:'Нуар, Нестабильное Воплощение Пустоты',
+      desc:'Истинная сущность голема пробудилась. Это концентрированная аномалия искажённой реальности и чистой магии, вибрирующая от нестабильности и готовая разорвать мир на части.',
+      stats:[['80M','HP'],['3 000','Сила'],['300','Ловкость'],['5 000','Маг. сила'],['3M','Физ. защ.'],['1M','Маг. защ.']],
+    },
+  },
+  {
+    key:'nuber', name:'Нубер', sub:'Дракон порчи', sigil:'🐉', dmg:'phys',
+    desc:'Дракон, поглощённый древней порчей и владеющий дьявольским огнём. Его чешуя почернела от скверны, а в глазах горит пламя самого ада. Ни сталь, ни магия не могут остановить его ярость.',
+    hp:'30M', stats:{ 'Сила':'160','Ловкость':'140','Маг. сила':'200','Физ. защита':'300','Маг. защита':'300' },
+    main:[['30M','HP'],['160','Сила'],['300','Физ. защ.']],
+    p2:{
+      name:'Нубер, Воплощение Скверны',
+      desc:'Почерневшая чешуя осыпается пеплом, обнажая пульсирующее ядро чистой энергии Бездны. Крылья сотканы из багрового адского пламени и теней; атаки выжигают не плоть, а сами души героев.',
+      stats:[['120M','HP'],['1 000','Сила'],['800','Ловкость'],['5 000','Маг. сила'],['1.4M','Физ. защ.'],['3M','Маг. защ.']],
+    },
+  },
+  {
+    key:'murr', name:'Мурр', sub:'Астральный хищник', sigil:'🐾', dmg:'magic',
+    desc:'Искажённый порчей астральный хищник в облике исполинского чёрного кота. Его шерсть поглощает свет, а многочисленные хвосты сплетают в воздухе тёмные руны. Глаза пылают ядовито-зелёным огнём скверны.',
+    hp:'30M', stats:{ 'Сила':'140','Ловкость':'300','Маг. сила':'180','Физ. защита':'250','Маг. защита':'750' },
+    main:[['30M','HP'],['300','Ловкость'],['750','Маг. защ.']],
+    p2:{
+      name:'Мурр, Первозданный Свет',
+      desc:'Чернильная шерсть осыпалась мёртвым пеплом, обнажив ослепительно-белоснежное божественное естество. Щупальца обратились в ленты кристаллизованного золотого света. Вознесшийся Мурр — непреклонный страж, подвергающий врагов испытанию светом.',
+      stats:[['110M','HP'],['2 000','Сила'],['1 200','Ловкость'],['6 000','Маг. сила'],['1.5M','Физ. защ.'],['4.5M','Маг. защ.']],
+    },
+  },
+  {
+    key:'zerot', name:'Зерот', sub:'Скованный зверь', sigil:'💀', dmg:'phys',
+    desc:'Гигантский астральный хищник, чья разрушительная природа была запечатана тысячелетиями. Тело опутано первородными руническими цепями, а в челюсть вбито Сияющее Копьё, сдерживающее Врата Пустоты внутри него.',
+    hp:'40M', stats:{ 'Сила':'280','Ловкость':'110','Маг. сила':'150','Физ. защита':'850','Маг. защита':'500' },
+    main:[['40M','HP'],['280','Сила'],['850','Физ. защ.']],
+    p2:{
+      name:'Зерот, Предвестник Конца',
+      desc:'Оковы пали, руническое оружие разлетелось в пыль. Плоть Зерота исказилась, став сотканной из чистой энергии хаоса, а пасть — пространственная сингулярность, пожирающая свет, материю и саму реальность.',
+      stats:[['130M','HP'],['1 500','Сила'],['1 100','Ловкость'],['6 500','Маг. сила'],['6M','Физ. защ.'],['3.5M','Маг. защ.']],
+    },
+  },
+];
+
+const SCHEDULE = [
+  { day:1, hour:12, boss:'nuar'   }, { day:1, hour:21, boss:'zarkat' },
+  { day:2, hour:13, boss:'nuber'  }, { day:2, hour:20, boss:'murr'   },
+  { day:3, hour:12, boss:'zerot'  }, { day:3, hour:21, boss:'nuar'   },
+  { day:4, hour:13, boss:'zarkat' }, { day:4, hour:20, boss:'nuber'  },
+  { day:5, hour:12, boss:'murr'   }, { day:5, hour:21, boss:'zerot'  },
+  { day:6, hour:12, boss:'nuar'   }, { day:6, hour:21, boss:'zarkat' },
+  { day:0, hour:12, boss:'nuber'  }, { day:0, hour:21, boss:'murr'   },
+];
+const BN = { zarkat:'Заркат', nuar:'Нуар', nuber:'Нубер', murr:'Мурр', zerot:'Зерот' };
+const DS = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const DF = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+
+function getMSK(){ return new Date(new Date().toLocaleString("en-US",{timeZone:"Europe/Moscow"})); }
+
+function getNext(){
+  const now=getMSK(), nd=now.getDay(), nm=now.getHours()*60+now.getMinutes();
+  for(let i=0;i<8;i++){
+    const td=(nd+i)%7;
+    const todays=SCHEDULE.filter(s=>s.day===td).sort((a,b)=>a.hour-b.hour);
+    for(const s of todays){
+      const dm=s.hour*60;
+      if(i===0 && dm<=nm) continue;
+      return {...s, daysAhead:i};
+    }
+  }
+  return null;
+}
+
+function updateCD(){
+  const next=getNext(); if(!next) return;
+  const now=getMSK();
+  const t=new Date(now); t.setDate(t.getDate()+next.daysAhead); t.setHours(next.hour,0,0,0);
+  const el=document.getElementById('cd-boss');
+  el.textContent=BN[next.boss]; el.className='cd-boss c-'+next.boss;
+  document.getElementById('cd-day').textContent=DF[next.day]+', '+String(next.hour).padStart(2,'0')+':00 МСК';
+  const ts=Math.max(0,Math.floor((t-now)/1000));
+  const hh=Math.floor(ts/3600), mm=Math.floor((ts%3600)/60), ss=ts%60;
+  document.getElementById('cd-timer').textContent = hh>=24
+    ? Math.floor(hh/24)+'д '+String(hh%24).padStart(2,'0')+':'+String(mm).padStart(2,'0')
+    : String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+}
+
+function buildGrid(){
+  const now=getMSK(), td=now.getDay(), nm=now.getHours()*60+now.getMinutes();
+  const next=getNext();
+  const g=document.getElementById('week');
+  for(let i=0;i<7;i++){
+    const day=(td+i)%7;
+    const slots=SCHEDULE.filter(s=>s.day===day).sort((a,b)=>a.hour-b.hour);
+    if(!slots.length) continue;
+    const isT=(i===0);
+    const row=document.createElement('div');
+    row.className='day'+(isT?' today':'');
+    row.innerHTML='<div class="day-l"><span class="day-n">'+DS[day]+'</span></div>';
+    const sd=document.createElement('div'); sd.className='slots';
+    slots.forEach(s=>{
+      const isPast=isT && s.hour*60<=nm;
+      const isN=next && next.day===s.day && next.hour===s.hour && next.boss===s.boss && next.daysAhead===i;
+      const sl=document.createElement('div');
+      sl.className='slot'+(isPast?' past':'')+(isN?' next':'');
+      sl.innerHTML='<span class="slot-t">'+String(s.hour).padStart(2,'0')+':00</span>'
+        +'<span class="dot d-'+s.boss+'"></span>'
+        +'<span class="slot-n c-'+s.boss+'">'+BN[s.boss]+'</span>'
+        +(isN?'<span class="next-badge">далее</span>':'');
+      sd.appendChild(sl);
+    });
+    row.appendChild(sd);
+    g.appendChild(row);
+  }
+}
+
+function buildBosses(){
+  const list=document.getElementById('boss-list');
+  BOSSES.forEach(b=>{
+    const card=document.createElement('div');
+    card.className='boss'; card.dataset.b=b.key;
+    const badge = b.dmg==='phys' ? '<div class="badge phys">Физ.</div>' : '<div class="badge magic">Маг.</div>';
+    const mainStats=b.main.map(s=>'<div class="st"><div class="st-v">'+s[0]+'</div><div class="st-l">'+s[1]+'</div></div>').join('');
+    const detailRows=Object.entries(b.stats).map(([k,v])=>'<div class="drow"><span class="dk">'+k+'</span><span class="dv">'+v+'</span></div>').join('')
+      +'<div class="drow"><span class="dk">Тип урона</span><span class="dv">'+(b.dmg==='phys'?'Физический':'Магический')+'</span></div>';
+    const p2Stats=b.p2.stats.map(s=>'<div class="st"><div class="st-v">'+s[0]+'</div><div class="st-l">'+s[1]+'</div></div>').join('');
+    card.innerHTML=
+      '<div class="boss-in">'
+      +'<div class="b-head"><div class="sigil">'+b.sigil+'</div>'
+      +'<div class="b-tb"><div class="b-name c-'+b.key+'">'+b.name+'</div><div class="b-sub">'+b.sub+'</div></div>'
+      +badge+'</div>'
+      +'<div class="b-desc">'+b.desc+'</div>'
+      +'<div class="b-stats">'+mainStats+'</div>'
+      +'<div class="detail"><div class="divider"></div>'
+      +'<div class="dgrid">'+detailRows+'</div>'
+      +'<div class="p2"><div class="p2-label">Фаза 2</div>'
+      +'<div class="p2-name">'+b.p2.name+'</div>'
+      +'<div class="p2-desc">'+b.p2.desc+'</div>'
+      +'<div class="p2-stats" style="grid-template-columns:repeat(3,1fr);">'+p2Stats+'</div>'
+      +'<div class="p2-note">⚠️ Требуется 50+ этаж башни · старт через 5 мин после Фазы 1 · 15 минут · урон: Магический</div>'
+      +'</div></div>'
+      +'<div class="hint">нажмите для деталей</div>'
+      +'</div>';
+    card.addEventListener('click',()=>{
+      const d=card.querySelector('.detail'), h=card.querySelector('.hint');
+      const o=d.classList.contains('open');
+      d.classList.toggle('open',!o);
+      h.style.display=o?'block':'none';
+    });
+    list.appendChild(card);
+  });
+}
+
+const DROPS = {
+  zarkat:{ name:'Заркат', tiers:[
+    { label:'Ларец I–II (Топ)', items:['Осколок проклятого клинка','Кровавая эссенция','Печать Зарката','Кристалл пробуждения оружия Зарката','Сущность Зарката','[Целое] Сердце войны'] },
+    { label:'Ларец III–IV (Участие)', items:['Осколок проклятого клинка','Кровавая эссенция','Печать Неудачи','Пассивные кристаллы'] },
+  ]},
+  nuar:{ name:'Нуар', tiers:[
+    { label:'Ларец I–II (Топ)', items:['Осколок чёрного кристалла','Пыль искажения','Линза искажения','Кольцо Нуара','Сердце Нуара','Сущность Нуара','[Целое] Сердце тени'] },
+    { label:'Ларец III–IV (Участие)', items:['Осколок чёрного кристалла','Пыль искажения','Линза искажения','Печать Неудачи','Пассивные кристаллы'] },
+  ]},
+  nuber:{ name:'Нубер', tiers:[
+    { label:'Ларец I–II (Топ)', items:['Почерневшая чешуя','Застывшее адское пламя','Дыхание дракона','Клык Нубера','Чешуя дьявольского пламени Нубера','Драконья чешуя','Сущность Нубера','[Целое] Сердце войны'] },
+    { label:'Ларец III–IV (Участие)', items:['Почерневшая чешуя','Застывшее адское пламя','Дыхание дракона','Печать Неудачи','Пассивные кристаллы'] },
+  ]},
+  murr:{ name:'Мурр', tiers:[
+    { label:'Ларец I–II (Топ)', items:['Хвост Скверны','Клок Бездонной Шерсти','Ангельское перо','Колокольчик Бездны','Коготь Мурра','Око Пустоты','Сущность Мурра','[Целое] Сердце кошмара'] },
+    { label:'Ларец III–IV (Участие)', items:['Хвост Скверны','Клок Бездонной Шерсти','Ангельское перо','Печать Неудачи','Пассивные кристаллы'] },
+  ]},
+  zerot:{ name:'Зерот', tiers:[
+    { label:'Ларец I–II (Топ)', items:['Звено первородной цепи','Осколок разлома','Серьга Зерота','[Целое] Сердце кошмара','[Целое] Сердце тени'] },
+    { label:'Ларец III–IV (Участие)', items:['Звено первородной цепи','Осколок разлома','Печать Неудачи','Пассивные кристаллы'] },
+  ]},
+};
+
+function buildDrops(){
+  const sec=document.getElementById('drops');
+  Object.entries(DROPS).forEach(([key,boss])=>{
+    const t=document.createElement('div');
+    t.className='dbt c-'+key;
+    t.innerHTML='<span class="dot d-'+key+'"></span>'+boss.name+'<span class="chev">▼</span>';
+    const l=document.createElement('div'); l.className='dlist';
+    boss.tiers.forEach(tier=>{
+      const tl=document.createElement('div'); tl.className='dtier'; tl.textContent=tier.label;
+      l.appendChild(tl);
+      tier.items.forEach(item=>{
+        const d=document.createElement('div'); d.className='ditem'; d.textContent=item;
+        l.appendChild(d);
+      });
+    });
+    t.addEventListener('click',()=>{ t.classList.toggle('open'); l.classList.toggle('open'); });
+    sec.appendChild(t); sec.appendChild(l);
+  });
+}
+
+function switchTab(n,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+n));
+  window.scrollTo({top:0});
+}
+
+function buildStars(){
+  const c=document.getElementById('stars');
+  if(!c || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const N=14;
+  for(let i=0;i<N;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const size=(1+Math.random()*2).toFixed(1);
+    s.style.width=size+'px';
+    s.style.height=size+'px';
+    s.style.left=(Math.random()*100)+'%';
+    s.style.animationDuration=(4+Math.random()*6).toFixed(1)+'s, '+(0.8+Math.random()*1.6).toFixed(1)+'s';
+    s.style.animationDelay=(-Math.random()*10).toFixed(1)+'s, '+(Math.random()*2).toFixed(1)+'s';
+    c.appendChild(s);
+  }
+}
+
+buildGrid(); buildBosses(); buildDrops(); buildStars(); updateCD();
+setInterval(updateCD,1000);
+</script>
+</body>
+</html>
