@@ -10,7 +10,8 @@
 :root{
   --bg:#08070d;--surface:#12101c;--surface2:#191625;--border:rgba(255,255,255,0.07);
   --text:#c8c4d4;--muted:#5a5570;--heading:#ece7f5;
-  --gold:#c9a84c;--gold-glow:#e8cf7a;--gold-dim:rgba(201,168,76,0.10);
+  --brand:#e74c3c;--brand-deep:#c0392b;--brand-dim:rgba(231,76,60,0.10);
+  --gold:#c9a84c;--gold-glow:#e8cf7a;
   --accent:#8b6cf0;--accent-dim:rgba(139,108,240,0.10);
   --ok:#4cc97a;--lock:#5a5570;
 }
@@ -19,55 +20,65 @@ body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--te
   min-height:100vh;padding-bottom:48px;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;
   background:
-    radial-gradient(ellipse 60% 35% at 50% 0%,rgba(139,108,240,0.09),transparent),
-    radial-gradient(ellipse 50% 60% at 90% 100%,rgba(201,168,76,0.06),transparent);
+    radial-gradient(ellipse 60% 35% at 50% 0%,rgba(231,76,60,0.07),transparent),
+    radial-gradient(ellipse 50% 60% at 90% 100%,rgba(139,108,240,0.06),transparent);
   pointer-events:none;z-index:0;}
 .wrap{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:0 0 32px;}
 
 /* ── Header ── */
-.header{padding:30px 18px 18px;text-align:center;position:relative;}
+.header{padding:28px 18px 16px;text-align:center;position:relative;}
 .header::after{content:'';position:absolute;left:50%;bottom:0;transform:translateX(-50%);
   width:160px;height:1px;
-  background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5;}
+  background:linear-gradient(90deg,transparent,var(--brand),transparent);opacity:.6;}
 .eyebrow{font-family:'Cinzel',serif;font-size:10px;font-weight:600;
-  letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;opacity:.75;margin-bottom:8px;}
+  letter-spacing:0.3em;color:var(--brand);text-transform:uppercase;opacity:.85;margin-bottom:8px;}
 .header h1{font-family:'Cinzel',serif;font-size:22px;font-weight:900;
-  color:var(--heading);letter-spacing:.07em;text-shadow:0 0 26px rgba(201,168,76,.25);}
+  color:var(--heading);letter-spacing:.07em;text-shadow:0 0 26px rgba(231,76,60,.3);}
 .header-sub{font-size:13px;color:var(--muted);margin-top:6px;font-style:italic;}
 
-.list{padding:16px 14px 0;display:flex;flex-direction:column;gap:10px;}
+/* ── Profession tabs ── */
+.ptabs{display:flex;gap:4px;margin:14px 14px 0;padding:4px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  position:sticky;top:8px;z-index:20;backdrop-filter:blur(8px);}
+.ptab{flex:1;padding:9px 2px;text-align:center;border-radius:8px;cursor:pointer;
+  user-select:none;-webkit-tap-highlight-color:transparent;
+  transition:background .2s;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.ptab .pi{font-size:18px;line-height:1;filter:grayscale(.7);opacity:.55;transition:filter .2s,opacity .2s;}
+.ptab .pl{font-family:'Cinzel',serif;font-size:9px;color:var(--muted);letter-spacing:.03em;}
+.ptab.active{background:linear-gradient(160deg,rgba(231,76,60,.18),rgba(192,57,43,.08));
+  box-shadow:inset 0 0 0 1px rgba(231,76,60,.3);}
+.ptab.active .pi{filter:none;opacity:1;}
+.ptab.active .pl{color:var(--brand);}
 
-/* ── Profession card ── */
-.prof{background:var(--surface);border:1px solid var(--border);border-radius:14px;
-  overflow:hidden;animation:fadeUp .35s ease both;}
-.prof-head{display:flex;align-items:center;gap:13px;padding:15px 16px;cursor:pointer;
-  user-select:none;-webkit-tap-highlight-color:transparent;}
-.prof-head:active{opacity:.85;}
-.prof-icon{width:46px;height:46px;border-radius:12px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-size:22px;
+/* ── Page content ── */
+.page{display:none;padding:14px 14px 0;}
+.page.active{display:block;animation:fadeUp .3s ease both;}
+
+/* карточка-шапка профессии */
+.prof-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px;margin-bottom:12px;}
+.prof-top{display:flex;align-items:center;gap:13px;}
+.prof-icon{width:48px;height:48px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:23px;
   background:rgba(0,0,0,.3);border:1px solid var(--border);}
 .prof-tb{flex:1;min-width:0;}
-.prof-name{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--heading);
-  display:flex;align-items:baseline;gap:8px;}
-.prof-lvl{font-size:11px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:.05em;}
-.exp-bar{height:5px;background:rgba(0,0,0,.4);border-radius:3px;margin-top:8px;overflow:hidden;}
+.prof-name{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--heading);}
+.prof-lvl{font-size:11px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:.05em;margin-top:2px;}
+.exp-bar{height:6px;background:rgba(0,0,0,.4);border-radius:3px;margin-top:11px;overflow:hidden;}
 .exp-fill{height:100%;border-radius:3px;
-  background:linear-gradient(90deg,var(--accent),#b39bff);
-  box-shadow:0 0 8px rgba(139,108,240,.5);transition:width .8s ease;}
-.exp-text{font-size:11px;color:var(--muted);margin-top:5px;}
-.chev{flex-shrink:0;font-size:11px;color:var(--muted);transition:transform .25s;}
-.prof.open .chev{transform:rotate(180deg);}
+  background:linear-gradient(90deg,var(--brand-deep),var(--brand));
+  box-shadow:0 0 8px rgba(231,76,60,.5);transition:width .8s ease;}
+.exp-text{font-size:11.5px;color:var(--muted);margin-top:6px;}
 
-/* ── Detail ── */
-.detail{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
-.prof.open .detail{display:block;}
 .d-title{font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:.2em;
-  color:var(--gold);text-transform:uppercase;padding:14px 0 9px;}
-.kv{display:flex;justify-content:space-between;align-items:center;
-  padding:7px 10px;background:rgba(0,0,0,.18);border-radius:8px;margin-bottom:5px;}
+  color:var(--brand);text-transform:uppercase;padding:16px 2px 9px;}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:8px 11px;background:var(--surface);border:1px solid var(--border);
+  border-radius:9px;margin-bottom:5px;}
 .kv-k{font-size:12.5px;color:var(--muted);}
-.kv-v{font-family:'Cinzel',serif;font-size:12.5px;color:var(--heading);}
+.kv-v{font-family:'Cinzel',serif;font-size:12.5px;color:var(--heading);text-align:right;}
 .kv-v.gold{color:var(--gold-glow);}
+.kv-v.ok{color:var(--ok);}
 
 /* chips руд / самоцветов */
 .chips{display:flex;flex-wrap:wrap;gap:6px;}
@@ -77,21 +88,30 @@ body::before{content:'';position:fixed;inset:0;
 .chip.lock{background:rgba(0,0,0,.2);border-color:var(--border);color:var(--lock);}
 .chip.lock .req{color:#7a7490;font-style:italic;}
 
-/* таблица типов (оружие / броня) */
+/* таблица типов (оружие / броня / украшения) */
 .types{display:flex;flex-direction:column;gap:6px;}
-.type-row{background:rgba(0,0,0,.18);border:1px solid var(--border);border-radius:9px;
-  padding:9px 12px;}
-.type-head{display:flex;align-items:center;justify-content:space-between;}
+.type-row{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 12px;}
+.type-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .type-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--heading);}
-.type-base{font-size:11px;color:var(--muted);font-family:'Cinzel',serif;}
 .type-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
 .tt{font-size:10.5px;padding:2px 8px;border-radius:12px;letter-spacing:.02em;}
 .tt.up  {background:rgba(76,201,122,.1);border:1px solid rgba(76,201,122,.25);color:#8fdcae;}
 .tt.down{background:rgba(201,76,76,.1);border:1px solid rgba(201,76,76,.25);color:#c98080;}
 .tt.phys{background:rgba(201,122,76,.1);border:1px solid rgba(201,122,76,.25);color:#c99a70;}
 .tt.mag {background:rgba(76,123,201,.1);border:1px solid rgba(76,123,201,.25);color:#7099c9;}
+.tt.crit{background:rgba(232,207,122,.08);border:1px solid rgba(201,168,76,.25);color:#d8bc6a;}
 
-.soon{text-align:center;font-size:13px;color:var(--muted);font-style:italic;padding:14px 0 4px;}
+.note{font-size:12px;color:var(--muted);font-style:italic;padding:10px 2px 0;line-height:1.5;}
+.soon{text-align:center;font-size:13px;color:var(--muted);font-style:italic;padding:18px 0 6px;}
+
+/* бонус игрока — выделенный блок */
+.bonus-box{background:linear-gradient(165deg,rgba(231,76,60,.07),var(--surface));
+  border:1px solid rgba(231,76,60,.25);border-radius:11px;padding:12px 14px;margin-bottom:5px;}
+.bonus-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.16em;color:var(--brand);
+  text-transform:uppercase;margin-bottom:8px;}
+.bonus-line{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;}
+.bonus-line .bk{color:var(--muted);}
+.bonus-line .bv{font-family:'Cinzel',serif;color:var(--ok);}
 
 /* ── States ── */
 .state-box{text-align:center;padding:52px 24px;}
@@ -100,9 +120,7 @@ body::before{content:'';position:fixed;inset:0;
 .state-sub{font-size:13px;color:var(--muted);line-height:1.55;}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-.prof:nth-child(2){animation-delay:.05s;}.prof:nth-child(3){animation-delay:.1s;}
-.prof:nth-child(4){animation-delay:.15s;}.prof:nth-child(5){animation-delay:.2s;}
-@media(prefers-reduced-motion:reduce){.prof{animation:none;}}
+@media(prefers-reduced-motion:reduce){.page.active{animation:none;}}
 </style>
 </head>
 <body>
@@ -114,7 +132,7 @@ body::before{content:'';position:fixed;inset:0;
   <div class="header-sub" id="header-sub">Мастерство вашего героя</div>
 </div>
 
-<div class="list" id="list"></div>
+<div id="app"></div>
 
 </div>
 <script>
@@ -122,49 +140,61 @@ const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
 const ICONS = { mining:'⛏️', smithing:'⚒️', armorsmithing:'🛡️', alchemy:'⚗️', jeweling:'💎' };
-
-// ═══════════ Статическая справка: типы оружия (из WEAPON_TYPES) ═══════════
-const WEAPON_TYPES = [
-  { name:'Кинжал', dmg:10, crit:5, type:'phys', tags:[['up','Ловкость ++'],['up','Сила +'],['down','Живучесть −']] },
-  { name:'Меч',    dmg:15, crit:1, type:'phys', tags:[['up','Сила ++'],['up','Ловкость +'],['down','Маг. сила −']] },
-  { name:'Топор',  dmg:20, crit:0, type:'phys', tags:[['up','Сила +++'],['up','Живучесть +'],['down','Ловкость −'],['down','Маг. сила −']] },
-  { name:'Посох',  dmg:8,  crit:1, type:'mag',  tags:[['up','Маг. сила ++'],['up','Живучесть +'],['down','Сила −']] },
-  { name:'Жезл',   dmg:6,  crit:4, type:'mag',  tags:[['up','Ловкость ++'],['up','Маг. сила +'],['down','Сила −']] },
-  { name:'Орб',    dmg:4,  crit:0, type:'mag',  tags:[['up','Маг. сила +++'],['down','Сила −−'],['down','Ловкость −']] },
-];
-
-// ═══════════ Статическая справка: типы брони (из ARMOR_TYPES) ═══════════
-const ARMOR_TYPES = [
-  { name:'Лёгкая броня',  pd:4,  md:2, tags:[['up','Ловкость ++'],['up','Живучесть +']] },
-  { name:'Средняя броня', pd:7,  md:4, tags:[['up','Баланс статов'],['down','Ловкость −7']] },
-  { name:'Тяжёлая броня', pd:11, md:6, tags:[['up','Сила ++'],['up','Живучесть ++'],['down','Ловкость −50']] },
-];
+const SHORT = { mining:'Шахтёр', smithing:'Кузнец', armorsmithing:'Бронник', alchemy:'Алхимик', jeweling:'Ювелир' };
 
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function expBar(e, x){
-  const pct = x > 0 ? Math.min(100, Math.round(e / x * 100)) : 100;
-  return '<div class="exp-bar"><div class="exp-fill" style="width:'+pct+'%"></div></div>'
-    + '<div class="exp-text">Опыт: '+e.toLocaleString('ru')+' / '+x.toLocaleString('ru')+' · '+pct+'%</div>';
-}
+// ═══════════ Справка: типы оружия (профили статов, без базовых цифр) ═══════════
+const WEAPON_TYPES = [
+  { name:'Кинжал', type:'phys', tags:[['up','Ловкость ++'],['up','Сила +'],['crit','Высокий крит'],['down','Живучесть −']] },
+  { name:'Меч',    type:'phys', tags:[['up','Сила ++'],['up','Ловкость +'],['down','Маг. сила −']] },
+  { name:'Топор',  type:'phys', tags:[['up','Сила +++'],['up','Живучесть +'],['down','Ловкость −'],['down','Маг. сила −']] },
+  { name:'Посох',  type:'mag',  tags:[['up','Маг. сила ++'],['up','Живучесть +'],['down','Сила −']] },
+  { name:'Жезл',   type:'mag',  tags:[['up','Ловкость ++'],['up','Маг. сила +'],['crit','Высокий крит'],['down','Сила −']] },
+  { name:'Орб',    type:'mag',  tags:[['up','Маг. сила +++'],['down','Сила −−'],['down','Ловкость −']] },
+];
+
+// ═══════════ Справка: типы брони ═══════════
+const ARMOR_TYPES = [
+  { name:'Лёгкая броня',  tags:[['up','Ловкость ++'],['up','Живучесть +']] },
+  { name:'Средняя броня', tags:[['up','Баланс статов'],['down','Ловкость −7']] },
+  { name:'Тяжёлая броня', tags:[['up','Сила ++'],['up','Живучесть ++'],['down','Ловкость −50']] },
+];
+
+// ═══════════ Справка: украшения и самоцветы (из конфига ювелира) ═══════════
+const JEWELRY_TYPES = [
+  { name:'Кольцо', tags:[['up','2 металла'],['gem','1 самоцвет']] },
+  { name:'Серьга', tags:[['up','2 металла'],['gem','1 самоцвет']] },
+  { name:'Амулет', tags:[['up','2 металла'],['gem','1 самоцвет']] },
+];
+
+const GEM_LIST = [
+  { name:'Рубин',            tags:[['up','Сила +10']] },
+  { name:'Сапфир',           tags:[['mag','Маг. сила +12']] },
+  { name:'Изумруд',          tags:[['up','Живучесть +11']] },
+  { name:'Алмаз',            tags:[['up','Сила +4'],['up','Ловкость +4'],['mag','Маг. сила +4']] },
+  { name:'Аметист',          tags:[['mag','Маг. сила +13'],['up','Живучесть +3']] },
+  { name:'Топаз',            tags:[['up','Сила +6'],['up','Ловкость +8']] },
+  { name:'Оникс',            tags:[['up','Ловкость +14'],['crit','Крит +2%']] },
+  { name:'Лунный камень',    tags:[['up','Ловкость +4'],['up','Живучесть +6'],['mag','Маг. сила +7']] },
+  { name:'Кристалл пустоты', tags:[['up','Сила +6'],['up','Ловкость +8'],['mag','Маг. сила +10'],['crit','Крит +3%']] },
+  { name:'Душа-самоцвет',    tags:[['up','Все статы +7'],['crit','Крит +4%']] },
+];
 
 function tagsHTML(tags){
   return '<div class="type-tags">'+tags.map(function(t){
-    return '<span class="tt '+t[0]+'">'+t[1]+'</span>';
+    const cls = t[0]==='gem' ? 'mag' : t[0];
+    return '<span class="tt '+cls+'">'+t[1]+'</span>';
   }).join('')+'</div>';
 }
 
-function typesHTML(types, isWeapon){
+function typesHTML(types, showType){
   return '<div class="types">'+types.map(function(t){
-    const base = isWeapon
-      ? 'урон '+t.dmg+' · крит '+t.crit+'%'
-      : 'физ '+t.pd+' · маг '+t.md;
-    const typeTag = isWeapon
-      ? '<span class="tt '+t.type+'">'+(t.type==='phys'?'Физ.':'Маг.')+'</span> '
+    const typeTag = showType && t.type
+      ? '<span class="tt '+t.type+'">'+(t.type==='phys'?'Физ. урон':'Маг. урон')+'</span>'
       : '';
     return '<div class="type-row">'
-      + '<div class="type-head"><span class="type-name">'+t.name+'</span>'
-      + '<span class="type-base">'+typeTag+base+'</span></div>'
+      + '<div class="type-head"><span class="type-name">'+t.name+'</span>'+typeTag+'</div>'
       + tagsHTML(t.tags)
       + '</div>';
   }).join('')+'</div>';
@@ -181,11 +211,27 @@ function chipsHTML(av, locked, gem){
   return h + '</div>';
 }
 
-function miningDetail(m){
+function bonusBox(title, lines){
+  return '<div class="bonus-box"><div class="bonus-title">'+title+'</div>'
+    + lines.map(function(l){
+        return '<div class="bonus-line"><span class="bk">'+l[0]+'</span><span class="bv">'+l[1]+'</span></div>';
+      }).join('')
+    + '</div>';
+}
+
+// ═══════════ Детали профессий ═══════════
+
+function miningDetail(p){
+  const m = p.m || {};
   let h = '<div class="d-title">Характеристики</div>';
-  h += '<div class="kv"><span class="kv-k">⚡ Добыча в час</span><span class="kv-v">≈'+m.ef+' ед.</span></div>';
-  h += '<div class="kv"><span class="kv-k">💠 Шанс самоцвета</span><span class="kv-v">'+m.gm+'% / час</span></div>';
-  h += '<div class="kv"><span class="kv-k">🏗️ Уровень шахты</span><span class="kv-v gold">'+m.u+'/'+m.mx+' · '+escHtml(m.lb)+'</span></div>';
+  h += '<div class="kv"><span class="kv-k">⚡ Добыча в час</span><span class="kv-v">≈'+(m.ef||'—')+' ед.</span></div>';
+  h += '<div class="kv"><span class="kv-k">💠 Шанс самоцвета</span><span class="kv-v">'+(m.gm||'—')+'% / час</span></div>';
+  h += '<div class="kv"><span class="kv-k">🏗️ Уровень шахты</span><span class="kv-v gold">'+(m.u||0)+'/'+(m.mx||5)+' · '+escHtml(m.lb||'')+'</span></div>';
+
+  h += '<div class="d-title">✨ Редкие находки</div>';
+  h += '<div class="kv"><span class="kv-k">😽 Жильная руда</span><span class="kv-v">8% за сессию <span style="color:var(--muted);font-size:11px">(+1%/час, макс ≈18%)</span></span></div>';
+  h += '<div class="kv"><span class="kv-k">✨ Драгоценный камень</span><span class="kv-v">4% за сессию <span style="color:var(--muted);font-size:11px">(+1%/час)</span></span></div>';
+  h += '<div class="kv"><span class="kv-k">🌋 Сущность Земли</span><span class="kv-v gold">0.1%</span></div>';
 
   if ((m.am && m.am.length) || (m.lm && m.lm.length)) {
     h += '<div class="d-title">Руды</div>' + chipsHTML(m.am, m.lm, false);
@@ -196,32 +242,94 @@ function miningDetail(m){
   return h;
 }
 
+function smithingDetail(p){
+  const l = p.l;
+  let h = bonusBox('Ваш бонус кузнеца — ур. '+l, [
+    ['К урону оружия',     '+'+(l*1.3).toFixed(1)],
+    ['К шансу крита',      '+'+(l*0.15).toFixed(1)+'%'],
+  ]);
+  h += '<div class="d-title">Типы оружия</div>' + typesHTML(WEAPON_TYPES, true);
+  h += '<div class="note">Итоговый урон и статы зависят от материалов, синергий, редкости и уровня кузнеца.</div>';
+  return h;
+}
+
+function armorsmithingDetail(p){
+  const l = p.l;
+  let h = bonusBox('Ваш бонус бронника — ур. '+l, [
+    ['К физ. защите', '+'+(l*0.6).toFixed(1)],
+    ['К маг. защите', '+'+(l*0.4).toFixed(1)],
+  ]);
+  h += '<div class="d-title">Типы брони</div>' + typesHTML(ARMOR_TYPES, false);
+  h += '<div class="note">Итоговая защита и статы зависят от материалов, синергий, редкости и уровня бронника.</div>';
+  return h;
+}
+
+function jewelingDetail(p){
+  const l = p.l;
+  const add = Math.round(l * 0.3);
+  let h = bonusBox('Ваш бонус ювелира — ур. '+l, [
+    ['К каждому стату украшения', '+'+add],
+  ]);
+  h += '<div class="d-title">Типы украшений</div>' + typesHTML(JEWELRY_TYPES, false);
+  h += '<div class="d-title">Самоцветы</div>' + typesHTML(GEM_LIST, false);
+  h += '<div class="note">Металлы и их комбинации умножают статы самоцвета, редкость усиливает результат. Крит украшения ограничен 10%.</div>';
+  return h;
+}
+
 function buildDetail(p){
-  if (p.c === 'mining' && p.m) return miningDetail(p.m);
-  if (p.c === 'smithing')
-    return '<div class="d-title">Типы оружия</div>' + typesHTML(WEAPON_TYPES, true)
-      + '<div class="soon">Урон и статы зависят от материалов, синергий и уровня кузнеца</div>';
-  if (p.c === 'armorsmithing')
-    return '<div class="d-title">Типы брони</div>' + typesHTML(ARMOR_TYPES, false)
-      + '<div class="soon">Защита и статы зависят от материалов, синергий и уровня бронника</div>';
+  if (p.c === 'mining')        return miningDetail(p);
+  if (p.c === 'smithing')      return smithingDetail(p);
+  if (p.c === 'armorsmithing') return armorsmithingDetail(p);
+  if (p.c === 'jeweling' || p.c === 'jewelcrafting') return jewelingDetail(p);
   return '<div class="soon">Подробная информация будет добавлена позже</div>';
 }
 
+// ═══════════ Рендер с вкладками ═══════════
+
+function expBar(e, x){
+  const pct = x > 0 ? Math.min(100, Math.round(e / x * 100)) : 100;
+  return '<div class="exp-bar"><div class="exp-fill" style="width:'+pct+'%"></div></div>'
+    + '<div class="exp-text">Опыт: '+e.toLocaleString('ru')+' / '+x.toLocaleString('ru')+' · до уровня: '+Math.max(0,x-e).toLocaleString('ru')+'</div>';
+}
+
 function render(profs){
-  const list = document.getElementById('list');
-  list.innerHTML = profs.map(function(p){
-    return '<div class="prof">'
-      + '<div class="prof-head" onclick="this.parentNode.classList.toggle(\'open\')">'
-      +   '<div class="prof-icon">'+(ICONS[p.c]||'📜')+'</div>'
-      +   '<div class="prof-tb">'
-      +     '<div class="prof-name">'+escHtml(p.n)+' <span class="prof-lvl">ур. '+p.l+'</span></div>'
-      +     expBar(p.e, p.x)
+  const app = document.getElementById('app');
+
+  const tabsHTML = '<div class="ptabs">' + profs.map(function(p,i){
+    return '<div class="ptab'+(i===0?' active':'')+'" data-i="'+i+'">'
+      + '<span class="pi">'+(ICONS[p.c]||'📜')+'</span>'
+      + '<span class="pl">'+(SHORT[p.c]||escHtml(p.n))+'</span>'
+      + '</div>';
+  }).join('') + '</div>';
+
+  const pagesHTML = profs.map(function(p,i){
+    return '<div class="page'+(i===0?' active':'')+'" data-i="'+i+'">'
+      + '<div class="prof-card">'
+      +   '<div class="prof-top">'
+      +     '<div class="prof-icon">'+(ICONS[p.c]||'📜')+'</div>'
+      +     '<div class="prof-tb">'
+      +       '<div class="prof-name">'+escHtml(p.n)+'</div>'
+      +       '<div class="prof-lvl">Уровень '+p.l+'</div>'
+      +     '</div>'
       +   '</div>'
-      +   '<span class="chev">▼</span>'
+      +   expBar(p.e, p.x)
       + '</div>'
-      + '<div class="detail">'+buildDetail(p)+'</div>'
+      + buildDetail(p)
       + '</div>';
   }).join('');
+
+  app.innerHTML = tabsHTML + pagesHTML;
+
+  app.querySelectorAll('.ptab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      const i = this.dataset.i;
+      app.querySelectorAll('.ptab').forEach(function(t){ t.classList.remove('active'); });
+      app.querySelectorAll('.page').forEach(function(pg){ pg.classList.remove('active'); });
+      this.classList.add('active');
+      app.querySelector('.page[data-i="'+i+'"]').classList.add('active');
+      window.scrollTo({top:0});
+    });
+  });
 
   const total = profs.reduce(function(s,p){return s+p.l;},0);
   document.getElementById('header-sub').textContent =
@@ -229,7 +337,7 @@ function render(profs){
 }
 
 function showEmpty(){
-  document.getElementById('list').innerHTML =
+  document.getElementById('app').innerHTML =
     '<div class="state-box">'
     + '<div class="state-icon">📜</div>'
     + '<div class="state-title">Профессий пока нет</div>'
@@ -238,7 +346,7 @@ function showEmpty(){
 }
 
 function showError(msg){
-  document.getElementById('list').innerHTML =
+  document.getElementById('app').innerHTML =
     '<div class="state-box">'
     + '<div class="state-icon">⚠️</div>'
     + '<div class="state-title">Ошибка загрузки</div>'
