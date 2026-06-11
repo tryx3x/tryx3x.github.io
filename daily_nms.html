@@ -464,45 +464,39 @@ tg.expand();
    НАГРАДЫ — 30 дней (синхронизировано с DAILY_REWARDS)
    ═══════════════════════════════════════════════════════════ */
 const REWARDS = [
-  // Неделя 1 — Разминка
   {day:1,  gold:5000,   exp:500,   gems:0,   box:null,                              icon:"🌑"},
   {day:2,  gold:8000,   exp:700,   gems:0,   box:null,                              icon:"🌒"},
   {day:3,  gold:11000,  exp:900,   gems:0,   box:{name:"Деревянный Сундук",qty:1},  icon:"🪵"},
-  {day:4,  gold:14000,  exp:1200,  gems:10,  box:null,                              icon:"🌓"},
-  {day:5,  gold:18000,  exp:1500,  gems:15,  box:{name:"Деревянный Сундук",qty:2},  icon:"🪵"},
-  {day:6,  gold:22000,  exp:1800,  gems:20,  box:null,                              icon:"🌔"},
-  {day:7,  gold:27000,  exp:2500,  gems:30,  box:{name:"Шкатулка Лунного Скитальца",qty:1}, icon:"📦"},
+  {day:4,  gold:14000,  exp:1200,  gems:5,   box:null,                              icon:"🌓"},
+  {day:5,  gold:18000,  exp:1500,  gems:5,   box:{name:"Деревянный Сундук",qty:2},  icon:"🪵"},
+  {day:6,  gold:22000,  exp:1800,  gems:10,  box:null,                              icon:"🌔"},
+  {day:7,  gold:27000,  exp:2500,  gems:15,  box:{name:"Шкатулка Лунного Скитальца",qty:1}, icon:"📦"},
 
-  // Неделя 2 — Рост
-  {day:8,  gold:32000,  exp:3000,  gems:15,  box:{name:"Железный Сундук",qty:1},    icon:"⚙️"},
-  {day:9,  gold:37000,  exp:3500,  gems:20,  box:null,                              icon:"🌖"},
-  {day:10, gold:42000,  exp:4000,  gems:25,  box:{name:"Железный Сундук",qty:2},    icon:"⚙️"},
-  {day:11, gold:48000,  exp:4500,  gems:30,  box:null,                              icon:"🌗"},
-  {day:12, gold:54000,  exp:5000,  gems:35,  box:{name:"Бронзовый Сундук",qty:1},   icon:"🥉"},
-  {day:13, gold:60000,  exp:5500,  gems:40,  box:null,                              icon:"🌘"},
-  {day:14, gold:68000,  exp:6500,  gems:60,  box:{name:"Ларец Ночной Мглы",qty:1},  icon:"🌫️"},
+  {day:8,  gold:32000,  exp:3000,  gems:5,   box:{name:"Железный Сундук",qty:1},    icon:"⚙️"},
+  {day:9,  gold:37000,  exp:3500,  gems:10,  box:null,                              icon:"🌖"},
+  {day:10, gold:42000,  exp:4000,  gems:10,  box:{name:"Железный Сундук",qty:2},    icon:"⚙️"},
+  {day:11, gold:48000,  exp:4500,  gems:15,  box:null,                              icon:"🌗"},
+  {day:12, gold:54000,  exp:5000,  gems:15,  box:{name:"Бронзовый Сундук",qty:1},   icon:"🥉"},
+  {day:13, gold:60000,  exp:5500,  gems:20,  box:null,                              icon:"🌘"},
+  {day:14, gold:68000,  exp:6500,  gems:30,  box:{name:"Ларец Ночной Мглы",qty:1},  icon:"🌫️"},
 
-  // Неделя 3 — Опасная территория
-  {day:15, gold:75000,  exp:7000,  gems:35,  box:{name:"Бронзовый Сундук",qty:2},   icon:"🥉"},
-  {day:16, gold:82000,  exp:7500,  gems:40,  box:null,                              icon:"⚔️"},
-  {day:17, gold:90000,  exp:8000,  gems:45,  box:{name:"Серебряный Сундук",qty:1},  icon:"🥈"},
-  {day:18, gold:98000,  exp:8500,  gems:50,  box:null,                              icon:"🔮"},
-  {day:19, gold:106000, exp:9000,  gems:55,  box:{name:"Шкатулка Лунного Скитальца",qty:2}, icon:"📦"},
-  {day:20, gold:115000, exp:10000, gems:65,  box:{name:"Серебряный Сундук",qty:2},  icon:"🥈"},
-  {day:21, gold:125000, exp:11000, gems:80,  box:{name:"Реликварий Кошмара",qty:1}, icon:"💀"},
+  {day:15, gold:75000,  exp:7000,  gems:15,  box:{name:"Бронзовый Сундук",qty:2},   icon:"🥉"},
+  {day:16, gold:82000,  exp:7500,  gems:20,  box:null,                              icon:"⚔️"},
+  {day:17, gold:90000,  exp:8000,  gems:20,  box:{name:"Серебряный Сундук",qty:1},  icon:"🥈"},
+  {day:18, gold:98000,  exp:8500,  gems:25,  box:null,                              icon:"🔮"},
+  {day:19, gold:106000, exp:9000,  gems:25,  box:{name:"Шкатулка Лунного Скитальца",qty:2}, icon:"📦"},
+  {day:20, gold:115000, exp:10000, gems:30,  box:{name:"Серебряный Сундук",qty:2},  icon:"🥈"},
+  {day:21, gold:125000, exp:11000, gems:40,  box:{name:"Реликварий Кошмара",qty:1}, icon:"💀"},
 
-  // Неделя 4 — Финальный рывок
-  {day:22, gold:135000, exp:12000, gems:50,  box:{name:"Золотой Сундук",qty:1},     icon:"🥇"},
-  {day:23, gold:148000, exp:13000, gems:60,  box:null,                              icon:"🔥"},
-  {day:24, gold:162000, exp:14000, gems:70,  box:{name:"Ларец Ночной Мглы",qty:2},  icon:"🌫️"},
-  {day:25, gold:178000, exp:15000, gems:80,  box:{name:"Золотой Сундук",qty:2},     icon:"🥇"},
-  {day:26, gold:195000, exp:16000, gems:90,  box:null,                              icon:"⚡"},
-  {day:27, gold:215000, exp:17000, gems:100, box:{name:"Реликварий Кошмара",qty:2}, icon:"💀"},
-  {day:28, gold:238000, exp:18000, gems:120, box:{name:"Золотой Сундук",qty:3},     icon:"🥇"},
-  {day:29, gold:265000, exp:20000, gems:150, box:{name:"Реликварий Кошмара",qty:3}, icon:"💀"},
-
-  // Финал
-  {day:30, gold:300000, exp:30000, gems:300, box:{name:"Сокровищница Шпиля",qty:1}, icon:"👑"},
+  {day:22, gold:135000, exp:12000, gems:25,  box:{name:"Золотой Сундук",qty:1},     icon:"🥇"},
+  {day:23, gold:148000, exp:13000, gems:30,  box:null,                              icon:"🔥"},
+  {day:24, gold:162000, exp:14000, gems:35,  box:{name:"Ларец Ночной Мглы",qty:2},  icon:"🌫️"},
+  {day:25, gold:178000, exp:15000, gems:40,  box:{name:"Золотой Сундук",qty:2},     icon:"🥇"},
+  {day:26, gold:195000, exp:16000, gems:45,  box:null,                              icon:"⚡"},
+  {day:27, gold:215000, exp:17000, gems:45,  box:{name:"Реликварий Кошмара",qty:2}, icon:"💀"},
+  {day:28, gold:238000, exp:18000, gems:55,  box:{name:"Золотой Сундук",qty:3},     icon:"🥇"},
+  {day:29, gold:265000, exp:20000, gems:70,  box:{name:"Реликварий Кошмара",qty:3}, icon:"💀"},
+  {day:30, gold:300000, exp:30000, gems:140, box:{name:"Сокровищница Шпиля",qty:1}, icon:"👑"},
 ];
 
 /* ═══════════════════════════════════════════════════════════
@@ -512,35 +506,36 @@ const REWARDS = [
 const VIP_BONUS_CYCLE = [
   {gold:50000,   exp:5000,  gems:0,   box:null},
   {gold:60000,   exp:5000,  gems:0,   box:null},
-  {gold:70000,   exp:8000,  gems:20,  box:null},
+  {gold:70000,   exp:8000,  gems:10,  box:null},
   {gold:80000,   exp:8000,  gems:0,   box:null},
-  {gold:90000,   exp:10000, gems:25,  box:{name:"Железный Сундук",qty:1}},
+  {gold:90000,   exp:10000, gems:10,  box:{name:"Железный Сундук",qty:1}},
   {gold:100000,  exp:10000, gems:0,   box:null},
-  {gold:120000,  exp:15000, gems:50,  box:{name:"Шкатулка Лунного Скитальца",qty:1}},
+  {gold:120000,  exp:15000, gems:25,  box:{name:"Шкатулка Лунного Скитальца",qty:1}},
   {gold:130000,  exp:15000, gems:0,   box:null},
-  {gold:140000,  exp:15000, gems:30,  box:null},
-  {gold:150000,  exp:18000, gems:35,  box:{name:"Бронзовый Сундук",qty:1}},
+  {gold:140000,  exp:15000, gems:15,  box:null},
+  {gold:150000,  exp:18000, gems:15,  box:{name:"Бронзовый Сундук",qty:1}},
   {gold:160000,  exp:18000, gems:0,   box:null},
-  {gold:175000,  exp:20000, gems:40,  box:null},
+  {gold:175000,  exp:20000, gems:20,  box:null},
   {gold:190000,  exp:20000, gems:0,   box:null},
-  {gold:210000,  exp:22000, gems:60,  box:{name:"Ларец Ночной Мглы",qty:1}},
+  {gold:210000,  exp:22000, gems:30,  box:{name:"Ларец Ночной Мглы",qty:1}},
   {gold:230000,  exp:22000, gems:0,   box:null},
-  {gold:250000,  exp:24000, gems:45,  box:null},
+  {gold:250000,  exp:24000, gems:20,  box:null},
   {gold:270000,  exp:24000, gems:0,   box:{name:"Серебряный Сундук",qty:1}},
-  {gold:290000,  exp:26000, gems:50,  box:null},
+  {gold:290000,  exp:26000, gems:25,  box:null},
   {gold:310000,  exp:26000, gems:0,   box:null},
-  {gold:340000,  exp:28000, gems:70,  box:{name:"Серебряный Сундук",qty:1}},
-  {gold:370000,  exp:28000, gems:80,  box:{name:"Реликварий Кошмара",qty:1}},
+  {gold:340000,  exp:28000, gems:35,  box:{name:"Серебряный Сундук",qty:1}},
+  {gold:370000,  exp:28000, gems:40,  box:{name:"Реликварий Кошмара",qty:1}},
   {gold:400000,  exp:28000, gems:0,   box:null},
-  {gold:440000,  exp:30000, gems:60,  box:null},
-  {gold:480000,  exp:30000, gems:70,  box:{name:"Ларец Ночной Мглы",qty:1}},
-  {gold:520000,  exp:30000, gems:80,  box:{name:"Золотой Сундук",qty:1}},
-  {gold:570000,  exp:30000, gems:90,  box:null},
-  {gold:630000,  exp:30000, gems:100, box:{name:"Реликварий Кошмара",qty:1}},
-  {gold:700000,  exp:30000, gems:120, box:{name:"Золотой Сундук",qty:1}},
-  {gold:850000,  exp:30000, gems:150, box:{name:"Реликварий Кошмара",qty:1}},
-  {gold:1000000, exp:30000, gems:300, box:{name:"Сокровищница Шпиля",qty:1}},
+  {gold:440000,  exp:30000, gems:30,  box:null},
+  {gold:480000,  exp:30000, gems:35,  box:{name:"Ларец Ночной Мглы",qty:1}},
+  {gold:520000,  exp:30000, gems:40,  box:{name:"Золотой Сундук",qty:1}},
+  {gold:570000,  exp:30000, gems:45,  box:null},
+  {gold:630000,  exp:30000, gems:45,  box:{name:"Реликварий Кошмара",qty:1}},
+  {gold:700000,  exp:30000, gems:50,  box:{name:"Золотой Сундук",qty:1}},
+  {gold:850000,  exp:30000, gems:70,  box:{name:"Реликварий Кошмара",qty:1}},
+  {gold:1000000, exp:30000, gems:140, box:{name:"Сокровищница Шпиля",qty:1}},
 ];
+
 
 /* VIP расширенный цикл — дни 31+ (синхронизировано с VIP_EXTENDED_REWARDS) */
 const VIP_EXTENDED_REWARDS = [
@@ -580,7 +575,7 @@ const vipLevel = parseInt(params.get('vip') || '0') || 0;
 // Реальная (незацикленная) серия — нужна для расширенных наград 31+
 const realStreak = Math.max(parseInt(params.get('real_streak') || String(streak)) || streak, streak);
 
-const VIP_MULT = vipLevel === 1 ? 1.0 : vipLevel === 2 ? 0.7 : 0;
+const VIP_MULT = vipLevel === 1 ? 1.0 : vipLevel === 2 ? 0.5 : 0;
 const isVip = VIP_MULT > 0;
 
 function scaleVip(b) {
