@@ -3,21 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nightmare Spire — Политика конфиденциальности</title>
+<title>Nightmare Spire — Политика и правила</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0c0c14;
     --surface: #13131f;
-    --surface-hover: #1a1a2e;
     --border: #2a2a40;
     --accent: #c0392b;
     --accent-glow: #e74c3c;
+    --accent-warm: #e67e22;
     --text: #ccc8c0;
     --text-dim: #8a8578;
     --heading: #e8e4db;
-    --link: #e67e22;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,151 +26,142 @@
     color: var(--text);
     font-family: 'Source Sans 3', Georgia, serif;
     font-size: 17px;
-    line-height: 1.7;
+    line-height: 1.75;
     min-height: 100vh;
   }
 
-  /* atmospheric background */
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background:
       radial-gradient(ellipse 600px 400px at 20% 10%, rgba(192,57,43,.07), transparent),
-      radial-gradient(ellipse 500px 500px at 80% 90%, rgba(44,62,80,.12), transparent);
-    pointer-events: none;
-    z-index: 0;
+      radial-gradient(ellipse 500px 500px at 80% 90%, rgba(44,62,80,.12),  transparent);
+    pointer-events: none; z-index: 0;
   }
 
   .wrapper {
-    position: relative;
-    z-index: 1;
-    max-width: 720px;
+    position: relative; z-index: 1;
+    max-width: 740px;
     margin: 0 auto;
-    padding: 48px 24px 80px;
+    padding: 52px 24px 88px;
   }
 
-  /* ── header ── */
-  header {
-    text-align: center;
-    margin-bottom: 48px;
-    padding-bottom: 32px;
-    border-bottom: 1px solid var(--border);
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
   }
-
-  .game-title {
+  .tab {
+    flex: 1; text-align: center;
+    padding: 9px 12px;
     font-family: 'Cinzel', serif;
-    font-size: clamp(1.6rem, 5vw, 2.4rem);
-    font-weight: 700;
-    color: var(--heading);
+    font-size: .8rem;
     letter-spacing: .08em;
     text-transform: uppercase;
-    margin-bottom: 4px;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background .2s, color .2s;
+    user-select: none;
   }
+  .tab.active { background: var(--accent); color: #fff; }
 
-  .game-title span {
-    color: var(--accent-glow);
+  /* ── Pages ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Header ── */
+  header {
+    text-align: center;
+    margin-bottom: 44px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
   }
-
-  .doc-title {
-    font-family: 'Source Sans 3', serif;
-    font-size: 1rem;
-    font-weight: 400;
+  .game-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.7rem, 5vw, 2.5rem);
+    font-weight: 700;
+    color: var(--heading);
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .game-title span { color: var(--accent-glow); }
+  .doc-label {
+    font-size: .9rem;
     color: var(--text-dim);
     letter-spacing: .15em;
     text-transform: uppercase;
-    margin-top: 8px;
+    margin-top: 10px;
   }
-
   .effective-date {
     display: inline-block;
-    margin-top: 16px;
-    font-size: .85rem;
+    margin-top: 14px;
+    font-size: .82rem;
     color: var(--text-dim);
     background: var(--surface);
     border: 1px solid var(--border);
-    padding: 4px 14px;
+    padding: 3px 14px;
     border-radius: 4px;
   }
 
-  /* ── sections ── */
-  section {
-    margin-bottom: 36px;
-  }
+  /* ── Content ── */
+  section { margin-bottom: 38px; }
 
   h2 {
     font-family: 'Cinzel', serif;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 500;
     color: var(--heading);
     letter-spacing: .06em;
     margin-bottom: 12px;
-    padding-bottom: 6px;
+    padding-bottom: 7px;
     border-bottom: 1px solid var(--border);
   }
+  h2 .num { color: var(--accent); margin-right: 7px; }
 
-  h2 .num {
-    color: var(--accent);
-    margin-right: 6px;
-  }
+  p { margin-bottom: 10px; }
 
-  p { margin-bottom: 12px; }
+  ul { list-style: none; padding-left: 0; margin-bottom: 10px; }
+  ul li { position: relative; padding-left: 20px; margin-bottom: 6px; }
+  ul li::before { content: '›'; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
 
-  ul {
-    list-style: none;
-    padding-left: 0;
-    margin-bottom: 12px;
-  }
-
-  ul li {
-    position: relative;
-    padding-left: 20px;
-    margin-bottom: 6px;
-  }
-
-  ul li::before {
-    content: '›';
-    position: absolute;
-    left: 4px;
-    color: var(--accent);
-    font-weight: 700;
-  }
-
-  a {
-    color: var(--link);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color .2s;
-  }
-  a:hover { border-bottom-color: var(--link); }
+  a { color: var(--accent-warm); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .2s; }
+  a:hover { border-bottom-color: var(--accent-warm); }
 
   strong { color: var(--heading); font-weight: 600; }
 
-  .highlight-box {
+  .box {
     background: var(--surface);
     border: 1px solid var(--border);
     border-left: 3px solid var(--accent);
-    padding: 16px 20px;
+    padding: 15px 20px;
     border-radius: 4px;
-    margin: 16px 0;
+    margin: 14px 0;
   }
+  .box.warn { border-left-color: #e74c3c; }
 
-  /* ── footer ── */
+  /* ── Footer ── */
   footer {
-    margin-top: 56px;
-    padding-top: 24px;
+    margin-top: 52px;
+    padding-top: 22px;
     border-top: 1px solid var(--border);
     text-align: center;
-    font-size: .85rem;
+    font-size: .84rem;
     color: var(--text-dim);
+    line-height: 1.6;
   }
+  footer .version { opacity: .45; margin-top: 6px; }
 
-  footer .version { opacity: .5; }
-
-  /* ── mobile tweaks ── */
   @media (max-width: 480px) {
-    .wrapper { padding: 32px 16px 60px; }
+    .wrapper { padding: 28px 14px 64px; }
     body { font-size: 16px; }
+    .tab { font-size: .7rem; padding: 8px 6px; }
   }
 </style>
 </head>
@@ -180,85 +170,152 @@
 
   <header>
     <div class="game-title">Nightmare <span>Spire</span></div>
-    <div class="doc-title">Политика конфиденциальности</div>
-    <div class="effective-date">Дата вступления в силу: 05.05.2026</div>
+    <div class="doc-label">Правовые документы</div>
+    <div class="effective-date">Дата вступления в силу: 11.06.2026</div>
   </header>
 
-  <p>Настоящая Политика описывает, какие данные собирает бот <strong>@nightmare_spire_mmorpg_bot</strong> (далее — «Бот»), как они используются и защищаются.</p>
-  <p>Оператор данных — физическое лицо, администратор Бота.<br>Связь с оператором: <a href="https://t.me/n3Xafs">@n3Xafs</a></p>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('privacy', this)">Конфиденциальность</div>
+    <div class="tab"        onclick="switchTab('rules',   this)">Правила бота</div>
+  </div>
 
-  <!-- 1 -->
-  <section>
-    <h2><span class="num">1.</span> Какие данные собираются</h2>
-    <p>При использовании Бота автоматически обрабатываются:</p>
-    <ul>
-      <li>Telegram ID и username</li>
-      <li>Игровые данные: имя персонажа, уровень, статистика, инвентарь, прогресс, валюта, клан, профессии</li>
-      <li>IP-адрес и информация о браузере / устройстве</li>
-      <li>Разрешение экрана устройства</li>
-      <li>Реферальный код и информация о приглашениях</li>
-      <li>Все действия пользователя в Боте (команды, нажатия кнопок, игровые события) и их дата / время</li>
-      <li>ID чатов и групп, в которых Бот добавлен</li>
-    </ul>
-  </section>
+  <!-- ════════════════════════════════════════
+       ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ
+  ════════════════════════════════════════ -->
+  <div id="privacy" class="page active">
 
-  <!-- 2 -->
-  <section>
-    <h2><span class="num">2.</span> Цели обработки данных</h2>
-    <p>Данные используются исключительно для:</p>
-    <ul>
-      <li>Обеспечения работы игровых механик</li>
-      <li>Сохранения прогресса игрока</li>
-      <li>Начисления наград и ведения статистики</li>
-      <li>Предотвращения злоупотреблений и мультиаккаунтинга (сверка IP)</li>
-      <li>Технической поддержки и устранения ошибок</li>
-      <li>Отправки игровых уведомлений внутри Бота</li>
-    </ul>
-  </section>
+    <p>Настоящая Политика описывает, какие данные собирает бот <strong>@nightmare_spire_mmorpg_bot</strong> (далее — «Бот»), как они используются и защищаются. Используя Бот, вы подтверждаете согласие с этой Политикой.</p>
+    <p>Оператор данных — физическое лицо, администратор Бота.<br>Контакт: <a href="https://t.me/n3Xafs">@n3Xafs</a></p>
 
-  <!-- 3 -->
-  <section>
-    <h2><span class="num">3.</span> Передача данных третьим лицам</h2>
-    <div class="highlight-box">
-      Данные <strong>не продаются</strong> и <strong>не передаются</strong> третьим лицам.
-    </div>
-  </section>
+    <section>
+      <h2><span class="num">1.</span> Какие данные собираются</h2>
+      <p>При использовании Бота автоматически обрабатываются:</p>
+      <ul>
+        <li>Telegram ID, имя и username</li>
+        <li>Игровые данные: имя персонажа, уровень, статистика, инвентарь, прогресс квестов, валюта, клан, профессии</li>
+        <li>Все действия в Боте (команды, нажатия кнопок, игровые события) и их метки времени</li>
+        <li>IP-адрес, данные браузера / устройства и разрешение экрана — исключительно для защиты от мультиаккаунтинга</li>
+        <li>Реферальные коды и история приглашений</li>
+        <li>ID чатов и групп, в которых активен Бот</li>
+      </ul>
+    </section>
 
-  <!-- 4 -->
-  <section>
-    <h2><span class="num">4.</span> Хранение и защита</h2>
-    <p>Данные хранятся на защищённом сервере и доступны только администратору Бота. Срок хранения — на протяжении использования Бота. Применяются разумные технические меры для защиты данных от несанкционированного доступа.</p>
-  </section>
+    <section>
+      <h2><span class="num">2.</span> Цели обработки</h2>
+      <ul>
+        <li>Обеспечение игровых механик и сохранение прогресса</li>
+        <li>Начисление наград и ведение статистики</li>
+        <li>Обнаружение и блокировка мультиаккаунтов</li>
+        <li>Техническая поддержка и устранение ошибок</li>
+        <li>Отправка игровых уведомлений внутри Бота</li>
+      </ul>
+    </section>
 
-  <!-- 5 -->
-  <section>
-    <h2><span class="num">5.</span> Права пользователя</h2>
-    <p>Вы вправе:</p>
-    <ul>
-      <li>Запросить информацию о своих данных</li>
-      <li>Потребовать удаления всех персональных данных</li>
-      <li>Отозвать согласие на обработку данных, прекратив использование Бота</li>
-    </ul>
-    <p>Для этого свяжитесь с оператором: <a href="https://t.me/n3Xafs">@n3Xafs</a></p>
-  </section>
+    <section>
+      <h2><span class="num">3.</span> Передача данных третьим лицам</h2>
+      <div class="box">
+        Данные <strong>не продаются</strong> и <strong>не передаются</strong> третьим лицам ни при каких обстоятельствах.
+      </div>
+    </section>
 
-  <!-- 6 -->
-  <section>
-    <h2><span class="num">6.</span> Удаление данных</h2>
-    <p>По запросу пользователя все персональные данные удаляются в течение 30 дней.</p>
-  </section>
+    <section>
+      <h2><span class="num">4.</span> Хранение и защита</h2>
+      <p>Данные хранятся на защищённом сервере, доступном только администратору. Применяются технические меры защиты от несанкционированного доступа. Срок хранения — в течение всего времени существования игрового аккаунта.</p>
+    </section>
 
-  <!-- 7 -->
-  <section>
-    <h2><span class="num">7.</span> Изменения политики</h2>
-    <p>Оператор вправе обновлять настоящую Политику. Актуальная версия всегда доступна по команде <strong>/privacy</strong>.</p>
-  </section>
+    <section>
+      <h2><span class="num">5.</span> Права пользователя</h2>
+      <p>Вы вправе:</p>
+      <ul>
+        <li>Запросить информацию о хранимых данных</li>
+        <li>Отозвать согласие на обработку, прекратив использование Бота</li>
+      </ul>
+      <p>Для связи: <a href="https://t.me/n3Xafs">@n3Xafs</a></p>
+      <div class="box warn">
+        <strong>Примечание.</strong> Удаление аккаунта по требованию не предусмотрено: данные о нарушениях (баны, мультиаккаунты) хранятся для обеспечения честности игры.
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">6.</span> Изменения политики</h2>
+      <p>Оператор вправе обновлять Политику. Актуальная версия доступна по команде <strong>/privacy</strong> и на этой странице. Продолжение использования Бота после обновления означает согласие с новой редакцией.</p>
+    </section>
+
+  </div><!-- /privacy -->
+
+
+  <!-- ════════════════════════════════════════
+       ПРАВИЛА БОТА
+  ════════════════════════════════════════ -->
+  <div id="rules" class="page">
+
+    <p>Правила распространяются на всех игроков <strong>Nightmare Spire</strong>. Незнание правил не освобождает от ответственности.</p>
+
+    <section>
+      <h2><span class="num">1.</span> Мультиаккаунты</h2>
+      <div class="box warn">
+        <strong>Строго запрещено</strong> создавать несколько аккаунтов на одно устройство или IP-адрес. При обнаружении — перманентный бан всех аккаунтов без предупреждения.
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">2.</span> Запрещённые действия</h2>
+      <ul>
+        <li>Использование ботов, скриптов, макросов и любой автоматизации для получения игрового преимущества</li>
+        <li>Намеренная эксплуатация багов и уязвимостей. Найденный баг — сообщи администратору</li>
+        <li>Оскорбления, угрозы и токсичное поведение в адрес других игроков или администрации</li>
+        <li>Продажа, передача или обмен игровых аккаунтов, предметов и валюты за реальные деньги вне официальных механик</li>
+        <li>Спам, накрутка, мошенничество с использованием реферальной системы</li>
+        <li>Попытки обойти систему антифрода или определения устройств</li>
+        <li>Публикация личных данных других игроков без их согласия</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="num">3.</span> Санкции</h2>
+      <p>В зависимости от тяжести нарушения администрация применяет:</p>
+      <ul>
+        <li><strong>Предупреждение</strong> — при незначительных нарушениях</li>
+        <li><strong>Временный бан</strong> — от 1 дня до 30 дней</li>
+        <li><strong>Перманентный бан</strong> — при грубых или систематических нарушениях, мультиаккаунтинге</li>
+      </ul>
+      <p>Администрация вправе применять санкции без дополнительных объяснений.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">4.</span> Апелляция</h2>
+      <p>Если вы считаете бан ошибочным, обратитесь к администратору: <a href="https://t.me/n3Xafs">@n3Xafs</a>. Апелляции по мультиаккаунтингу не рассматриваются.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">5.</span> Права администрации</h2>
+      <ul>
+        <li>Изменять игровые механики, баланс и правила в любое время</li>
+        <li>Обнулять прогресс, валюту или инвентарь при подтверждённом читерстве</li>
+        <li>Прекратить работу Бота без предварительного уведомления</li>
+      </ul>
+      <div class="box">
+        Администрация не обязана компенсировать потерянный прогресс, если он был получен нечестным путём или утрачен из-за технических неполадок.
+      </div>
+    </section>
+
+  </div><!-- /rules -->
 
   <footer>
-    <p>Продолжая использовать Бота, вы подтверждаете согласие с данной Политикой.</p>
-    <p class="version">Версия 1.0</p>
+    <p>Nightmare Spire — Telegram RPG</p>
+    <p><a href="https://t.me/n3Xafs">@n3Xafs</a></p>
+    <p class="version">Версия 1.0 · 11.06.2026</p>
   </footer>
 
 </div>
+
+<script>
+function switchTab(page, el) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(t)  { t.classList.remove('active'); });
+    document.getElementById(page).classList.add('active');
+    el.classList.add('active');
+}
+</script>
 </body>
 </html>
