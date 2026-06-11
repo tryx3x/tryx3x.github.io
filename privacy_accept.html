@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Политика конфиденциальности</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+    :root {
+        --bg: var(--tg-theme-bg-color, #110f1c);
+        --text: var(--tg-theme-text-color, #ece9f4);
+        --hint: var(--tg-theme-hint-color, #8d87a3);
+        --accent: var(--tg-theme-button-color, #8b6cf0);
+        --card: var(--tg-theme-secondary-bg-color, #1a1729);
+        --ok: #5fd49a;
+        --err: #f06a6a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 16px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 380px;
+        background: var(--card);
+        border-radius: 20px;
+        padding: 28px 22px 22px;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(0,0,0,.35);
+    }
+
+    /* ── Глаз ─────────────────────────────── */
+    .eye-wrap { width: 84px; height: 84px; margin: 0 auto 18px; }
+    .eye-wrap svg { width: 100%; height: 100%; display: block; }
+    .iris { transform-origin: 50px 50px; animation: irisPulse 2.6s ease-in-out infinite; }
+    .lid-top, .lid-bottom { transition: transform .9s cubic-bezier(.65,0,.3,1); }
+    /* закрытое веко по умолчанию */
+    .lid-top    { transform: translateY(0); }
+    .lid-bottom { transform: translateY(0); }
+    .eye-open .lid-top    { transform: translateY(-34px); }
+    .eye-open .lid-bottom { transform: translateY(34px); }
+    @keyframes irisPulse {
+        0%, 100% { transform: scale(1); }
+        50%      { transform: scale(.92); }
+    }
+
+    h1 { font-size: 19px; font-weight: 700; letter-spacing: .01em; margin-bottom: 6px; }
+    .sub { font-size: 13.5px; line-height: 1.45; color: var(--hint); margin-bottom: 22px; }
+
+    /* ── Шаги ─────────────────────────────── */
+    .steps { text-align: left; display: grid; gap: 10px; margin-bottom: 6px; }
+    .step {
+        display: flex; align-items: center; gap: 12px;
+        font-size: 14.5px; color: var(--hint);
+        transition: color .3s;
+    }
+    .step.active, .step.done { color: var(--text); }
+    .badge {
+        width: 22px; height: 22px; flex: none;
+        border-radius: 50%;
+        border: 2px solid var(--hint);
+        position: relative;
+        transition: border-color .3s, background .3s;
+    }
+    .step.active .badge {
+        border-color: var(--accent);
+        border-top-color: transparent;
+        animation: spin .7s linear infinite;
+    }
+    .step.done .badge {
+        border-color: var(--ok);
+        background: var(--ok);
+        animation: none;
+    }
+    .step.done .badge::after {
+        content: '';
+        position: absolute; left: 6px; top: 2.5px;
+        width: 5px; height: 9px;
+        border: solid var(--bg);
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Финал / ошибка ───────────────────── */
+    .final {
+        display: none;
+        margin-top: 16px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ok);
+    }
+    .error-box { display: none; margin-top: 16px; }
+    .error-text { font-size: 13.5px; color: var(--err); line-height: 1.45; margin-bottom: 12px; }
+    .retry {
+        width: 100%;
+        border: 0; cursor: pointer;
+        background: var(--accent);
+        color: var(--tg-theme-button-text-color, #fff);
+        font: inherit; font-size: 15px; font-weight: 600;
+        padding: 13px;
+        border-radius: 12px;
+    }
+    .retry:active { opacity: .85; }
+
+    .foot { margin-top: 18px; font-size: 11.5px; color: var(--hint); opacity: .75; line-height: 1.4; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .iris, .step.active .badge { animation: none; }
+        .lid-top, .lid-bottom { transition: none; }
+    }
+</style>
+</head>
+<body>
+<div class="card">
+    <div class="eye-wrap" id="eye">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+                <clipPath id="eyeClip">
+                    <path d="M8 50 Q50 14 92 50 Q50 86 8 50 Z"/>
+                </clipPath>
+            </defs>
+            <!-- контур глаза -->
+            <path d="M8 50 Q50 14 92 50 Q50 86 8 50 Z"
+                  fill="none" stroke="var(--accent)" stroke-width="3"/>
+            <g clip-path="url(#eyeClip)">
+                <!-- радужка -->
+                <g class="iris">
+                    <circle cx="50" cy="50" r="15" fill="var(--accent)"/>
+                    <circle cx="50" cy="50" r="6.5" fill="var(--bg)"/>
+                    <circle cx="55" cy="44" r="2.5" fill="var(--text)" opacity=".8"/>
+                </g>
+                <!-- веки (закрыты, пока идёт проверка) -->
+                <rect class="lid-top"    x="0" y="14" width="100" height="36" fill="var(--card)"/>
+                <rect class="lid-bottom" x="0" y="50" width="100" height="36" fill="var(--card)"/>
+            </g>
+        </svg>
+    </div>
+
+    <h1>Политика конфиденциальности</h1>
+    <p class="sub">Проверяем устройство, чтобы защитить ваш аккаунт. Это займёт пару секунд.</p>
+
+    <div class="steps">
+        <div class="step" id="s1"><span class="badge"></span>Параметры устройства</div>
+        <div class="step" id="s2"><span class="badge"></span>Проверка соединения</div>
+        <div class="step" id="s3"><span class="badge"></span>Подтверждение</div>
+    </div>
+
+    <div class="final" id="final">Политика принята — возвращаемся в игру…</div>
+
+    <div class="error-box" id="errorBox">
+        <div class="error-text" id="errorText"></div>
+        <button class="retry" id="retryBtn">Отправить ещё раз</button>
+    </div>
+
+    <div class="foot">Данные используются только для защиты от мультиаккаунтов и не передаются третьим лицам.</div>
+</div>
+
+<script>
+(function () {
+    var tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
+
+    function $(id) { return document.getElementById(id); }
+    function setStep(id, cls) {
+        var el = $(id);
+        el.classList.remove('active', 'done');
+        if (cls) el.classList.add(cls);
+    }
+    function showError(msg) {
+        $('errorText').textContent = msg;
+        $('errorBox').style.display = 'block';
+    }
+    function hideError() { $('errorBox').style.display = 'none'; }
+
+    // ── UUID устройства (с защитой от недоступного localStorage) ──
+    function getDeviceUUID() {
+        var uuid = null;
+        try { uuid = localStorage.getItem('device_uuid'); } catch (e) {}
+        if (!uuid) {
+            uuid = (window.crypto && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    var r = Math.random() * 16 | 0;
+                    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                });
+            try { localStorage.setItem('device_uuid', uuid); } catch (e) {}
+        }
+        return uuid;
+    }
+
+    function getWebGLVendor() {
+        try {
+            var gl = document.createElement('canvas').getContext('webgl');
+            if (!gl) return '';
+            var ext = gl.getExtension('WEBGL_debug_renderer_info');
+            var v = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : '';
+            return String(v).slice(0, 80); // не раздуваем payload
+        } catch (e) { return ''; }
+    }
+
+    function collectFingerprint() {
+        var canvasHash = '';
+        try {
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('fingerprint', 2, 2);
+            canvasHash = canvas.toDataURL().slice(-50);
+        } catch (e) {}
+
+        return {
+            device_uuid: getDeviceUUID(),
+            platform: navigator.platform || '',
+            language: navigator.language || '',
+            languages: (navigator.languages || []).join(',').slice(0, 60),
+            timezone: (Intl.DateTimeFormat().resolvedOptions().timeZone) || '',
+            timezone_offset: new Date().getTimezoneOffset(),
+            screen_width: screen.width,
+            screen_height: screen.height,
+            screen_depth: screen.colorDepth,
+            device_pixel_ratio: window.devicePixelRatio || 1,
+            hardware_concurrency: navigator.hardwareConcurrency || 0,
+            device_memory: navigator.deviceMemory || 0,
+            max_touch_points: navigator.maxTouchPoints || 0,
+            user_agent: (navigator.userAgent || '').slice(0, 200),
+            canvas_hash: canvasHash,
+            webgl_vendor: getWebGLVendor()
+        };
+    }
+
+    // ── IP: гонка нескольких сервисов, общий лимит 3.5 c ──
+    function fetchText(url, ms) {
+        return new Promise(function (resolve, reject) {
+            var ctrl = ('AbortController' in window) ? new AbortController() : null;
+            var t = setTimeout(function () {
+                if (ctrl) ctrl.abort();
+                reject(new Error('timeout'));
+            }, ms);
+            fetch(url, ctrl ? { signal: ctrl.signal } : {})
+                .then(function (r) { return r.text(); })
+                .then(function (txt) { clearTimeout(t); resolve(txt.trim()); })
+                .catch(function (e) { clearTimeout(t); reject(e); });
+        });
+    }
+
+    function fetchIP() {
+        var sources = [
+            fetchText('https://api.ipify.org', 3500),
+            fetchText('https://ipapi.co/ip/', 3500),
+            fetchText('https://api64.ipify.org', 3500)
+        ];
+        // Promise.any может отсутствовать в старых WebView — своя реализация
+        return new Promise(function (resolve) {
+            var failed = 0;
+            var done = false;
+            var ipRe = /^[0-9a-fA-F.:]{3,45}$/;
+            sources.forEach(function (p) {
+                p.then(function (ip) {
+                    if (!done && ipRe.test(ip)) { done = true; resolve(ip); }
+                    else if (!done && ++failed === sources.length) resolve('неизвестно');
+                }).catch(function () {
+                    if (!done && ++failed === sources.length) resolve('неизвестно');
+                });
+            });
+            setTimeout(function () { if (!done) { done = true; resolve('неизвестно'); } }, 4000);
+        });
+    }
+
+    // ── Отправка ──
+    var payloadCache = null;
+
+    function send() {
+        hideError();
+        setStep('s3', 'active');
+        try {
+            if (!tg) throw new Error('Откройте страницу внутри Telegram');
+            var json = JSON.stringify(payloadCache);
+            // лимит sendData — 4096 байт; страхуемся
+            if (json.length > 4000) {
+                payloadCache.fingerprint.webgl_vendor = '';
+                payloadCache.user_agent = payloadCache.user_agent.slice(0, 120);
+                payloadCache.fingerprint.user_agent = payloadCache.fingerprint.user_agent.slice(0, 120);
+                json = JSON.stringify(payloadCache);
+            }
+            tg.sendData(json); // Telegram закроет окно сам
+            setStep('s3', 'done');
+            $('eye').classList.add('eye-open');
+            $('final').style.display = 'block';
+            // на случай, если клиент не закрыл окно автоматически
+            setTimeout(function () { try { tg.close(); } catch (e) {} }, 1500);
+        } catch (e) {
+            setStep('s3', '');
+            showError('Не удалось отправить данные: ' + e.message);
+        }
+    }
+
+    $('retryBtn').addEventListener('click', send);
+
+    // ── Основной поток ──
+    (function run() {
+        setStep('s1', 'active');
+        var fingerprint = collectFingerprint();
+        setStep('s1', 'done');
+
+        setStep('s2', 'active');
+        fetchIP().then(function (ip) {
+            setStep('s2', 'done');
+            payloadCache = {
+                action: 'privacy_accept',
+                fingerprint: fingerprint,
+                ip_from_server: ip,
+                user_agent: fingerprint.user_agent,
+                screen: screen.width + 'x' + screen.height,
+                timestamp: Date.now()
+            };
+            send();
+        });
+    })();
+})();
+</script>
+</body>
+</html>
