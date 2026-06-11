@@ -38,7 +38,6 @@
       position:relative;
     }
 
-    /* ── Атмосфера: туман + угольки ── */
     body::before{
       content:'';position:fixed;inset:0;z-index:0;
       background:
@@ -64,7 +63,6 @@
 
     body > *:not(.embers){position:relative;z-index:1;}
 
-    /* ── Шапка ── */
     .crest{
       display:flex; flex-direction:column; align-items:center; gap:4px;
       margin-bottom:14px;
@@ -87,7 +85,6 @@
       letter-spacing:0.04em;
     }
 
-    /* ── VIP бейдж ── */
     .vip-badge{
       display:none; align-items:center; gap:7px;
       font-family:'Cinzel',serif; font-size:10px; font-weight:700;
@@ -102,7 +99,6 @@
     .vip-badge.active{display:flex;}
     .vip-badge .gem{filter:drop-shadow(0 0 4px rgba(240,199,94,0.6));}
 
-    /* ── Навигация недель ── */
     .week-nav{
       display:flex; align-items:center; gap:10px;
       margin-bottom:14px; user-select:none;
@@ -127,7 +123,6 @@
       margin-top:2px;
     }
 
-    /* ── Сетка дней ── */
     .days-grid{
       width:100%; max-width:380px;
       display:grid; grid-template-columns:repeat(7,1fr);
@@ -158,7 +153,6 @@
       font-size:8px; color:var(--gold); opacity:0.75;
     }
 
-    /* лунная печать текущего дня */
     .day-cell.current{
       background:radial-gradient(circle at 50% 35%, rgba(155,110,243,0.22), rgba(155,110,243,0.05));
       border-color:rgba(155,110,243,0.55);
@@ -183,7 +177,6 @@
     .day-cell.future{opacity:0.4;}
     .day-cell.empty{opacity:0.12;pointer-events:none;}
 
-    /* ── Карточка награды: готическая рамка ── */
     .reward-frame{
       width:100%; max-width:380px;
       position:relative;
@@ -204,7 +197,6 @@
       background:radial-gradient(ellipse 100% 45% at 50% 0%, rgba(155,110,243,0.07), transparent 70%);
       pointer-events:none;
     }
-    /* угловые росчерки */
     .corner{
       position:absolute; width:18px; height:18px;
       border-color:rgba(201,168,76,0.45); border-style:solid; border-width:0;
@@ -256,7 +248,6 @@
       text-shadow:0 0 14px rgba(201,168,76,0.25);
     }
 
-    /* ── VIP-секции ── */
     .vip-section{
       display:none;
       margin-bottom:14px;
@@ -286,7 +277,6 @@
     }
     .vip-section .reward-item-val{color:var(--vip);text-shadow:0 0 14px rgba(240,199,94,0.3);}
 
-    /* ── Кнопка с шиммером ── */
     .claim-btn{
       width:100%; padding:15px;
       font-family:'Cinzel',serif; font-size:13px; font-weight:700;
@@ -324,7 +314,6 @@
       font-style:italic; min-height:18px;
     }
 
-    /* ── Прогресс с вехами ── */
     .month-progress{
       width:100%; max-width:380px;
       margin-top:18px;
@@ -372,18 +361,15 @@
 
 <div class="embers" id="embers"></div>
 
-<!-- Герб -->
 <div class="crest">
   <div class="crest-rule"><span class="logo">NightmareSpire</span></div>
   <div class="crest-sub">Дары Башни — за верность пути</div>
 </div>
 
-<!-- VIP бейдж -->
 <div class="vip-badge" id="vip-badge">
   <span class="gem">👑</span><span id="vip-badge-text">VIP</span>
 </div>
 
-<!-- Навигация по неделям -->
 <div class="week-nav">
   <div class="week-arrow" id="prev-week" onclick="changeWeek(-1)">‹</div>
   <div class="week-center">
@@ -393,10 +379,8 @@
   <div class="week-arrow" id="next-week" onclick="changeWeek(1)">›</div>
 </div>
 
-<!-- Сетка дней -->
 <div class="days-grid" id="days-grid"></div>
 
-<!-- Карточка награды -->
 <div class="reward-frame" id="reward-frame">
   <div class="reward-card" id="reward-card">
     <span class="corner tl"></span><span class="corner tr"></span>
@@ -408,13 +392,11 @@
 
     <div class="reward-items" id="reward-items"></div>
 
-    <!-- VIP бонус поверх обычной награды -->
     <div class="vip-section" id="vip-bonus-section">
       <div class="vip-section-title">👑 VIP бонус</div>
       <div class="reward-items" id="vip-bonus-items"></div>
     </div>
 
-    <!-- VIP расширенная награда (дни 31+) -->
     <div class="vip-section" id="vip-extended-section">
       <div class="vip-section-title">⚜️ Серия <span id="vip-ext-day"></span> — дар Башни</div>
       <div class="reward-items" id="vip-extended-items"></div>
@@ -426,7 +408,6 @@
   </div>
 </div>
 
-<!-- Прогресс с вехами -->
 <div class="month-progress">
   <div class="progress-track">
     <div class="progress-bar-fill" id="progress-fill"></div>
@@ -443,7 +424,6 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-/* ── Угольки ── */
 (function(){
   const wrap = document.getElementById('embers');
   const colors = ['#c9a84c','#9b6ef3','#e8cd7a'];
@@ -460,9 +440,6 @@ tg.expand();
   }
 })();
 
-/* ═══════════════════════════════════════════════════════════
-   НАГРАДЫ — 30 дней (синхронизировано с DAILY_REWARDS)
-   ═══════════════════════════════════════════════════════════ */
 const REWARDS = [
   {day:1,  gold:5000,   exp:500,   gems:0,   box:null,                              icon:"🌑"},
   {day:2,  gold:8000,   exp:700,   gems:0,   box:null,                              icon:"🌒"},
@@ -499,10 +476,6 @@ const REWARDS = [
   {day:30, gold:300000, exp:30000, gems:140, box:{name:"Сокровищница Шпиля",qty:1}, icon:"👑"},
 ];
 
-/* ═══════════════════════════════════════════════════════════
-   VIP-БОНУСЫ — синхронизировано с VIP_BONUS_CYCLE (бэкенд)
-   Добавляются ПОВЕРХ обычной награды каждый день 1–30
-   ═══════════════════════════════════════════════════════════ */
 const VIP_BONUS_CYCLE = [
   {gold:50000,   exp:5000,  gems:0,   box:null},
   {gold:60000,   exp:5000,  gems:0,   box:null},
@@ -537,7 +510,6 @@ const VIP_BONUS_CYCLE = [
 ];
 
 
-/* VIP расширенный цикл — дни 31+ (синхронизировано с VIP_EXTENDED_REWARDS) */
 const VIP_EXTENDED_REWARDS = [
   {gold:400000,  exp:30000, gems:0,   box:{name:"Золотой Сундук",qty:1}},
   {gold:450000,  exp:30000, gems:0,   box:null},
@@ -565,14 +537,12 @@ const WEEK_NAMES = [
 
 const MILESTONE_DAYS = new Set([7,14,21,30]);
 
-/* ── Параметры из URL ── */
 const params = new URLSearchParams(window.location.search);
 const streak = Math.min(Math.max(parseInt(params.get('streak') || '1'), 1), 30);
 const canClaim = params.get('can_claim') !== 'false';
 
-// VIP: vip=1 — лучший (100% бонуса), vip=2 — 70%, vip=0/нет — без бонуса
 const vipLevel = parseInt(params.get('vip') || '0') || 0;
-// Реальная (незацикленная) серия — нужна для расширенных наград 31+
+
 const realStreak = Math.max(parseInt(params.get('real_streak') || String(streak)) || streak, streak);
 
 const VIP_MULT = vipLevel === 1 ? 1.0 : vipLevel === 2 ? 0.5 : 0;
@@ -590,14 +560,12 @@ function scaleVip(b) {
 let currentWeek = Math.floor((streak - 1) / 7);
 let selectedDay = streak;
 
-/* ── VIP бейдж ── */
 if (isVip) {
   const badge = document.getElementById('vip-badge');
   badge.classList.add('active');
   document.getElementById('vip-badge-text').textContent = `VIP ${vipLevel}`;
 }
 
-/* ── Рендер ── */
 function getWeekDays(weekIdx) {
   const start = weekIdx * 7;
   return REWARDS.slice(start, Math.min(start + 7, 30));
@@ -666,7 +634,6 @@ function renderRewardCard() {
   document.getElementById('reward-icon').textContent = r.icon;
   document.getElementById('reward-title').textContent = selectedDay === 30 ? '🏆 Финал месяца' : `День ${r.day}`;
 
-  // Подпись
   const labelEl = document.getElementById('reward-day-label');
   if (selectedDay < streak) {
     labelEl.textContent = 'Получено ✓';
@@ -680,7 +647,6 @@ function renderRewardCard() {
     labelEl.textContent = `До открытия: ${selectedDay - streak} дн.`;
   }
 
-  // Обычная награда
   const items = [
     ['🪙', 'Лунное серебро', '+' + r.gold.toLocaleString('ru')],
     ['✨', 'Опыт', '+' + r.exp.toLocaleString('ru')],
@@ -692,7 +658,6 @@ function renderRewardCard() {
   }
   buildItemsHTML(document.getElementById('reward-items'), items);
 
-  // ── VIP бонус (для выбранного дня) ──
   const vipBonusSection = document.getElementById('vip-bonus-section');
   if (isVip) {
     const vb = scaleVip(VIP_BONUS_CYCLE[selectedDay - 1]);
@@ -711,7 +676,6 @@ function renderRewardCard() {
     vipBonusSection.classList.remove('show');
   }
 
-  // ── VIP расширенная награда (только на текущем дне, при реальной серии >30) ──
   const vipExtSection = document.getElementById('vip-extended-section');
   if (isVip && selectedDay === streak && realStreak > 30) {
     const extIndex = (realStreak - 30 - 1) % VIP_EXTENDED_REWARDS.length;
@@ -732,7 +696,6 @@ function renderRewardCard() {
     vipExtSection.classList.remove('show');
   }
 
-  // Кнопка
   const btn = document.getElementById('claim-btn');
   const claimed = document.getElementById('already-claimed');
   const statusMsg = document.getElementById('status-msg');
@@ -775,7 +738,6 @@ function changeWeek(dir) {
   renderRewardCard();
 }
 
-/* ── Забрать награду ── */
 async function claimReward() {
   const btn = document.getElementById('claim-btn');
   const status = document.getElementById('status-msg');
@@ -785,7 +747,6 @@ async function claimReward() {
   const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : {};
   const r = REWARDS[streak - 1];
 
-  // VIP-бонусы для payload (информативно; реальное начисление делает бэкенд)
   let vipBonus = null;
   let vipExtended = null;
   if (isVip) {
@@ -796,7 +757,6 @@ async function claimReward() {
     }
   }
 
-  // ━━━ Сбор fingerprint ━━━
   let fingerprint = {};
   try {
     if (typeof NightmareFingerprint === 'undefined') {
@@ -856,7 +816,6 @@ async function claimReward() {
   setTimeout(() => tg.close(), 1200);
 }
 
-/* ── Инициализация ── */
 renderWeekNav();
 renderDaysGrid();
 renderRewardCard();
