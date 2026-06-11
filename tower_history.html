@@ -12,7 +12,6 @@
   --text:#c8c4d4;--muted:#5a5570;--heading:#ece7f5;
   --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.10);
   --accent:#7c4dff;--accent-dim:rgba(124,77,255,0.10);
-  --ok:#4cc97a;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -37,8 +36,7 @@ body::before{content:'';position:fixed;inset:0;
 .stat{flex:1;padding:12px 8px;text-align:center;background:var(--surface);}
 .stat:not(:last-child){border-right:1px solid var(--border);}
 .stat-v{font-family:'Cinzel',serif;font-size:16px;font-weight:900;color:var(--heading);}
-.stat-l{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;
-  letter-spacing:.08em;}
+.stat-l{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.08em;}
 
 .search-wrap{margin:14px 14px 0;position:relative;}
 .search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);
@@ -51,7 +49,6 @@ body::before{content:'';position:fixed;inset:0;
 
 .section-title{font-family:'Cinzel',serif;font-size:10px;font-weight:600;
   letter-spacing:0.22em;color:var(--muted);text-transform:uppercase;padding:18px 18px 10px;}
-
 .list{padding:0 14px;display:flex;flex-direction:column;gap:6px;}
 
 .record{display:flex;align-items:center;gap:12px;
@@ -59,7 +56,6 @@ body::before{content:'';position:fixed;inset:0;
   padding:12px 14px;position:relative;overflow:hidden;
   animation:fadeUp .35s ease both;}
 .record::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
-
 .record.m1::before{background:linear-gradient(180deg,#ffd700,#c9a84c);}
 .record.m10::before{background:var(--accent);}
 .record.m25::before{background:#4c7bc9;}
@@ -67,12 +63,9 @@ body::before{content:'';position:fixed;inset:0;
 .record.m100::before{background:linear-gradient(180deg,#ff6b6b,#c94c4c);}
 
 .floor-badge{flex-shrink:0;width:48px;text-align:center;}
-.floor-num{font-family:'Cinzel',serif;font-size:17px;font-weight:900;color:var(--heading);
-  line-height:1;}
+.floor-num{font-family:'Cinzel',serif;font-size:17px;font-weight:900;color:var(--heading);line-height:1;}
 .floor-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
-
 .divider-v{width:1px;background:var(--border);align-self:stretch;flex-shrink:0;}
-
 .record-body{flex:1;min-width:0;}
 .player-name{font-family:'Cinzel',serif;font-size:14px;font-weight:600;
   color:var(--heading);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -81,27 +74,21 @@ body::before{content:'';position:fixed;inset:0;
 
 .milestone-tag{flex-shrink:0;font-family:'Cinzel',serif;font-size:9px;
   padding:3px 8px;border-radius:20px;letter-spacing:.06em;text-transform:uppercase;}
-.tag-1{background:rgba(255,215,0,.12);color:#d4af37;border:1px solid rgba(255,215,0,.25);}
-.tag-10{background:var(--accent-dim);color:#a98bff;border:1px solid rgba(124,77,255,.3);}
-.tag-25{background:rgba(76,123,201,.12);color:#7099c9;border:1px solid rgba(76,123,201,.3);}
-.tag-50{background:rgba(201,76,76,.12);color:#c97070;border:1px solid rgba(201,76,76,.3);}
+.tag-1  {background:rgba(255,215,0,.12);color:#d4af37;border:1px solid rgba(255,215,0,.25);}
+.tag-10 {background:var(--accent-dim);color:#a98bff;border:1px solid rgba(124,77,255,.3);}
+.tag-25 {background:rgba(76,123,201,.12);color:#7099c9;border:1px solid rgba(76,123,201,.3);}
+.tag-50 {background:rgba(201,76,76,.12);color:#c97070;border:1px solid rgba(201,76,76,.3);}
 .tag-100{background:rgba(255,107,107,.14);color:#ff9090;border:1px solid rgba(201,76,76,.35);}
 
 .state-box{text-align:center;padding:52px 24px;}
 .state-icon{font-size:36px;margin-bottom:14px;opacity:.6;}
 .state-title{font-family:'Cinzel',serif;font-size:15px;color:var(--heading);margin-bottom:8px;}
 .state-sub{font-size:13px;color:var(--muted);line-height:1.55;}
-
-.spinner{width:36px;height:36px;margin:0 auto 14px;
-  border:3px solid var(--border);border-top-color:var(--accent);
-  border-radius:50%;animation:spin .75s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-
 .no-results{display:none;text-align:center;padding:32px 18px;
   font-size:13px;color:var(--muted);font-style:italic;}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-@media(prefers-reduced-motion:reduce){.record,.spinner{animation:none;}}
+@media(prefers-reduced-motion:reduce){.record{animation:none;}}
 </style>
 </head>
 <body>
@@ -113,22 +100,12 @@ body::before{content:'';position:fixed;inset:0;
   <div class="header-sub" id="header-sub">Первопроходцы каждого этажа</div>
 </div>
 
-<div id="app">
-  <div class="state-box" id="state-loading">
-    <div class="spinner"></div>
-    <div class="state-title">Загружаем историю…</div>
-    <div class="state-sub">Запрашиваем данные башни</div>
-  </div>
-</div>
+<div id="app"></div>
 
 </div>
-
 <script>
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
-
-const API_URL = 'http://38.244.138.119:8080/api/tower-history';
-const API_KEY = '7256443';
 
 function milestoneClass(floor) {
   if (floor % 100 === 0) return 'm100';
@@ -147,15 +124,14 @@ function milestoneTag(floor) {
   return null;
 }
 
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 let allRecords = [];
 
 function renderList(records) {
   const app = document.getElementById('app');
-  if (!records.length) {
-    app.innerHTML = '<div class="no-results" style="display:block">Ничего не найдено</div>';
-    return;
-  }
-
   const milestones = records.filter(r => milestoneClass(r.floor));
 
   const statsHTML =
@@ -170,7 +146,7 @@ function renderList(records) {
     + '<input type="text" id="search-input" placeholder="Поиск по имени или этажу…"/>'
     + '</div>';
 
-  const itemsHTML = records.map((r, i) => {
+  const itemsHTML = records.map(function(r, i) {
     const mc  = milestoneClass(r.floor);
     const tag = milestoneTag(r.floor);
     const tagHTML = tag ? '<div class="milestone-tag '+tag[0]+'">'+tag[1]+'</div>' : '';
@@ -180,7 +156,7 @@ function renderList(records) {
       + '<div class="divider-v"></div>'
       + '<div class="record-body">'
       +   '<div class="'+nameClass+'">'+escHtml(r.player)+'</div>'
-      +   '<div class="record-date">'+r.date_fmt+'</div>'
+      +   '<div class="record-date">'+escHtml(r.date_fmt)+'</div>'
       + '</div>'
       + tagHTML
       + '</div>';
@@ -196,7 +172,7 @@ function renderList(records) {
     const q = this.value.trim().toLowerCase();
     const items = document.querySelectorAll('#record-list .record');
     let visible = 0;
-    items.forEach((el, i) => {
+    items.forEach(function(el, i) {
       const r = allRecords[i];
       const match = !q
         || r.player.toLowerCase().includes(q)
@@ -208,15 +184,6 @@ function renderList(records) {
   });
 }
 
-function showError(msg) {
-  document.getElementById('app').innerHTML =
-    '<div class="state-box">'
-    + '<div class="state-icon">⚠️</div>'
-    + '<div class="state-title">Не удалось загрузить</div>'
-    + '<div class="state-sub">'+escHtml(msg)+'<br><br>Попробуйте позже.</div>'
-    + '</div>';
-}
-
 function showEmpty() {
   document.getElementById('app').innerHTML =
     '<div class="state-box">'
@@ -226,29 +193,48 @@ function showEmpty() {
     + '</div>';
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function showError(msg) {
+  document.getElementById('app').innerHTML =
+    '<div class="state-box">'
+    + '<div class="state-icon">⚠️</div>'
+    + '<div class="state-title">Ошибка загрузки</div>'
+    + '<div class="state-sub">'+escHtml(msg)+'</div>'
+    + '</div>';
 }
 
-(async function load() {
+(function() {
   try {
-    const res = await fetch(API_URL, {
-      headers: { 'X-API-Key': API_KEY },
-      signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined,
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get('data');
+
+    if (!raw) {
+      showEmpty();
+      return;
+    }
+
+    const parsed = JSON.parse(decodeURIComponent(raw));
+    allRecords = parsed.map(function(r) {
+      return {
+        floor:    r.f,
+        player:   r.p,
+        hidden:   r.h === 1,
+        date_fmt: r.d,
+      };
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    allRecords = data;
-    if (!data.length) { showEmpty(); return; }
 
-    // Обновляем подзаголовок
-    const maxFloor = data[data.length - 1]?.floor || 0;
+    if (!allRecords.length) {
+      showEmpty();
+      return;
+    }
+
+    const maxFloor = allRecords[allRecords.length - 1].floor;
     document.getElementById('header-sub').textContent =
-      'Покорено этажей: ' + data.length + ' · Рекорд: ' + maxFloor + ' этаж';
+      'Покорено этажей: ' + allRecords.length + ' · Рекорд: ' + maxFloor + ' этаж';
 
-    renderList(data);
+    renderList(allRecords);
+
   } catch(e) {
-    showError(e.message || 'Ошибка соединения');
+    showError('Не удалось разобрать данные: ' + e.message);
   }
 })();
 </script>
