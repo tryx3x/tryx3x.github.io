@@ -9,254 +9,384 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
   <style>
     :root{
-      --bg:#0a0a0f;
-      --surface:#13131f;
-      --surface2:#1a1a2e;
-      --border:rgba(255,255,255,0.06);
-      --border-glow:rgba(155,110,243,0.25);
-      --text:#c8c4d4;
-      --muted:#5a5570;
+      --bg:#08070d;
+      --surface:#12101d;
+      --surface2:#1a1729;
+      --border:rgba(255,255,255,0.055);
+      --text:#cdc8da;
+      --muted:#5d5874;
+      --faint:#3d3952;
       --gold:#c9a84c;
+      --gold-bright:#e8cd7a;
       --gold-dim:rgba(201,168,76,0.10);
-      --gold-glow:rgba(201,168,76,0.25);
+      --gold-glow:rgba(201,168,76,0.28);
       --purple:#9b6ef3;
+      --purple-soft:#b894f7;
       --purple-dim:rgba(155,110,243,0.12);
-      --green:#4ade80;
-      --green-dim:rgba(74,222,128,0.12);
-      --red:#f87171;
       --vip:#f0c75e;
-      --vip-dim:rgba(240,199,94,0.08);
-      --vip-border:rgba(240,199,94,0.35);
+      --vip-dim:rgba(240,199,94,0.07);
+      --vip-border:rgba(240,199,94,0.32);
     }
     *{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
     body{
       font-family:'Crimson Pro',Georgia,serif;
       background:var(--bg); color:var(--text);
       min-height:100vh; display:flex; flex-direction:column;
       align-items:center;
-      padding:16px 16px 40px; overflow-x:hidden;
-    }
-    body::before{
-      content:'';position:fixed;inset:0;
-      background:radial-gradient(ellipse at 50% 0%,rgba(155,110,243,0.07) 0%,transparent 60%);
-      pointer-events:none;
+      padding:20px 16px 44px; overflow-x:hidden;
+      position:relative;
     }
 
+    /* ── Атмосфера: туман + угольки ── */
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;
+      background:
+        radial-gradient(ellipse 90% 50% at 50% -5%, rgba(155,110,243,0.09) 0%, transparent 65%),
+        radial-gradient(ellipse 70% 40% at 50% 110%, rgba(201,168,76,0.05) 0%, transparent 60%);
+      pointer-events:none;
+    }
+    .embers{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .ember{
+      position:absolute; bottom:-8px;
+      width:3px; height:3px; border-radius:50%;
+      background:var(--gold); opacity:0;
+    }
+    @media (prefers-reduced-motion: no-preference){
+      .ember{animation:rise linear infinite;}
+      @keyframes rise{
+        0%{transform:translateY(0) translateX(0);opacity:0;}
+        8%{opacity:.5;}
+        60%{opacity:.25;}
+        100%{transform:translateY(-105vh) translateX(var(--drift,20px));opacity:0;}
+      }
+    }
+
+    body > *:not(.embers){position:relative;z-index:1;}
+
+    /* ── Шапка ── */
+    .crest{
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+      margin-bottom:14px;
+    }
+    .crest-rule{
+      display:flex; align-items:center; gap:10px;
+      color:var(--gold); opacity:.75;
+    }
+    .crest-rule::before,.crest-rule::after{
+      content:''; width:42px; height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold));
+    }
+    .crest-rule::after{background:linear-gradient(90deg,var(--gold),transparent);}
     .logo{
-      font-family:'Cinzel',serif; font-size:11px; font-weight:600;
-      letter-spacing:0.25em; color:var(--gold); text-transform:uppercase;
-      opacity:0.7; margin-bottom:8px;
+      font-family:'Cinzel',serif; font-size:12px; font-weight:600;
+      letter-spacing:0.3em; color:var(--gold); text-transform:uppercase;
+    }
+    .crest-sub{
+      font-size:12px; font-style:italic; color:var(--muted);
+      letter-spacing:0.04em;
     }
 
     /* ── VIP бейдж ── */
     .vip-badge{
-      display:none; align-items:center; gap:6px;
+      display:none; align-items:center; gap:7px;
       font-family:'Cinzel',serif; font-size:10px; font-weight:700;
-      letter-spacing:0.15em; text-transform:uppercase;
+      letter-spacing:0.18em; text-transform:uppercase;
       color:var(--vip);
-      background:var(--vip-dim);
+      background:linear-gradient(180deg, rgba(240,199,94,0.10), rgba(240,199,94,0.03));
       border:1px solid var(--vip-border);
-      border-radius:20px; padding:4px 14px;
-      margin-bottom:14px;
-      box-shadow:0 0 16px rgba(240,199,94,0.12);
+      border-radius:999px; padding:5px 16px;
+      margin-bottom:16px;
+      box-shadow:0 0 22px rgba(240,199,94,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
     }
     .vip-badge.active{display:flex;}
+    .vip-badge .gem{filter:drop-shadow(0 0 4px rgba(240,199,94,0.6));}
 
-    /* ── Переключатель недель ── */
+    /* ── Навигация недель ── */
     .week-nav{
-      display:flex; align-items:center; gap:8px;
-      margin-bottom:16px; user-select:none;
+      display:flex; align-items:center; gap:10px;
+      margin-bottom:14px; user-select:none;
     }
     .week-arrow{
-      width:32px; height:32px; border-radius:8px;
+      width:34px; height:34px; border-radius:50%;
       background:var(--surface); border:1px solid var(--border);
-      color:var(--muted); font-size:16px;
+      color:var(--muted); font-size:17px; line-height:1;
       display:flex; align-items:center; justify-content:center;
-      cursor:pointer; transition:all .15s;
+      cursor:pointer; transition:all .18s;
     }
-    .week-arrow:hover{border-color:var(--purple);color:var(--purple);}
-    .week-arrow.disabled{opacity:0.25;pointer-events:none;}
+    .week-arrow:hover{border-color:var(--purple);color:var(--purple-soft);box-shadow:0 0 14px rgba(155,110,243,0.2);}
+    .week-arrow:active{transform:scale(.92);}
+    .week-arrow.disabled{opacity:0.2;pointer-events:none;}
+    .week-center{text-align:center;min-width:148px;}
     .week-label{
       font-family:'Cinzel',serif; font-size:13px; font-weight:600;
-      color:var(--text); min-width:120px; text-align:center;
-      letter-spacing:0.06em;
+      color:var(--text); letter-spacing:0.08em;
     }
     .week-subtitle{
-      font-size:11px; color:var(--muted); font-style:italic;
-      margin-top:1px;
+      font-size:11.5px; color:var(--muted); font-style:italic;
+      margin-top:2px;
     }
 
     /* ── Сетка дней ── */
     .days-grid{
       width:100%; max-width:380px;
       display:grid; grid-template-columns:repeat(7,1fr);
-      gap:5px; margin-bottom:20px;
+      gap:6px; margin-bottom:18px;
     }
     .day-cell{
-      aspect-ratio:1; border-radius:10px;
+      aspect-ratio:1; border-radius:12px;
       display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      font-family:'Cinzel',serif; font-size:12px; font-weight:600;
+      align-items:center; justify-content:center; gap:2px;
+      font-family:'Cinzel',serif; font-weight:600;
       border:1px solid var(--border);
-      background:rgba(0,0,0,0.25);
+      background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.25));
       color:var(--muted);
       cursor:pointer; transition:all .2s;
-      position:relative; overflow:hidden;
+      position:relative; overflow:visible;
     }
-    .day-cell:hover{border-color:rgba(255,255,255,0.12);}
+    .day-cell:hover{border-color:rgba(255,255,255,0.14);transform:translateY(-1px);}
+    .day-num{font-size:13px;line-height:1;}
+    .day-icon{font-size:10px;line-height:1;height:11px;}
+
     .day-cell.done{
-      background:rgba(201,168,76,0.08);
-      border-color:rgba(201,168,76,0.3);
+      background:linear-gradient(180deg, rgba(201,168,76,0.10), rgba(201,168,76,0.03));
+      border-color:rgba(201,168,76,0.28);
       color:var(--gold);
     }
     .day-cell.done::after{
-      content:'✓'; position:absolute; top:2px; right:4px;
-      font-size:9px; color:var(--gold); opacity:0.7;
+      content:'✓'; position:absolute; top:3px; right:5px;
+      font-size:8px; color:var(--gold); opacity:0.75;
     }
+
+    /* лунная печать текущего дня */
     .day-cell.current{
-      background:var(--purple-dim);
-      border-color:rgba(155,110,243,0.5);
-      color:var(--purple);
-      box-shadow:0 0 16px rgba(155,110,243,0.25);
-      animation:pulse-current 2s ease-in-out infinite;
+      background:radial-gradient(circle at 50% 35%, rgba(155,110,243,0.22), rgba(155,110,243,0.05));
+      border-color:rgba(155,110,243,0.55);
+      color:#d9c8ff;
     }
-    .day-cell.milestone{border-color:rgba(201,168,76,0.5);}
-    .day-cell.milestone.current{border-color:rgba(155,110,243,0.6);}
-    .day-num{font-size:13px;line-height:1;}
-    .day-icon{font-size:11px;margin-top:1px;line-height:1;}
-    .day-cell.future{opacity:0.45;}
-
-    @keyframes pulse-current{
-      0%,100%{box-shadow:0 0 12px rgba(155,110,243,0.2);}
-      50%{box-shadow:0 0 20px rgba(155,110,243,0.4);}
+    .day-cell.current::before{
+      content:''; position:absolute; inset:-4px;
+      border:1px solid rgba(155,110,243,0.4);
+      border-radius:15px;
+      pointer-events:none;
     }
+    @media (prefers-reduced-motion: no-preference){
+      .day-cell.current::before{animation:seal 2.4s ease-in-out infinite;}
+      @keyframes seal{
+        0%,100%{opacity:.9;transform:scale(1);}
+        50%{opacity:.35;transform:scale(1.06);}
+      }
+    }
+    .day-cell.milestone{border-color:rgba(201,168,76,0.45);}
+    .day-cell.milestone .day-num{color:var(--gold-bright);}
+    .day-cell.milestone.current .day-num{color:#d9c8ff;}
+    .day-cell.future{opacity:0.4;}
+    .day-cell.empty{opacity:0.12;pointer-events:none;}
 
-    /* ── Карточка награды ── */
-    .reward-card{
+    /* ── Карточка награды: готическая рамка ── */
+    .reward-frame{
       width:100%; max-width:380px;
-      background:var(--surface); border:1px solid var(--border);
-      border-radius:20px; padding:24px 20px;
+      position:relative;
+      padding:1px;
+      border-radius:22px;
+      background:linear-gradient(165deg, rgba(201,168,76,0.35), rgba(255,255,255,0.04) 30%, rgba(155,110,243,0.25) 70%, rgba(201,168,76,0.2));
+    }
+    .reward-card{
+      background:var(--surface);
+      border-radius:21px; padding:26px 20px 22px;
       text-align:center;
-      box-shadow:0 20px 60px rgba(0,0,0,0.5);
-      animation:slideUp .35s ease both;
+      box-shadow:0 24px 70px rgba(0,0,0,0.6);
+      animation:slideUp .4s cubic-bezier(.2,.8,.3,1) both;
+      position:relative; overflow:hidden;
     }
-    .reward-card.milestone-card{
-      border-color:var(--gold-glow);
-      box-shadow:0 20px 60px rgba(0,0,0,0.5), 0 0 30px var(--gold-dim);
+    .reward-card::before{
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse 100% 45% at 50% 0%, rgba(155,110,243,0.07), transparent 70%);
+      pointer-events:none;
     }
-    .reward-card.finale-card{
-      border-color:rgba(201,168,76,0.5);
-      box-shadow:0 20px 60px rgba(0,0,0,0.5), 0 0 50px rgba(201,168,76,0.15);
+    /* угловые росчерки */
+    .corner{
+      position:absolute; width:18px; height:18px;
+      border-color:rgba(201,168,76,0.45); border-style:solid; border-width:0;
+      pointer-events:none;
+    }
+    .corner.tl{top:10px;left:10px;border-top-width:1px;border-left-width:1px;border-top-left-radius:6px;}
+    .corner.tr{top:10px;right:10px;border-top-width:1px;border-right-width:1px;border-top-right-radius:6px;}
+    .corner.bl{bottom:10px;left:10px;border-bottom-width:1px;border-left-width:1px;border-bottom-left-radius:6px;}
+    .corner.br{bottom:10px;right:10px;border-bottom-width:1px;border-right-width:1px;border-bottom-right-radius:6px;}
+
+    .reward-frame.milestone-card{
+      background:linear-gradient(165deg, rgba(201,168,76,0.6), rgba(201,168,76,0.12) 40%, rgba(201,168,76,0.45));
+      box-shadow:0 0 36px rgba(201,168,76,0.10);
+    }
+    .reward-frame.finale-card{
+      background:linear-gradient(165deg, rgba(232,205,122,0.8), rgba(201,168,76,0.2) 45%, rgba(232,205,122,0.6));
+      box-shadow:0 0 56px rgba(201,168,76,0.18);
     }
 
-    .reward-icon{font-size:48px;margin-bottom:8px;display:block;}
-
+    .reward-icon{
+      font-size:46px; margin-bottom:6px; display:block;
+      filter:drop-shadow(0 6px 18px rgba(0,0,0,0.5));
+    }
     .reward-title{
-      font-family:'Cinzel',serif; font-size:17px; font-weight:900;
-      color:#e8e0f0; letter-spacing:0.04em; margin-bottom:2px;
+      font-family:'Cinzel',serif; font-size:18px; font-weight:900;
+      color:#ece5f5; letter-spacing:0.05em; margin-bottom:3px;
     }
     .reward-day-label{
-      font-size:12px; color:var(--muted); font-style:italic; margin-bottom:16px;
+      font-size:12.5px; color:var(--muted); font-style:italic; margin-bottom:16px;
     }
+    .reward-day-label .streak-num{color:var(--purple-soft);font-style:normal;font-weight:600;}
 
     .reward-items{
       display:flex; flex-direction:column; gap:6px; margin-bottom:14px;
     }
     .reward-item{
-      display:flex; align-items:center; gap:10px;
-      background:rgba(0,0,0,0.2); border:1px solid var(--border);
-      border-radius:10px; padding:9px 12px;
+      display:flex; align-items:center; gap:11px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.22));
+      border:1px solid var(--border);
+      border-radius:11px; padding:9px 13px;
+      transition:border-color .18s;
     }
+    .reward-item:hover{border-color:rgba(255,255,255,0.1);}
     .reward-item-icon{font-size:17px;flex-shrink:0;}
     .reward-item-text{font-size:14px;color:var(--text);text-align:left;}
     .reward-item-val{
-      font-family:'Cinzel',serif;font-size:14px;font-weight:700;
+      font-family:'Cinzel',serif;font-size:13.5px;font-weight:700;
       color:var(--gold);margin-left:auto;white-space:nowrap;
+      text-shadow:0 0 14px rgba(201,168,76,0.25);
     }
 
-    /* ── VIP-секция в карточке ── */
+    /* ── VIP-секции ── */
     .vip-section{
       display:none;
       margin-bottom:14px;
       border:1px solid var(--vip-border);
-      border-radius:14px;
-      background:var(--vip-dim);
-      padding:12px 10px 10px;
+      border-radius:15px;
+      background:
+        linear-gradient(180deg, rgba(240,199,94,0.07), rgba(240,199,94,0.015));
+      padding:13px 11px 11px;
       position:relative;
     }
-    .vip-section.show{display:block;}
+    .vip-section.show{display:block;animation:slideUp .45s .08s cubic-bezier(.2,.8,.3,1) both;}
     .vip-section-title{
-      font-family:'Cinzel',serif; font-size:11px; font-weight:700;
-      letter-spacing:0.15em; text-transform:uppercase;
-      color:var(--vip); margin-bottom:8px;
-      display:flex; align-items:center; justify-content:center; gap:6px;
+      font-family:'Cinzel',serif; font-size:10.5px; font-weight:700;
+      letter-spacing:0.18em; text-transform:uppercase;
+      color:var(--vip); margin-bottom:9px;
+      display:flex; align-items:center; justify-content:center; gap:7px;
     }
+    .vip-section-title::before,.vip-section-title::after{
+      content:''; width:24px; height:1px; flex-shrink:0;
+      background:linear-gradient(90deg,transparent,var(--vip-border));
+    }
+    .vip-section-title::after{background:linear-gradient(90deg,var(--vip-border),transparent);}
     .vip-section .reward-items{margin-bottom:0;}
     .vip-section .reward-item{
-      background:rgba(0,0,0,0.25);
-      border-color:rgba(240,199,94,0.15);
+      background:rgba(0,0,0,0.28);
+      border-color:rgba(240,199,94,0.14);
     }
-    .vip-section .reward-item-val{color:var(--vip);}
+    .vip-section .reward-item-val{color:var(--vip);text-shadow:0 0 14px rgba(240,199,94,0.3);}
 
+    /* ── Кнопка с шиммером ── */
     .claim-btn{
-      width:100%; padding:14px;
+      width:100%; padding:15px;
       font-family:'Cinzel',serif; font-size:13px; font-weight:700;
-      letter-spacing:0.1em; text-transform:uppercase;
-      color:#0a0a0f; background:var(--gold);
-      border:none; border-radius:12px; cursor:pointer;
-      transition:all .2s;
+      letter-spacing:0.12em; text-transform:uppercase;
+      color:#0a0a0f;
+      background:linear-gradient(180deg, var(--gold-bright), var(--gold));
+      border:none; border-radius:13px; cursor:pointer;
+      transition:transform .18s, box-shadow .18s;
+      position:relative; overflow:hidden;
     }
-    .claim-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,0.35);}
+    .claim-btn::after{
+      content:''; position:absolute; top:0; left:-80%;
+      width:50%; height:100%;
+      background:linear-gradient(105deg, transparent, rgba(255,255,255,0.45), transparent);
+      transform:skewX(-20deg);
+    }
+    @media (prefers-reduced-motion: no-preference){
+      .claim-btn:not(:disabled)::after{animation:shimmer 3.2s ease-in-out infinite;}
+      @keyframes shimmer{
+        0%,72%{left:-80%;}
+        100%{left:130%;}
+      }
+    }
+    .claim-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(201,168,76,0.38);}
     .claim-btn:active{transform:translateY(0);}
-    .claim-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+    .claim-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none;}
+    .claim-btn:disabled::after{display:none;}
 
     .already-claimed{
       font-size:12px; color:var(--muted); font-style:italic;
       margin-top:10px; display:none;
     }
     .status-msg{
-      margin-top:12px; font-size:12px; color:var(--purple);
+      margin-top:12px; font-size:12.5px; color:var(--purple-soft);
       font-style:italic; min-height:18px;
     }
 
-    /* ── Прогресс бар месяца ── */
+    /* ── Прогресс с вехами ── */
     .month-progress{
       width:100%; max-width:380px;
-      margin-top:16px; text-align:center;
+      margin-top:18px;
     }
-    .progress-bar-bg{
-      width:100%; height:6px; border-radius:3px;
-      background:rgba(255,255,255,0.05);
-      overflow:hidden; margin-bottom:6px;
+    .progress-track{
+      position:relative; width:100%; height:7px; border-radius:4px;
+      background:rgba(255,255,255,0.045);
+      margin-bottom:14px;
     }
     .progress-bar-fill{
-      height:100%; border-radius:3px;
+      height:100%; border-radius:4px;
       background:linear-gradient(90deg,var(--purple),var(--gold));
-      transition:width .4s ease;
+      transition:width .5s cubic-bezier(.2,.8,.3,1);
+      box-shadow:0 0 12px rgba(155,110,243,0.3);
     }
+    .progress-notch{
+      position:absolute; top:50%; transform:translate(-50%,-50%);
+      width:11px; height:11px; border-radius:50%;
+      background:var(--surface2); border:1px solid var(--faint);
+      display:flex; align-items:center; justify-content:center;
+      font-size:6px;
+    }
+    .progress-notch.passed{
+      background:var(--gold-dim); border-color:var(--gold);
+      box-shadow:0 0 8px rgba(201,168,76,0.35);
+    }
+    .progress-notch span{
+      position:absolute; top:13px; left:50%; transform:translateX(-50%);
+      font-family:'Cinzel',serif; font-size:9px; color:var(--faint);
+      white-space:nowrap;
+    }
+    .progress-notch.passed span{color:var(--gold);}
     .progress-text{
-      font-size:11px; color:var(--muted);
+      font-size:11.5px; color:var(--muted); text-align:center; margin-top:14px;
+      font-style:italic;
     }
 
     @keyframes slideUp{
-      from{opacity:0;transform:translateY(16px);}
+      from{opacity:0;transform:translateY(18px);}
       to{opacity:1;transform:translateY(0);}
     }
   </style>
 </head>
 <body>
 
-<div class="logo">NightmareSpire</div>
+<div class="embers" id="embers"></div>
+
+<!-- Герб -->
+<div class="crest">
+  <div class="crest-rule"><span class="logo">NightmareSpire</span></div>
+  <div class="crest-sub">Дары Башни — за верность пути</div>
+</div>
 
 <!-- VIP бейдж -->
 <div class="vip-badge" id="vip-badge">
-  <span>👑</span><span id="vip-badge-text">VIP</span>
+  <span class="gem">👑</span><span id="vip-badge-text">VIP</span>
 </div>
 
 <!-- Навигация по неделям -->
 <div class="week-nav">
   <div class="week-arrow" id="prev-week" onclick="changeWeek(-1)">‹</div>
-  <div style="text-align:center">
+  <div class="week-center">
     <div class="week-label" id="week-label">Неделя 1</div>
     <div class="week-subtitle" id="week-subtitle">Разминка</div>
   </div>
@@ -267,33 +397,44 @@
 <div class="days-grid" id="days-grid"></div>
 
 <!-- Карточка награды -->
-<div class="reward-card" id="reward-card">
-  <span class="reward-icon" id="reward-icon">🎁</span>
-  <div class="reward-title" id="reward-title">Ежедневная награда</div>
-  <div class="reward-day-label" id="reward-day-label">День 1</div>
+<div class="reward-frame" id="reward-frame">
+  <div class="reward-card" id="reward-card">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
 
-  <div class="reward-items" id="reward-items"></div>
+    <span class="reward-icon" id="reward-icon">🎁</span>
+    <div class="reward-title" id="reward-title">Ежедневная награда</div>
+    <div class="reward-day-label" id="reward-day-label">День 1</div>
 
-  <!-- VIP бонус поверх обычной награды -->
-  <div class="vip-section" id="vip-bonus-section">
-    <div class="vip-section-title">👑 VIP бонус</div>
-    <div class="reward-items" id="vip-bonus-items"></div>
+    <div class="reward-items" id="reward-items"></div>
+
+    <!-- VIP бонус поверх обычной награды -->
+    <div class="vip-section" id="vip-bonus-section">
+      <div class="vip-section-title">👑 VIP бонус</div>
+      <div class="reward-items" id="vip-bonus-items"></div>
+    </div>
+
+    <!-- VIP расширенная награда (дни 31+) -->
+    <div class="vip-section" id="vip-extended-section">
+      <div class="vip-section-title">⚜️ Серия <span id="vip-ext-day"></span> — дар Башни</div>
+      <div class="reward-items" id="vip-extended-items"></div>
+    </div>
+
+    <button class="claim-btn" id="claim-btn" onclick="claimReward()">Забрать награду</button>
+    <div class="already-claimed" id="already-claimed">Награда уже получена сегодня</div>
+    <div class="status-msg" id="status-msg"></div>
   </div>
-
-  <!-- VIP расширенная награда (дни 31+) -->
-  <div class="vip-section" id="vip-extended-section">
-    <div class="vip-section-title">⚜️ VIP награда — серия <span id="vip-ext-day"></span></div>
-    <div class="reward-items" id="vip-extended-items"></div>
-  </div>
-
-  <button class="claim-btn" id="claim-btn" onclick="claimReward()">Забрать награду</button>
-  <div class="already-claimed" id="already-claimed">Награда уже получена сегодня</div>
-  <div class="status-msg" id="status-msg"></div>
 </div>
 
-<!-- Прогресс -->
+<!-- Прогресс с вехами -->
 <div class="month-progress">
-  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+  <div class="progress-track">
+    <div class="progress-bar-fill" id="progress-fill"></div>
+    <div class="progress-notch" data-day="7"  style="left:23.3%"><span>7</span></div>
+    <div class="progress-notch" data-day="14" style="left:46.6%"><span>14</span></div>
+    <div class="progress-notch" data-day="21" style="left:70%"><span>21</span></div>
+    <div class="progress-notch" data-day="30" style="left:100%"><span>30</span></div>
+  </div>
   <div class="progress-text" id="progress-text"></div>
 </div>
 
@@ -301,6 +442,23 @@
 const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
+
+/* ── Угольки ── */
+(function(){
+  const wrap = document.getElementById('embers');
+  const colors = ['#c9a84c','#9b6ef3','#e8cd7a'];
+  for (let i = 0; i < 14; i++) {
+    const e = document.createElement('span');
+    e.className = 'ember';
+    e.style.left = (Math.random()*100) + '%';
+    e.style.background = colors[i % colors.length];
+    e.style.setProperty('--drift', (Math.random()*60-30) + 'px');
+    e.style.animationDuration = (9 + Math.random()*10) + 's';
+    e.style.animationDelay = (-Math.random()*16) + 's';
+    e.style.width = e.style.height = (2 + Math.random()*2) + 'px';
+    wrap.appendChild(e);
+  }
+})();
 
 /* ═══════════════════════════════════════════════════════════
    НАГРАДЫ — 30 дней (синхронизировано с DAILY_REWARDS)
@@ -410,7 +568,6 @@ const WEEK_NAMES = [
   {label:"Неделя 5", sub:"Финал"},
 ];
 
-// Дни-вехи (конец недели / особый дроп)
 const MILESTONE_DAYS = new Set([7,14,21,30]);
 
 /* ── Параметры из URL ── */
@@ -478,12 +635,10 @@ function renderDaysGrid() {
     grid.appendChild(cell);
   });
 
-  // Заполняем пустые ячейки если < 7 дней
   const empty = 7 - days.length;
   for (let i = 0; i < empty; i++) {
     const cell = document.createElement('div');
-    cell.className = 'day-cell future';
-    cell.style.opacity = '0.15';
+    cell.className = 'day-cell empty';
     grid.appendChild(cell);
   }
 }
@@ -504,30 +659,31 @@ function renderRewardCard() {
   const r = REWARDS[selectedDay - 1];
   if (!r) return;
 
+  const frame = document.getElementById('reward-frame');
   const card = document.getElementById('reward-card');
-  card.className = 'reward-card';
-  if (selectedDay === 30) card.className += ' finale-card';
-  else if (MILESTONE_DAYS.has(selectedDay)) card.className += ' milestone-card';
+  frame.className = 'reward-frame';
+  if (selectedDay === 30) frame.className += ' finale-card';
+  else if (MILESTONE_DAYS.has(selectedDay)) frame.className += ' milestone-card';
   card.style.animation = 'none';
   card.offsetHeight; // reflow
-  card.style.animation = 'slideUp .35s ease both';
+  card.style.animation = 'slideUp .4s cubic-bezier(.2,.8,.3,1) both';
 
   document.getElementById('reward-icon').textContent = r.icon;
   document.getElementById('reward-title').textContent = selectedDay === 30 ? '🏆 Финал месяца' : `День ${r.day}`;
 
   // Подпись
-  let label = '';
-  if (selectedDay < streak) label = 'Получено ✓';
-  else if (selectedDay === streak) {
+  const labelEl = document.getElementById('reward-day-label');
+  if (selectedDay < streak) {
+    labelEl.textContent = 'Получено ✓';
+  } else if (selectedDay === streak) {
     const s = realStreak;
     const ending = s % 10 === 1 && s % 100 !== 11 ? 'день'
                  : [2,3,4].includes(s % 10) && ![12,13,14].includes(s % 100) ? 'дня'
                  : 'дней';
-    label = `Серия: ${s} ${ending}`;
+    labelEl.innerHTML = `Серия: <span class="streak-num">${s}</span> ${ending}`;
   } else {
-    label = `До открытия: ${selectedDay - streak} дн.`;
+    labelEl.textContent = `До открытия: ${selectedDay - streak} дн.`;
   }
-  document.getElementById('reward-day-label').textContent = label;
 
   // Обычная награда
   const items = [
@@ -606,6 +762,9 @@ function renderProgress() {
   const pct = Math.min(((streak - 1) / 29) * 100, 100);
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('progress-text').textContent = `${streak - 1} / 30 дней получено`;
+  document.querySelectorAll('.progress-notch').forEach(n => {
+    if (streak > parseInt(n.dataset.day)) n.classList.add('passed');
+  });
 }
 
 function changeWeek(dir) {
@@ -698,7 +857,7 @@ async function claimReward() {
   };
 
   tg.sendData(JSON.stringify(payload));
-  status.textContent = 'Награда получена!';
+  status.textContent = 'Дары Башни приняты!';
   setTimeout(() => tg.close(), 1200);
 }
 
