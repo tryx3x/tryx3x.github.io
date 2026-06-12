@@ -25,7 +25,6 @@ body::before{content:'';position:fixed;inset:0;
   pointer-events:none;z-index:0;}
 .wrap{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:0 0 32px;}
 
-/* ── Header ── */
 .header{padding:28px 18px 16px;text-align:center;position:relative;}
 .header::after{content:'';position:absolute;left:50%;bottom:0;transform:translateX(-50%);
   width:160px;height:1px;
@@ -36,14 +35,14 @@ body::before{content:'';position:fixed;inset:0;
   color:var(--heading);letter-spacing:.07em;text-shadow:0 0 26px rgba(231,76,60,.3);}
 .header-sub{font-size:13px;color:var(--muted);margin-top:6px;font-style:italic;}
 
-/* ── Profession tabs ── */
 .ptabs{display:flex;gap:4px;margin:14px 14px 0;padding:4px;
   background:var(--surface);border:1px solid var(--border);border-radius:12px;
   position:sticky;top:8px;z-index:20;backdrop-filter:blur(8px);}
 .ptab{flex:1;padding:9px 2px;text-align:center;border-radius:8px;cursor:pointer;
   user-select:none;-webkit-tap-highlight-color:transparent;
   transition:background .2s;display:flex;flex-direction:column;align-items:center;gap:2px;}
-.ptab .pi{font-size:18px;line-height:1;filter:grayscale(.7);opacity:.55;transition:filter .2s,opacity .2s;display:flex;align-items:center;justify-content:center;}
+.ptab .pi{font-size:18px;line-height:1;filter:grayscale(.7);opacity:.55;
+  transition:filter .2s,opacity .2s;display:flex;align-items:center;justify-content:center;height:22px;}
 .ptab .pi img{width:22px;height:22px;object-fit:contain;}
 .ptab .pl{font-family:'Cinzel',serif;font-size:9px;color:var(--muted);letter-spacing:.03em;}
 .ptab.active{background:linear-gradient(160deg,rgba(231,76,60,.18),rgba(192,57,43,.08));
@@ -51,7 +50,6 @@ body::before{content:'';position:fixed;inset:0;
 .ptab.active .pi{filter:none;opacity:1;}
 .ptab.active .pl{color:var(--brand);}
 
-/* ── Page content ── */
 .page{display:none;padding:14px 14px 0;}
 .page.active{display:block;animation:fadeUp .3s ease both;}
 
@@ -61,7 +59,7 @@ body::before{content:'';position:fixed;inset:0;
 .prof-icon{width:48px;height:48px;border-radius:12px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;font-size:23px;
   background:rgba(0,0,0,.3);border:1px solid var(--border);}
-.prof-icon img{width:30px;height:30px;object-fit:contain;vertical-align:middle;}
+.prof-icon img{width:32px;height:32px;object-fit:contain;}
 .prof-tb{flex:1;min-width:0;}
 .prof-name{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--heading);}
 .prof-lvl{font-size:11px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:.05em;margin-top:2px;}
@@ -76,41 +74,39 @@ body::before{content:'';position:fixed;inset:0;
 .kv{display:flex;justify-content:space-between;align-items:center;gap:10px;
   padding:8px 11px;background:var(--surface);border:1px solid var(--border);
   border-radius:9px;margin-bottom:5px;}
-.kv-k{font-size:12.5px;color:var(--muted);}
+.kv-k{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.kv-k img{width:18px;height:18px;object-fit:contain;}
 .kv-v{font-family:'Cinzel',serif;font-size:12.5px;color:var(--heading);text-align:right;}
 .kv-v.gold{color:var(--gold-glow);}
 
-/* chips руд / самоцветов */
 .chips{display:flex;flex-wrap:wrap;gap:6px;}
 .chip{font-size:12px;padding:4px 10px;border-radius:16px;
+  display:inline-flex;align-items:center;gap:5px;
   background:rgba(76,201,122,.08);border:1px solid rgba(76,201,122,.22);color:#8fdcae;}
+.chip img{width:16px;height:16px;object-fit:contain;}
 .chip.gem{background:var(--accent-dim);border-color:rgba(139,108,240,.25);color:#b3a0f5;}
 .chip.lock{background:rgba(0,0,0,.2);border-color:var(--border);color:var(--lock);}
+.chip.lock img{filter:grayscale(1);opacity:.5;}
 .chip.lock .req{color:#7a7490;font-style:italic;}
 
-/* таблица типов */
 .types{display:flex;flex-direction:column;gap:6px;}
 .type-row{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 12px;}
 .type-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.type-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--heading);}
+.type-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--heading);
+  display:flex;align-items:center;gap:7px;}
+.type-name img{width:20px;height:20px;object-fit:contain;}
 .type-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
 .tt{font-size:10.5px;padding:2px 8px;border-radius:12px;letter-spacing:.02em;}
 
-/* ── Цветовая схема статов ──
-   Сила — жёлтая · Живучесть — красная · Ловкость — зелёная
-   Маг. сила — синяя · Крит — фиолетово-розовый */
 .tt.str {background:rgba(232,207,122,.09);border:1px solid rgba(201,168,76,.3); color:#e8cf7a;}
 .tt.vit {background:rgba(231,76,60,.09);  border:1px solid rgba(231,76,60,.3);  color:#f08070;}
 .tt.agi {background:rgba(76,201,122,.09); border:1px solid rgba(76,201,122,.3); color:#8fdcae;}
 .tt.mag {background:rgba(76,123,201,.09); border:1px solid rgba(76,123,201,.3); color:#7fa6e0;}
 .tt.crit{background:rgba(224,122,208,.09);border:1px solid rgba(224,122,208,.3);color:#e08ad4;}
 .tt.all {background:rgba(236,231,245,.06);border:1px solid rgba(236,231,245,.2);color:var(--heading);}
-/* штраф — приглушённый */
 .tt.neg {background:rgba(0,0,0,.22);border:1px solid var(--border);color:#6e6884;}
-/* тип урона */
 .tt.dphys{background:rgba(201,122,76,.1);border:1px solid rgba(201,122,76,.25);color:#c99a70;}
 .tt.dmag {background:rgba(76,123,201,.1);border:1px solid rgba(76,123,201,.25);color:#7099c9;}
-/* нейтральный (рецепты) */
 .tt.recipe{background:rgba(139,108,240,.08);border:1px solid rgba(139,108,240,.25);color:#b3a0f5;}
 
 .note{font-size:12px;color:var(--muted);font-style:italic;padding:10px 2px 0;line-height:1.5;}
@@ -149,21 +145,60 @@ body::before{content:'';position:fixed;inset:0;
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
+const IC = 'https://tryx3x.github.io/icons/';
+function img(file){ return '<img src="'+IC+file+'" alt="">'; }
+
 const ICONS = {
-  mining:'⛏️', smithing:'⚒️', armorsmithing:'🛡️',
-  alchemy:'⚗️',
-  jeweling:'<img src="https://tryx3x.github.io/icons/jevel.png" style="width:22px;height:22px;object-fit:contain;vertical-align:-4px;">',
-  jewelcrafting:'<img src="https://tryx3x.github.io/icons/jevel.png" style="width:22px;height:22px;object-fit:contain;vertical-align:-4px;">',
+  mining:        '⛏️',
+  smithing:      img('hammer.png'),
+  armorsmithing: img('armor_smitting.png'),
+  alchemy:       img('alchemical.png'),
+  jeweling:      img('jevel.png'),
+  jewelcrafting: img('jevel.png'),
 };
 const SHORT = {
   mining:'Шахтёр', smithing:'Кузнец', armorsmithing:'Бронник',
   alchemy:'Алхимик', jeweling:'Ювелир', jewelcrafting:'Ювелир',
 };
 
-function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const ORE_ICONS = [
+  ['адамант', 'adamant_ore.png'],
+  ['метеор',  'meteor_ore.png'],
+  ['мифрил',  'myfril_ore.png'],
+  ['платин',  'platin_ore.png'],
+  ['дамас',   'damassk_ore.png'],
+  ['титан',   'titan_ore.png'],
+  ['золот',   'gold_ore.png'],
+  ['серебр',  'silver_ore.png'],
+  ['медн',    'copper_ore.png'],
+  ['олов',    'tin__ore.png'],
+  ['желез',   'iron_ore.png'],
+  ['жильн',   'vein_ore.png'],
+];
 
-// ═══ Теги статов: [класс, текст]
-// классы: str=жёлтый, vit=красный, agi=зелёный, mag=синий, crit=розовый, neg=штраф, all=все статы
+const GEM_ICONS = [
+  ['рубин',     'ruby.png'],
+  ['сапфир',    'sapfir.png'],
+  ['изумруд',   'emerald.png'],
+  ['алмаз',     'diamond.png'],
+  ['аметист',   'ametist.png'],
+  ['топаз',     'topaz.png'],
+  ['оникс',     'onyx.png'],
+  ['лунн',      'moon_stone.png'],
+  ['пустот',    'void_gems.png'],
+  ['душа',      'soul_gems.png'],
+  ['душ',       'soul_gems.png'],
+];
+
+function findIcon(name, table){
+  const low = name.toLowerCase();
+  for (const [key, file] of table){
+    if (low.includes(key)) return img(file);
+  }
+  return '';
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 const WEAPON_TYPES = [
   { name:'Кинжал', type:'dphys', tags:[['agi','Ловкость ++'],['str','Сила +'],['crit','Крит ++'],['neg','Живучесть −']] },
@@ -187,19 +222,18 @@ const JEWELRY_TYPES = [
 ];
 
 const GEM_LIST = [
-  { name:'Рубин',            tags:[['str','Сила +++']] },
-  { name:'Сапфир',           tags:[['mag','Маг. сила +++']] },
-  { name:'Изумруд',          tags:[['vit','Живучесть +++']] },
-  { name:'Алмаз',            tags:[['str','Сила +'],['agi','Ловкость +'],['mag','Маг. сила +']] },
-  { name:'Аметист',          tags:[['mag','Маг. сила +++'],['vit','Живучесть +']] },
-  { name:'Топаз',            tags:[['str','Сила ++'],['agi','Ловкость ++']] },
-  { name:'Оникс',            tags:[['agi','Ловкость +++'],['crit','Крит +']] },
-  { name:'Лунный камень',    tags:[['agi','Ловкость +'],['vit','Живучесть ++'],['mag','Маг. сила ++']] },
-  { name:'Кристалл пустоты', tags:[['str','Сила ++'],['agi','Ловкость ++'],['mag','Маг. сила +++'],['crit','Крит +']] },
-  { name:'Душа-самоцвет',    tags:[['all','Все статы ++'],['crit','Крит ++']] },
+  { name:'Рубин',            icon:'ruby.png',       tags:[['str','Сила +++']] },
+  { name:'Сапфир',           icon:'sapfir.png',     tags:[['mag','Маг. сила +++']] },
+  { name:'Изумруд',          icon:'emerald.png',    tags:[['vit','Живучесть +++']] },
+  { name:'Алмаз',            icon:'diamond.png',    tags:[['str','Сила +'],['agi','Ловкость +'],['mag','Маг. сила +']] },
+  { name:'Аметист',          icon:'ametist.png',    tags:[['mag','Маг. сила +++'],['vit','Живучесть +']] },
+  { name:'Топаз',            icon:'topaz.png',      tags:[['str','Сила ++'],['agi','Ловкость ++']] },
+  { name:'Оникс',            icon:'onyx.png',       tags:[['agi','Ловкость +++'],['crit','Крит +']] },
+  { name:'Лунный камень',    icon:'moon_stone.png', tags:[['agi','Ловкость +'],['vit','Живучесть ++'],['mag','Маг. сила ++']] },
+  { name:'Кристалл пустоты', icon:'void_gems.png',  tags:[['str','Сила ++'],['agi','Ловкость ++'],['mag','Маг. сила +++'],['crit','Крит +']] },
+  { name:'Душа-самоцвет',    icon:'soul_gems.png',  tags:[['all','Все статы ++'],['crit','Крит ++']] },
 ];
 
-// ═══ Алхимия: типы варева и механика ═══
 const ALCH_TYPES = [
   { name:'💊 Пилюля', tags:[['recipe','Ингредиенты одной категории'],['str','Полная сила эффектов']] },
   { name:'🧪 Зелье',  tags:[['recipe','Разные категории'],['neg','Сила ×0.6'],['vit','Действует дольше']] },
@@ -214,23 +248,27 @@ function tagsHTML(tags){
 
 function typesHTML(types, showDmgType){
   return '<div class="types">'+types.map(function(t){
+    const iconHTML = t.icon ? img(t.icon) : '';
     const typeTag = showDmgType && t.type
       ? '<span class="tt '+t.type+'">'+(t.type==='dphys'?'Физ. урон':'Маг. урон')+'</span>'
       : '';
     return '<div class="type-row">'
-      + '<div class="type-head"><span class="type-name">'+t.name+'</span>'+typeTag+'</div>'
+      + '<div class="type-head"><span class="type-name">'+iconHTML+t.name+'</span>'+typeTag+'</div>'
       + tagsHTML(t.tags)
       + '</div>';
   }).join('')+'</div>';
 }
 
-function chipsHTML(av, locked, gem){
+function chipsHTML(av, locked, iconTable){
   let h = '<div class="chips">';
   (av||[]).forEach(function(n){
-    h += '<span class="chip'+(gem?' gem':'')+'">'+escHtml(n)+'</span>';
+    const icon = iconTable ? findIcon(n, iconTable) : '';
+    const cls = iconTable === GEM_ICONS ? ' gem' : '';
+    h += '<span class="chip'+cls+'">'+icon+escHtml(n)+'</span>';
   });
   (locked||[]).forEach(function(pair){
-    h += '<span class="chip lock">🔒 '+escHtml(pair[0])+' <span class="req">— с '+pair[1]+' ур.</span></span>';
+    const icon = iconTable ? findIcon(pair[0], iconTable) : '';
+    h += '<span class="chip lock">'+icon+escHtml(pair[0])+' <span class="req">— с '+pair[1]+' ур.</span></span>';
   });
   return h + '</div>';
 }
@@ -243,25 +281,23 @@ function bonusBox(title, lines){
     + '</div>';
 }
 
-// ═══════════ Детали профессий ═══════════
-
 function miningDetail(p){
   const m = p.m || {};
   let h = '<div class="d-title">Характеристики</div>';
   h += '<div class="kv"><span class="kv-k">⚡ Добыча в час</span><span class="kv-v">≈'+(m.ef||'—')+' ед.</span></div>';
-  h += '<div class="kv"><span class="kv-k">💎 Шанс самоцвета</span><span class="kv-v">'+(m.gm||'—')+'% / час</span></div>';
+  h += '<div class="kv"><span class="kv-k">'+img('diamond.png')+' Шанс самоцвета</span><span class="kv-v">'+(m.gm||'—')+'% / час</span></div>';
   h += '<div class="kv"><span class="kv-k">🏗️ Уровень шахты</span><span class="kv-v gold">'+(m.u||0)+'/'+(m.mx||5)+' · '+escHtml(m.lb||'')+'</span></div>';
 
   h += '<div class="d-title">✨ Редкие находки</div>';
-  h += '<div class="kv"><span class="kv-k">😽 Жильная руда</span><span class="kv-v">8% за сессию <span style="color:var(--muted);font-size:11px">(+1%/час, макс ≈18%)</span></span></div>';
+  h += '<div class="kv"><span class="kv-k">'+img('vein_ore.png')+' Жильная руда</span><span class="kv-v">8% за сессию <span style="color:var(--muted);font-size:11px">(+1%/час, макс ≈18%)</span></span></div>';
   h += '<div class="kv"><span class="kv-k">✨ Драгоценный камень</span><span class="kv-v">4% за сессию <span style="color:var(--muted);font-size:11px">(+1%/час)</span></span></div>';
   h += '<div class="kv"><span class="kv-k">🌋 Сущность Земли</span><span class="kv-v gold">0.1%</span></div>';
 
   if ((m.am && m.am.length) || (m.lm && m.lm.length)) {
-    h += '<div class="d-title">Руды</div>' + chipsHTML(m.am, m.lm, false);
+    h += '<div class="d-title">Руды</div>' + chipsHTML(m.am, m.lm, ORE_ICONS);
   }
   if ((m.ag && m.ag.length) || (m.lg && m.lg.length)) {
-    h += '<div class="d-title">Самоцветы</div>' + chipsHTML(m.ag, m.lg, true);
+    h += '<div class="d-title">Самоцветы</div>' + chipsHTML(m.ag, m.lg, GEM_ICONS);
   }
   return h;
 }
@@ -333,8 +369,6 @@ function buildDetail(p){
   if (p.c === 'jeweling' || p.c === 'jewelcrafting') return jewelingDetail(p);
   return '<div class="soon">Подробная информация будет добавлена позже</div>';
 }
-
-// ═══════════ Рендер с вкладками ═══════════
 
 function expBar(e, x){
   const pct = x > 0 ? Math.min(100, Math.round(e / x * 100)) : 100;
