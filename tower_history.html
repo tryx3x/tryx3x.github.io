@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>История Башни — NightmareSpire</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
 <style>
@@ -168,7 +169,7 @@ function renderList(records) {
   const statsHTML =
     '<div class="stats-bar">'
     + '<div class="stat"><div class="stat-v">'+records.length+'</div><div class="stat-l">Этажей</div></div>'
-    + '<div class="stat"><div class="stat-v">'+new Set(records.map(r=>r.i)).size+'</div><div class="stat-l">Героев</div></div>'
+    + '<div class="stat"><div class="stat-v">'+new Set(records.map(r=>r.pid)).size+'</div><div class="stat-l">Героев</div></div>'
     + '<div class="stat"><div class="stat-v">'+maxFloor+'</div><div class="stat-l">Вершина</div></div>'
     + '</div>';
 
@@ -242,13 +243,29 @@ function showError(msg) {
 (function() {
   try {
     const params = new URLSearchParams(window.location.search);
-    const raw = params.get('data');
 
-    if (!raw) { showEmpty(); return; }
+    let jsonStr = null;
 
-    const parsed = JSON.parse(decodeURIComponent(raw));
+    // Новый формат: сжатый lz
+    const lz = params.get('lz');
+    if (lz) {
+      jsonStr = LZString.decompressFromEncodedURIComponent(lz);
+    } else {
+      // Старый формат: для обратной совместимости
+      const raw = params.get('data');
+      if (raw) jsonStr = decodeURIComponent(raw);
+    }
+
+    if (!jsonStr) { showEmpty(); return; }
+
+    const parsed = JSON.parse(jsonStr);
+
     allRecords = parsed.map(function(r) {
-      return { floor: r.f, player: r.p, hidden: r.h === 1, date_fmt: r.d };
+      // Поддержка обоих форматов: массив [f,p,h,d,i] или объект {f,p,h,d,i}
+      if (Array.isArray(r)) {
+        return { floor: r[0], player: r[1], hidden: r[2] === 1, date_fmt: r[3], pid: r[4] || 0 };
+      }
+      return { floor: r.f, player: r.p, hidden: r.h === 1, date_fmt: r.d, pid: r.i || 0 };
     });
 
     if (!allRecords.length) { showEmpty(); return; }
