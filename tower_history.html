@@ -168,7 +168,7 @@ function renderList(records) {
   const statsHTML =
     '<div class="stats-bar">'
     + '<div class="stat"><div class="stat-v">'+records.length+'</div><div class="stat-l">Этажей</div></div>'
-    + '<div class="stat"><div class="stat-v">'+new Set(records.map(r=>r.player)).size+'</div><div class="stat-l">Героев</div></div>'
+    + '<div class="stat"><div class="stat-v">'+new Set(records.map(r=>r.i)).size+'</div><div class="stat-l">Героев</div></div>'
     + '<div class="stat"><div class="stat-v">'+maxFloor+'</div><div class="stat-l">Вершина</div></div>'
     + '</div>';
 
