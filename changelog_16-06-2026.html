@@ -46,7 +46,13 @@ body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--te
   padding:5px 18px;border-radius:20px;
   box-shadow:0 4px 18px rgba(231,76,60,.3);}
 
-.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:18px 14px 0;}
+.notice{margin:18px 14px 0;padding:14px 16px;
+  background:linear-gradient(165deg,rgba(232,207,122,.08),rgba(18,16,28,.6));
+  border:1px solid rgba(232,207,122,.25);border-radius:13px;
+  font-size:13px;line-height:1.6;color:var(--text);}
+.notice b{color:var(--gold-glow);}
+
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 14px 0;}
 .sc{background:var(--surface);border:1px solid var(--border);border-radius:13px;
   padding:15px 10px;text-align:center;position:relative;overflow:hidden;}
 .sc::before{content:'';position:absolute;left:0;top:0;right:0;height:2px;opacity:.6;}
@@ -114,8 +120,12 @@ body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--te
   <div class="ver-badge" id="ver-badge">16.06.2026</div>
 </div>
 
+<div class="notice">
+  ⚠️ <b>Важно:</b> вся инкрустация была автоматически снята со снаряжения всех игроков и возвращена в инвентарь. Чешуя Нубера осталась на месте. Пересмотрите вставки — бонусы от инкрустации теперь корректно не учитываются при усилении.
+</div>
+
 <div class="summary">
-  <div class="sc c-fix"><div class="sc-v">9</div><div class="sc-l">Фиксы</div></div>
+  <div class="sc c-fix"><div class="sc-v">11</div><div class="sc-l">Фиксы</div></div>
   <div class="sc c-add"><div class="sc-v">5</div><div class="sc-l">Добавлено</div></div>
   <div class="sc c-tweak"><div class="sc-v">4</div><div class="sc-l">Улучшено</div></div>
 </div>
@@ -148,6 +158,8 @@ body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--te
 
   <div class="group">
     <div class="g-title fix">▸ Фиксы</div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Инкрустация при усилении</b> — бонусы от вставленных камней больше не влияют на расчёт прироста характеристик</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Сброс инкрустации</b> — вся инкрустация снята со снаряжения и возвращена игрокам в инвентарь (кроме Чешуи Нубера)</div></div>
     <div class="item"><div class="bullet fix">▸</div><div class="item-text">Эффект <b>Слабости</b> в бою и использование <b>корма</b> во время боя</div></div>
     <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Ордера</b> — запрещено создавать на Бижутерию, Оружие, Броню и Распечатанную Эссенцию питомца</div></div>
     <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Алхимик</b> — исправлена стоимость одного крафта, добавлено отображение эмодзи в клавиатуру крафта</div></div>
@@ -166,7 +178,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--te
     <div class="g-title add">✦ Добавлено</div>
     <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Мастерская инкрустации</b> — разбор инкру на Каменную пыль, заточка и слияние камней инкрустации</div></div>
     <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Голем (Сущность Земли)</b> — способности и прокачка через кормление рудой и слитками</div></div>
-    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Сущность Земли</b> — 0.1% шанс добыть в шахте</div></div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Сущность Земли</b> — шанс добыть в шахте</div></div>
     <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Снос построек в клане</b></div></div>
     <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Улучшение стадии питомца</b> — нужна вторая сущность того же типа</div></div>
   </div>
@@ -185,6 +197,8 @@ body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--te
 <div class="page" id="page-fix">
   <div class="group">
     <div class="g-title fix">▸ Фиксы</div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Инкрустация при усилении</b> — бонусы от вставленных камней больше не влияют на расчёт прироста характеристик</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Сброс инкрустации</b> — вся инкрустация снята и возвращена игрокам (кроме Чешуи Нубера)</div></div>
     <div class="item"><div class="bullet fix">▸</div><div class="item-text">Эффект <b>Слабости</b> в бою и использование <b>корма</b> во время боя</div></div>
     <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Ордера</b> — нельзя создавать на Бижутерию, Оружие, Броню, Распечатанную Эссенцию питомца</div></div>
     <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Алхимик</b> — стоимость одного крафта, отображение эмодзи в клавиатуре крафта</div></div>
