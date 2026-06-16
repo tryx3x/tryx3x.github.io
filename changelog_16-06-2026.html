@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Обновление — NightmareSpire</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#08070d;--surface:#12101c;--surface2:#191625;--border:rgba(255,255,255,0.07);
+  --text:#c8c4d4;--muted:#5a5570;--heading:#ece7f5;
+  --brand:#e74c3c;--brand-deep:#c0392b;--brand-glow:#ff6b5a;
+  --gold:#c9a84c;--gold-glow:#e8cf7a;
+  --ok:#4cc97a;--fix:#5a8fd8;--add:#a87ff0;--tweak:#e8cf7a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Crimson Pro',Georgia,serif;background:var(--bg);color:var(--text);
+  min-height:100vh;padding-bottom:56px;overflow-x:hidden;}
+
+.sky{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+.sky::before{content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -8%,rgba(231,76,60,.10),transparent),
+    radial-gradient(ellipse 55% 50% at 100% 105%,rgba(139,108,240,.08),transparent);}
+.star{position:absolute;background:#fff;border-radius:50%;
+  animation:tw var(--d,3s) ease-in-out infinite;animation-delay:var(--dl,0s);}
+@keyframes tw{0%,100%{opacity:var(--o1,.15);transform:scale(.8);}50%{opacity:var(--o2,1);transform:scale(1.15);}}
+
+.wrap{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:0 0 32px;}
+
+.header{padding:36px 20px 26px;text-align:center;position:relative;}
+.header::after{content:'';position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+  width:210px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--brand),transparent);opacity:.55;}
+.eyebrow{font-family:'Cinzel',serif;font-size:10px;font-weight:600;
+  letter-spacing:0.34em;color:var(--brand);text-transform:uppercase;opacity:.85;margin-bottom:11px;}
+.header h1{font-family:'Cinzel',serif;font-size:25px;font-weight:900;
+  color:var(--heading);letter-spacing:.06em;
+  text-shadow:0 0 32px rgba(231,76,60,.35);line-height:1.15;}
+.ver-badge{display:inline-block;margin-top:14px;
+  font-family:'Cinzel',serif;font-size:11px;font-weight:600;letter-spacing:.14em;
+  color:#fff;
+  background:linear-gradient(160deg,var(--brand),var(--brand-deep));
+  border:1px solid rgba(255,107,90,.4);
+  padding:5px 18px;border-radius:20px;
+  box-shadow:0 4px 18px rgba(231,76,60,.3);}
+
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:18px 14px 0;}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:13px;
+  padding:15px 10px;text-align:center;position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;left:0;top:0;right:0;height:2px;opacity:.6;}
+.sc.c-fix::before  {background:var(--fix);}
+.sc.c-add::before  {background:var(--add);}
+.sc.c-tweak::before{background:var(--tweak);}
+.sc-v{font-family:'Cinzel',serif;font-size:23px;font-weight:900;color:var(--heading);}
+.sc-l{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em;}
+.sc.c-fix  .sc-v{color:var(--fix);}
+.sc.c-add  .sc-v{color:var(--add);}
+.sc.c-tweak .sc-v{color:var(--tweak);}
+
+.stabs{display:flex;gap:4px;margin:18px 14px 0;padding:4px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  position:sticky;top:8px;z-index:20;backdrop-filter:blur(10px);}
+.stab{flex:1;padding:9px 4px;text-align:center;
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:.05em;
+  color:var(--muted);cursor:pointer;border-radius:8px;
+  transition:background .2s,color .2s;user-select:none;-webkit-tap-highlight-color:transparent;}
+.stab.active{color:#fff;background:linear-gradient(160deg,var(--brand),var(--brand-deep));
+  box-shadow:0 3px 12px rgba(231,76,60,.25);}
+
+.page{display:none;padding:18px 14px 0;}
+.page.active{display:block;animation:fadeUp .3s ease both;}
+
+.group{margin-bottom:22px;}
+.g-title{font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;padding:0 0 11px;display:flex;align-items:center;gap:9px;}
+.g-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,currentColor,transparent);opacity:.3;}
+.g-title.fix  {color:var(--fix);}
+.g-title.add  {color:var(--add);}
+.g-title.tweak{color:var(--tweak);}
+
+.item{display:flex;gap:11px;padding:12px 14px;
+  background:var(--surface);border:1px solid var(--border);border-radius:11px;
+  margin-bottom:6px;align-items:flex-start;
+  animation:fadeUp .35s ease both;}
+.item:last-child{margin-bottom:0;}
+.bullet{flex-shrink:0;width:22px;height:22px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:1px;}
+.bullet.fix  {background:rgba(90,143,216,.16);color:var(--fix);}
+.bullet.add  {background:rgba(168,127,240,.16);color:var(--add);}
+.bullet.tweak{background:rgba(232,207,122,.14);color:var(--tweak);}
+.item-text{font-size:14px;line-height:1.55;color:var(--text);}
+.item-text b{color:var(--heading);font-weight:600;}
+
+.foot{margin:26px 14px 0;background:linear-gradient(165deg,rgba(231,76,60,.06),var(--surface));
+  border:1px solid rgba(231,76,60,.2);
+  border-radius:14px;padding:18px;text-align:center;}
+.foot-text{font-size:13px;color:var(--muted);line-height:1.65;}
+.foot-text b{color:var(--heading);}
+.foot-link{color:var(--brand-glow);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@media(prefers-reduced-motion:reduce){.page.active,.item{animation:none;}.star{animation:none;}}
+</style>
+</head>
+<body>
+<div class="sky" id="sky"></div>
+<div class="wrap">
+
+<div class="header">
+  <div class="eyebrow">NightmareSpire</div>
+  <h1>Обновление</h1>
+  <div class="ver-badge" id="ver-badge">16.06.2026</div>
+</div>
+
+<div class="summary">
+  <div class="sc c-fix"><div class="sc-v">9</div><div class="sc-l">Фиксы</div></div>
+  <div class="sc c-add"><div class="sc-v">5</div><div class="sc-l">Добавлено</div></div>
+  <div class="sc c-tweak"><div class="sc-v">4</div><div class="sc-l">Улучшено</div></div>
+</div>
+
+<div class="stabs">
+  <div class="stab active" onclick="switchTab('all',this)">Всё</div>
+  <div class="stab"        onclick="switchTab('add',this)">Новое</div>
+  <div class="stab"        onclick="switchTab('tweak',this)">Улучшения</div>
+  <div class="stab"        onclick="switchTab('fix',this)">Фиксы</div>
+</div>
+
+<div class="page active" id="page-all">
+
+  <div class="group">
+    <div class="g-title add">✦ Добавлено</div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Мастерская инкрустации</b> — всю инкру можно разобрать на Каменную пыль, за которую доступна заточка и слияние камней инкрустации</div></div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Голем (Сущность Земли)</b> — добавлены способности и возможность прокачки через кормление рудой и слитками</div></div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Сущность Земли</b> — добавлен шанс 0.1% добыть её в шахте</div></div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Снос построек в клане</b> — постройки теперь можно демонтировать</div></div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Улучшение стадии питомца</b> — теперь требуется вторая сущность того же типа</div></div>
+  </div>
+
+  <div class="group">
+    <div class="g-title tweak">◈ Улучшено</div>
+    <div class="item"><div class="bullet tweak">◈</div><div class="item-text"><b>ТОП</b> — полностью обновлён визуал всех топов, добавлен отдельный <b>ТОП по питомцам</b></div></div>
+    <div class="item"><div class="bullet tweak">◈</div><div class="item-text"><b>Имя питомца</b> — добавлена валидация ввода</div></div>
+    <div class="item"><div class="bullet tweak">◈</div><div class="item-text"><b>Ювелирка</b> — убрана лишняя кнопка «Выбрать количество», добавлены кастомные эмодзи и пагинация при выборе инкрустации</div></div>
+    <div class="item"><div class="bullet tweak">◈</div><div class="item-text"><b>Переименование снаряжения</b> — добавлена пагинация, отображение редкости, уровня и степени заточки</div></div>
+  </div>
+
+  <div class="group">
+    <div class="g-title fix">▸ Фиксы</div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text">Эффект <b>Слабости</b> в бою и использование <b>корма</b> во время боя</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Ордера</b> — запрещено создавать на Бижутерию, Оружие, Броню и Распечатанную Эссенцию питомца</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Алхимик</b> — исправлена стоимость одного крафта, добавлено отображение эмодзи в клавиатуру крафта</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text">Отображение <b>синергии</b> при крафте брони</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Гильдия Наёмников</b> — подсветка теперь активна только если в текущем периоде есть непринятые или готовые к сдаче квесты</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Крафты без синергий</b> ослаблены до 65%</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text">Невозможность выставить <b>снаряжение с инкрустацией</b> на рынок</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text">Визуальная ошибка отображения <b>+ловкости в Средней броне</b></div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text">Отображение <b>редкости снаряжения в /trade</b> и обновлён визуал сбора параметров передаваемой экипировки</div></div>
+  </div>
+
+</div>
+
+<div class="page" id="page-add">
+  <div class="group">
+    <div class="g-title add">✦ Добавлено</div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Мастерская инкрустации</b> — разбор инкру на Каменную пыль, заточка и слияние камней инкрустации</div></div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Голем (Сущность Земли)</b> — способности и прокачка через кормление рудой и слитками</div></div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Сущность Земли</b> — 0.1% шанс добыть в шахте</div></div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Снос построек в клане</b></div></div>
+    <div class="item"><div class="bullet add">✦</div><div class="item-text"><b>Улучшение стадии питомца</b> — нужна вторая сущность того же типа</div></div>
+  </div>
+</div>
+
+<div class="page" id="page-tweak">
+  <div class="group">
+    <div class="g-title tweak">◈ Улучшено</div>
+    <div class="item"><div class="bullet tweak">◈</div><div class="item-text"><b>ТОП</b> — обновлён визуал всех топов + новый <b>ТОП по питомцам</b></div></div>
+    <div class="item"><div class="bullet tweak">◈</div><div class="item-text"><b>Имя питомца</b> — валидация ввода</div></div>
+    <div class="item"><div class="bullet tweak">◈</div><div class="item-text"><b>Ювелирка</b> — убрана лишняя кнопка, кастомные эмодзи, пагинация инкрустации</div></div>
+    <div class="item"><div class="bullet tweak">◈</div><div class="item-text"><b>Переименование снаряжения</b> — пагинация, редкость, уровень, заточка</div></div>
+  </div>
+</div>
+
+<div class="page" id="page-fix">
+  <div class="group">
+    <div class="g-title fix">▸ Фиксы</div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text">Эффект <b>Слабости</b> в бою и использование <b>корма</b> во время боя</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Ордера</b> — нельзя создавать на Бижутерию, Оружие, Броню, Распечатанную Эссенцию питомца</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Алхимик</b> — стоимость одного крафта, отображение эмодзи в клавиатуре крафта</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text">Отображение <b>синергии</b> при крафте брони</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Гильдия Наёмников</b> — подсветка только при непринятых или готовых к сдаче квестах</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Крафты без синергий</b> ослаблены до 65%</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text">Невозможность выставить <b>снаряжение с инкрустацией</b> на рынок</div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text">Визуальная ошибка <b>+ловкости в Средней броне</b></div></div>
+    <div class="item"><div class="bullet fix">▸</div><div class="item-text"><b>Редкость снаряжения в /trade</b> + обновлён визуал сбора параметров экипировки</div></div>
+  </div>
+</div>
+
+<div class="foot">
+  <div class="foot-text">
+    <b>NightmareSpire</b> продолжает развиваться.<br>
+    Следите за новостями: <span class="foot-link">t.me/trykablog</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sky = document.getElementById('sky');
+  const N = 60;
+  let html = '';
+  for (let i=0;i<N;i++){
+    const size = (Math.random()*2 + 0.6).toFixed(1);
+    const x = (Math.random()*100).toFixed(2);
+    const y = (Math.random()*100).toFixed(2);
+    const dur = (2 + Math.random()*4).toFixed(1);
+    const delay = (Math.random()*5).toFixed(1);
+    const o1 = (0.05 + Math.random()*0.2).toFixed(2);
+    const o2 = (0.5 + Math.random()*0.5).toFixed(2);
+    const tint = Math.random();
+    const color = tint > 0.9 ? '#e8cf7a' : (tint > 0.8 ? '#ff9a8a' : '#ffffff');
+    const glow = size > 1.6 ? 'box-shadow:0 0 '+(size*2)+'px '+color+';' : '';
+    html += '<div class="star" style="left:'+x+'%;top:'+y+'%;width:'+size+'px;height:'+size+'px;'
+      + 'background:'+color+';'+glow
+      + '--d:'+dur+'s;--dl:'+delay+'s;--o1:'+o1+';--o2:'+o2+';"></div>';
+  }
+  sky.innerHTML = html;
+})();
+
+function switchTab(name, el){
+  document.querySelectorAll('.stab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('page-'+name).classList.add('active');
+  window.scrollTo({top:0});
+}
+</script>
+</body>
+</html>
