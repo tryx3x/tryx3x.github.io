@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#090b0f">
 <title>Гримуар Синергий · Бронная мастерская</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;600&display=swap');
 
@@ -78,9 +79,7 @@ header.top { text-align: center; margin-bottom: 30px; }
   font-size: 11px; letter-spacing: .3em; text-transform: uppercase;
   color: var(--faint); margin-bottom: 16px;
 }
-.sigil {
-  width: 48px; height: 48px; margin: 0 auto 10px; opacity: .85;
-}
+.sigil { width: 48px; height: 48px; margin: 0 auto 10px; opacity: .85; }
 .sigil svg { width: 100%; height: 100%; fill: none; stroke: var(--acc); stroke-width: 2; }
 h1.title {
   font-family: 'Cinzel', serif; font-weight: 700;
@@ -89,9 +88,7 @@ h1.title {
   background: linear-gradient(180deg, #e2eef5 0%, #9cc4d6 58%, #5b7f92 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.title-rule {
-  width: 220px; height: 14px; margin: 2px auto 14px; opacity: .7;
-}
+.title-rule { width: 220px; height: 14px; margin: 2px auto 14px; opacity: .7; }
 .title-rule svg { width: 100%; height: 100%; }
 .subtitle {
   color: var(--muted); font-style: italic; font-size: 15px;
@@ -179,6 +176,8 @@ h1.title {
   border-left-color: var(--arch-locked);
   background: var(--bg-2);
 }
+/* Резервируем место под печать, чтобы она не наезжала на бейдж */
+.card.locked .card-head { padding-right: 42px; }
 
 .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .arch-badge {
@@ -191,6 +190,7 @@ h1.title {
 .ing-count {
   font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--faint);
   border: 1px solid var(--rule); border-radius: 999px; padding: 2px 9px;
+  white-space: nowrap;
 }
 
 .card-title {
@@ -206,7 +206,6 @@ h1.title {
 
 .divider { border: none; border-top: 1px solid var(--rule-soft); margin: 11px 0; }
 
-/* Числовые чипы: урон / магия / крит / множитель / дефект */
 .num-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 11px; }
 .nchip {
   font-family: 'JetBrains Mono', monospace; font-size: 11px;
@@ -217,7 +216,6 @@ h1.title {
 .nchip.good b { color: #8fbf6e; }
 .nchip.bad b  { color: #c9705f; }
 
-/* Мини-бары статов */
 .stat-bars { display: flex; flex-direction: column; gap: 5px; margin-bottom: 4px; }
 .sb-row { display: grid; grid-template-columns: 52px 1fr 34px; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
 .sb-row .k { color: var(--faint); }
@@ -232,7 +230,6 @@ h1.title {
   margin: 0; border-left: 2px solid var(--rule-soft); padding-left: 10px;
 }
 
-/* Восковая печать закрытой карточки */
 .seal { position: absolute; top: 13px; right: 13px; width: 34px; height: 34px; }
 .seal svg { width: 100%; height: 100%; }
 .locked-hint {
@@ -242,18 +239,6 @@ h1.title {
 
 .empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 20px; color: var(--faint); font-style: italic; line-height: 1.7; }
 .empty-state .big { font-family: 'Cinzel', serif; font-size: 19px; font-style: normal; color: var(--muted); margin-bottom: 8px; }
-
-/* Демо */
-.demo-bar { text-align: center; margin-top: 44px; padding-top: 26px; border-top: 1px solid var(--rule-soft); }
-.demo-btn {
-  font-family: 'JetBrains Mono', monospace; font-size: 12px;
-  background: transparent; border: 1px dashed var(--faint); color: var(--muted);
-  border-radius: var(--r); padding: 9px 16px; cursor: pointer;
-}
-.demo-btn:hover { border-color: var(--acc); color: var(--text); }
-.demo-btn:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
-.demo-note { font-size: 11px; color: var(--faint); margin-top: 9px; }
-.demo-note code { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; }
 
 @media (max-width: 520px) {
   .wrap { padding: 26px 13px 64px; }
@@ -271,7 +256,7 @@ h1.title {
   <header class="top">
     <div class="eyebrow">NightmareSpire · Бронное дело</div>
     <div class="sigil"><svg viewBox="0 0 48 48"><path d="M24 8 L38 13 V25 C38 33 32 38 24 41 C16 38 10 33 10 25 V13 Z"/><path d="M24 15 V33 M17 21 L31 21"/></svg></div>
-    <h1 class="title">Кодекс Эгиды</h1>
+    <h1 class="title">Гримуар Синергий</h1>
     <div class="title-rule">
       <svg viewBox="0 0 220 14" fill="none" stroke="var(--acc)" stroke-width="1">
         <path d="M4 7 H92 M128 7 H216" opacity=".55"/>
@@ -289,19 +274,13 @@ h1.title {
 
   <div class="filters">
     <div class="filters-inner">
-      <input type="text" class="search-box" id="search" placeholder="Поиск по названию или материалу…" aria-label="Поиск">
+      <input type="text" class="search-box" id="search" placeholder="Поиск по открытым синергиям…" aria-label="Поиск">
       <div class="chip-group" id="count-filters"></div>
       <div class="chip-group" id="arch-filters"></div>
     </div>
   </div>
 
   <div class="grid" id="grid"></div>
-
-  <div class="demo-bar">
-    <button class="demo-btn" id="demo-toggle">Показать демо-прогресс</button>
-    <p class="demo-note">Прогресс игрока подключается через <code>window.NIGHTMARE_DISCOVERED</code>
-      или параметр <code>?discovered=Имя1,Имя2</code>.</p>
-  </div>
 
 </div>
 
@@ -328,25 +307,30 @@ const ARCHETYPES = {
     icon: '<path d="M2 8 C2 4.5 4.5 2 8 2 C11 2 13 4 13 6.5 C13 8.7 11.3 10 9.5 10 C7.9 10 6.8 9 6.8 7.6 C6.8 6.4 7.6 5.6 8.6 5.6"/>' },
 };
 const Q_ICON = '<circle cx="8" cy="8" r="6"/><path d="M6.2 6.4 C6.2 5.1 7 4.4 8.1 4.4 C9.2 4.4 10 5.1 10 6.1 C10 7.6 8.1 7.6 8.1 9.1 M8.1 11.4 L8.1 11.5"/>';
-const STAT_MAX = 36; // нормировка мини-баров
+const STAT_MAX = 36;
 
+/* Прогресс игрока:
+   1) window.NIGHTMARE_DISCOVERED = [...]
+   2) ?lz=<LZString.compressToEncodedURIComponent(JSON-массива имён)>
+   3) ?discovered=Имя1,Имя2 */
 function resolveDiscovered() {
   if (Array.isArray(window.NIGHTMARE_DISCOVERED)) return new Set(window.NIGHTMARE_DISCOVERED);
-  const q = new URLSearchParams(location.search).get("discovered");
+  const params = new URLSearchParams(location.search);
+  const lz = params.get("lz");
+  if (lz && typeof LZString !== "undefined") {
+    try {
+      const raw = LZString.decompressFromEncodedURIComponent(lz);
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) return new Set(arr);
+    } catch (e) { /* повреждённый параметр — игнорируем */ }
+  }
+  const q = params.get("discovered");
   if (q) return new Set(q.split(",").map(s => s.trim()).filter(Boolean));
   return new Set();
 }
 
-let realDiscovered = resolveDiscovered();
-let demoMode = false;
+const discovered = resolveDiscovered();
 const state = { search: "", count: null, archetype: null };
-
-function activeSet() {
-  if (!demoMode) return realDiscovered;
-  const sorted = [...SYNERGIES_DATA].map(s => s.name).sort();
-  const step = Math.max(1, Math.floor(sorted.length / 15));
-  return new Set(sorted.filter((_, i) => i % step === 0).slice(0, 15));
-}
 
 function seedMotes() {
   const box = document.getElementById("motes");
@@ -392,9 +376,16 @@ function buildFilters() {
 }
 
 function matches(s) {
+  const isOpen = discovered.has(s.name);
   if (state.count !== null && s.ingredient_count !== state.count) return false;
-  if (state.archetype !== null && s.archetype !== state.archetype) return false;
+  /* Закрытые записи не участвуют в поиске и фильтре по архетипу —
+     иначе они выдавали бы скрытую информацию о составе и типе. */
+  if (state.archetype !== null) {
+    if (!isOpen) return false;
+    if (s.archetype !== state.archetype) return false;
+  }
   if (state.search) {
+    if (!isOpen) return false;
     const q = state.search.toLowerCase();
     const inName = s.name.toLowerCase().includes(q);
     const inMats = s.ingredients.some(c => (MATERIAL_NAMES[c] || c).toLowerCase().includes(q));
@@ -426,7 +417,7 @@ function sealSvg() {
     '<g transform="translate(9,9)" stroke="var(--arch-locked)" stroke-width="1.3" opacity=".85"><path d="M8 3.5 L12.5 5.5 V9 C12.5 11.5 10.5 13 8 14 C5.5 13 3.5 11.5 3.5 9 V5.5 Z"/></g></svg>';
 }
 
-function cardHtml(s, i, discovered) {
+function cardHtml(s, i) {
   const stagger = ' style="--stagger:' + Math.min(i * 26, 500) + 'ms;';
   if (!discovered.has(s.name)) {
     const mats = s.ingredients.map(() => "<li>?????</li>").join("");
@@ -464,16 +455,15 @@ function cardHtml(s, i, discovered) {
 
 function render() {
   const grid = document.getElementById("grid");
-  const discovered = activeSet();
 
   if (!SYNERGIES_DATA.length) {
-    grid.innerHTML = '<div class="empty-state"><div class="big">Страницы кодекса пусты</div>' +
+    grid.innerHTML = '<div class="empty-state"><div class="big">Страницы гримуара пусты</div>' +
       "Данные синергий ещё не встроены в этот файл.<br>Обновите страницу позже.</div>";
   } else {
     const list = SYNERGIES_DATA.filter(matches);
     grid.innerHTML = list.length
-      ? list.map((s, i) => cardHtml(s, i, discovered)).join("")
-      : '<div class="empty-state">Ничего не найдено — измените фильтры.</div>';
+      ? list.map((s, i) => cardHtml(s, i)).join("")
+      : '<div class="empty-state">Ничего не найдено — измените фильтры.<br>Помните: закрытые синергии не участвуют в поиске.</div>';
   }
 
   document.getElementById("p-count").textContent = discovered.size;
@@ -488,11 +478,6 @@ function render() {
 }
 
 document.getElementById("search").addEventListener("input", e => { state.search = e.target.value; render(); });
-document.getElementById("demo-toggle").addEventListener("click", () => {
-  demoMode = !demoMode;
-  document.getElementById("demo-toggle").textContent = demoMode ? "Скрыть демо-прогресс" : "Показать демо-прогресс";
-  render();
-});
 
 seedMotes();
 buildFilters();
