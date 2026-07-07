@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Привязка Twitch</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0e0e10;
+    color: #efeff1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  .card {
+    max-width: 420px;
+  }
+  h1 {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+  p {
+    color: #adadb8;
+    line-height: 1.5;
+  }
+  button, a.btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 28px;
+    background: #9146FF;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .spinner {
+    margin: 20px auto;
+    width: 32px;
+    height: 32px;
+    border: 3px solid #333;
+    border-top-color: #9146FF;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1 id="title">Привязка Twitch-аккаунта</h1>
+  <p id="text">Нажмите кнопку ниже, чтобы войти через Twitch и привязать аккаунт к боту.</p>
+  <div id="content"></div>
+</div>
+
+<script>
+
+const TWITCH_CLIENT_ID = "gp762nuuoqcoxypju8c569th9wz7q5";
+const BOT_USERNAME = "NightmareDream_RPGbot";
+const REDIRECT_URI = window.location.origin + window.location.pathname;
+
+const titleEl = document.getElementById("title");
+const textEl = document.getElementById("text");
+const contentEl = document.getElementById("content");
+
+function showLoginButton() {
+  const authUrl =
+    "https://id.twitch.tv/oauth2/authorize" +
+    "?client_id=" + encodeURIComponent(TWITCH_CLIENT_ID) +
+    "&redirect_uri=" + encodeURIComponent(REDIRECT_URI) +
+    "&response_type=token" +
+    "&scope=";
+
+  contentEl.innerHTML = '<a class="btn" href="' + authUrl + '">Войти через Twitch</a>';
+}
+
+function showSpinner(message) {
+  textEl.textContent = message;
+  contentEl.innerHTML = '<div class="spinner"></div>';
+}
+
+function showError(message) {
+  titleEl.textContent = "Ошибка";
+  textEl.textContent = message;
+  contentEl.innerHTML = "";
+}
+
+async function handleCallback(accessToken) {
+  showSpinner("Проверяем аккаунт...");
+
+  try {
+    const resp = await fetch("https://api.twitch.tv/helix/users", {
+      headers: {
+        "Authorization": "Bearer " + accessToken,
+        "Client-Id": TWITCH_CLIENT_ID,
+      },
+    });
+
+    if (!resp.ok) {
+      showError("Не удалось получить данные аккаунта Twitch. Попробуйте ещё раз.");
+      return;
+    }
+
+    const data = await resp.json();
+    const login = data.data && data.data[0] && data.data[0].login;
+
+    if (!login) {
+      showError("Twitch не вернул логин пользователя.");
+      return;
+    }
+
+    titleEl.textContent = "Готово!";
+    textEl.textContent = "Аккаунт " + login + " подтверждён. Открываем Telegram...";
+
+    const nonce = Math.random().toString(36).slice(2, 10);
+    const startParam = "twlink-" + nonce + "-" + login;
+    const deepLink = "https://t.me/" + BOT_USERNAME + "?start=" + startParam;
+
+    contentEl.innerHTML = '<a class="btn" href="' + deepLink + '">Открыть Telegram</a>';
+    window.location.href = deepLink;
+  } catch (e) {
+    showError("Ошибка сети: " + e.message);
+  }
+}
+
+const fragment = new URLSearchParams(window.location.hash.slice(1));
+const accessToken = fragment.get("access_token");
+
+if (accessToken) {
+  handleCallback(accessToken);
+} else {
+  showLoginButton();
+}
+</script>
+
+</body>
+</html>
