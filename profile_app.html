@@ -213,6 +213,11 @@ textarea:focus{border-color:var(--amber)}
 }
 .perm.on{border-color:var(--green);color:var(--green)}
 .perm:active{opacity:.6}
+.owner-badge{
+  display:inline-block;font-family:'IBM Plex Mono';font-size:10px;
+  color:var(--amber);border:1px solid var(--amber);
+  padding:2px 7px;margin-left:6px;vertical-align:middle;letter-spacing:.04em;
+}
 </style>
 </head>
 <body>
@@ -317,10 +322,13 @@ function renderStatus(d){
     let segs = "";
     for(let i=0;i<w.m;i++) segs += `<div class="seg ${i<w.n?"on":""}"></div>`;
     const msgs = (w.msgs!=null) ? `<span class="row-val mono">${w.msgs} сообщ.</span>` : "";
+    const ownerBadge = w.owner ? `<span class="owner-badge">владелец</span>` : "";
+    const manageBtn = w.owner ? `<button class="btn" style="margin-top:10px" data-open-owner="${w.id}">Настройки и права</button>` : "";
     return `<div class="row">
-      <div class="row-top"><div class="row-label">${esc(w.c)}</div>${msgs}</div>
+      <div class="row-top"><div class="row-label">${esc(w.c)} ${ownerBadge}</div>${msgs}</div>
       <div class="gauge"><div class="gauge-track">${segs}</div><div class="gauge-num">${w.n}/${w.m}</div></div>
       ${w.n>0 ? `<div class="row-note">При ${w.m} предупреждениях следует блокировка</div>` : `<div class="row-note">Предупреждений нет</div>`}
+      ${manageBtn}
     </div>`;
   }).join("");
   return `<div class="manifest">${rows}</div>${addBtn}`;
@@ -409,72 +417,127 @@ function renderTwitch(d){
     ${dropsCard}`;
 }
 
+function renderManagePanel(chats, perms, plabels, isAdmin){
+  return (chats||[]).length
+    ? chats.map(ch=>{
+        const mods = ch.mods || [];
+        const modsHtml = mods.length
+          ? mods.map(m=>{
+              const toggles = perms.map(p=>{
+                const on = (m.perms||[]).includes(p);
+                return `<button class="perm ${on?"on":""}" data-toggle data-chat="${ch.id}" data-uid="${m.id}" data-perm="${p}">${esc(plabels[p]||p)}</button>`;
+              }).join("");
+              return `<div class="mod-box">
+                <div class="row-top"><div class="row-label mono">${m.id}</div><button class="mini-btn" data-delmod data-chat="${ch.id}" data-uid="${m.id}">убрать</button></div>
+                <div class="perms">${toggles}</div>
+              </div>`;
+            }).join("")
+          : `<div class="row-note">Модераторов нет.</div>`;
+
+        const delChat = isAdmin ? `<button class="mini-btn" data-delchat data-chat="${ch.id}">отключить</button>` : "";
+
+        return `<div class="row" data-chatblock="${ch.id}">
+          <div class="row-top"><div class="row-label">${esc(ch.title)}</div>${delChat}</div>
+          <div class="row-note mono">${ch.id}</div>
+          ${modsHtml}
+          <div class="mod-line">
+            <input class="inp" id="mod-${ch.id}" placeholder="ID или @username">
+            <button class="mini-btn" data-addmod data-chat="${ch.id}">+ добавить</button>
+          </div>
+          <button class="btn accent" data-save data-chat="${ch.id}">Сохранить права</button>
+        </div>`;
+      }).join("")
+    : `<div class="row-note">Чатов нет.</div>`;
+}
+
 function renderAdmin(d){
   const a = d.admin;
   const perms = a.perms || [];
   const plabels = a.plabels || {};
 
   const chans = (a.tw||[]).length
-    ? a.tw.map(c=>`<div class="row"><div class="row-top"><div class="row-label mono">${esc(c)}</div><button class="mini-btn" data-adm="del_twitch" data-val="${esc(c)}">удалить</button></div></div>`).join("")
+    ? a.tw.map(c=>`<div class="row"><div class="row-top"><div class="row-label mono">${esc(c)}</div><button class="mini-btn" data-deltwitch data-val="${esc(c)}">удалить</button></div></div>`).join("")
     : `<div class="row-note">Каналов пока нет.</div>`;
-
-  const chats = (a.chats||[]).length
-    ? a.chats.map(ch=>{
-        const mods = ch.mods || [];
-        const modsHtml = mods.length
-          ? mods.map(m=>{
-              const toggles = perms.map(p=>{
-                const on = (m.perms||[]).includes(p);
-                return `<button class="perm ${on?"on":""}" data-adm="toggle_perm" data-chat="${ch.id}" data-uid="${m.id}" data-perm="${p}">${esc(plabels[p]||p)}</button>`;
-              }).join("");
-              return `<div class="mod-box">
-                <div class="row-top"><div class="row-label mono">${m.id}</div><button class="mini-btn" data-adm="del_mod" data-chat="${ch.id}" data-val="${m.id}">убрать</button></div>
-                <div class="perms">${toggles}</div>
-              </div>`;
-            }).join("")
-          : `<div class="row-note">Модераторов нет.</div>`;
-
-        return `<div class="row">
-          <div class="row-top"><div class="row-label">${esc(ch.title)}</div><button class="mini-btn" data-adm="del_chat" data-chat="${ch.id}">отключить</button></div>
-          <div class="row-note mono">${ch.id}${ch.owner?` · владелец ${ch.owner}`:""}</div>
-          ${modsHtml}
-          <div class="mod-line">
-            <input class="inp" id="mod-${ch.id}" placeholder="ID или @username">
-            <button class="mini-btn" data-adm="add_mod" data-chat="${ch.id}">+ добавить</button>
-          </div>
-        </div>`;
-      }).join("")
-    : `<div class="row-note">Чатов пока нет. Добавьте бота в группу — она появится здесь.</div>`;
 
   return `
     <div class="row-top" style="margin-bottom:2px"><div class="row-label">Twitch-каналы</div></div>
     <div class="manifest">${chans}</div>
     <div class="mod-line" style="margin-top:12px">
       <input class="inp" id="new-twitch" placeholder="twitch.tv/канал или логин">
-      <button class="btn accent" style="margin:0;width:auto;padding:10px 14px" data-adm="add_twitch">Добавить</button>
+      <button class="btn accent" style="margin:0;width:auto;padding:10px 14px" data-addtwitch>Добавить</button>
     </div>
 
     <div class="row-top" style="margin:22px 0 2px"><div class="row-label">Чаты и модераторы</div></div>
-    <div class="manifest">${chats}</div>`;
+    <div class="manifest">${renderManagePanel(a.chats, perms, plabels, true)}</div>`;
+}
+
+let pendingPerms = {};
+
+function collectMod(chatId, uid){
+  const key = chatId+":"+uid;
+  if(!pendingPerms[key]){
+    const active = [];
+    document.querySelectorAll(`[data-toggle][data-chat="${chatId}"][data-uid="${uid}"].on`).forEach(b=>active.push(b.dataset.perm));
+    pendingPerms[key] = active;
+  }
+  return pendingPerms[key];
 }
 
 function bindAdmin(){
-  document.querySelectorAll("[data-adm]").forEach(el=>{
+  document.querySelectorAll("[data-toggle]").forEach(el=>{
     el.addEventListener("click",()=>{
-      const act = el.dataset.adm;
-      const chatId = el.dataset.chat || null;
-      let value = el.dataset.val || null;
-
-      if(act==="add_twitch"){ value = document.getElementById("new-twitch").value.trim(); if(!value) return; }
-      if(act==="add_mod"){ value = document.getElementById("mod-"+chatId).value.trim(); if(!value) return; }
-
-      const payload = {action:"admin_"+act};
-      if(chatId) payload.chat_id = chatId;
-      if(value!==null) payload.value = value;
-      if(act==="toggle_perm"){ payload.uid = el.dataset.uid; payload.perm = el.dataset.perm; }
-
-      if(tg) tg.sendData(JSON.stringify(payload));
+      const chatId = el.dataset.chat, uid = el.dataset.uid, perm = el.dataset.perm;
+      const arr = collectMod(chatId, uid);
+      const idx = arr.indexOf(perm);
+      if(idx>=0){ arr.splice(idx,1); el.classList.remove("on"); }
+      else { arr.push(perm); el.classList.add("on"); }
     });
+  });
+
+  document.querySelectorAll("[data-save]").forEach(el=>{
+    el.addEventListener("click",()=>{
+      const chatId = el.dataset.chat;
+      const changes = {};
+      Object.keys(pendingPerms).forEach(key=>{
+        const [cid, uid] = key.split(":");
+        if(cid===String(chatId)) changes[uid] = pendingPerms[key];
+      });
+      if(tg) tg.sendData(JSON.stringify({action:"save_perms", chat_id:chatId, changes:changes}));
+    });
+  });
+
+  document.querySelectorAll("[data-addmod]").forEach(el=>{
+    el.addEventListener("click",()=>{
+      const chatId = el.dataset.chat;
+      const value = document.getElementById("mod-"+chatId).value.trim();
+      if(!value) return;
+      const action = el.closest("[data-ownerpanel]") ? "owner_add_mod" : "admin_add_mod";
+      if(tg) tg.sendData(JSON.stringify({action:action, chat_id:chatId, value:value}));
+    });
+  });
+
+  document.querySelectorAll("[data-delmod]").forEach(el=>{
+    el.addEventListener("click",()=>{
+      const action = el.closest("[data-ownerpanel]") ? "owner_del_mod" : "admin_del_mod";
+      if(tg) tg.sendData(JSON.stringify({action:action, chat_id:el.dataset.chat, value:el.dataset.uid}));
+    });
+  });
+
+  document.querySelectorAll("[data-deltwitch]").forEach(el=>{
+    el.addEventListener("click",()=>{ if(tg) tg.sendData(JSON.stringify({action:"admin_del_twitch", value:el.dataset.val})); });
+  });
+  document.querySelectorAll("[data-addtwitch]").forEach(el=>{
+    el.addEventListener("click",()=>{
+      const value = document.getElementById("new-twitch").value.trim();
+      if(value && tg) tg.sendData(JSON.stringify({action:"admin_add_twitch", value:value}));
+    });
+  });
+  document.querySelectorAll("[data-delchat]").forEach(el=>{
+    el.addEventListener("click",()=>{ if(tg) tg.sendData(JSON.stringify({action:"admin_del_chat", chat_id:el.dataset.chat})); });
+  });
+
+  document.querySelectorAll("[data-open-owner]").forEach(el=>{
+    el.addEventListener("click",()=>openOwnerPanel(el.dataset.openOwner));
   });
 }
 
@@ -496,7 +559,30 @@ document.getElementById("sendAmnesty").addEventListener("click",()=>{
     alert("Откройте приложение через Telegram.");
   }
 });
+
+function openOwnerPanel(chatId){
+  if(!data || !data.owned) return;
+  const ch = data.owned.find(c=>String(c.id)===String(chatId));
+  if(!ch) return;
+
+  const panel = document.getElementById("ownerPanel");
+  panel.innerHTML = renderManagePanel([ch], data.perms||[], data.plabels||{}, false);
+  panel.setAttribute("data-ownerpanel","1");
+
+  document.getElementById("ownerOverlay").classList.add("open");
+  bindAdmin();
+}
+document.getElementById("closeOwner").addEventListener("click",()=>document.getElementById("ownerOverlay").classList.remove("open"));
 </script>
+
+<div class="overlay" id="ownerOverlay">
+  <div class="sheet" style="max-height:82vh;overflow-y:auto">
+    <h3>Управление группой</h3>
+    <p>Назначайте модераторов и выдавайте им права. Не забудьте «Сохранить права».</p>
+    <div id="ownerPanel"></div>
+    <button class="btn" id="closeOwner" style="margin-top:14px">Закрыть</button>
+  </div>
+</div>
 
 </body>
 </html>
