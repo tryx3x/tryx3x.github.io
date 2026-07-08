@@ -2,143 +2,357 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Привязка Twitch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Профиль</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #0e0e10;
-    color: #efeff1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    margin: 0;
-    text-align: center;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-  .card {
-    max-width: 420px;
-  }
-  h1 {
-    font-size: 22px;
-    margin-bottom: 12px;
-  }
-  p {
-    color: #adadb8;
-    line-height: 1.5;
-  }
-  button, a.btn {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 12px 28px;
-    background: #9146FF;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-  }
-  .spinner {
-    margin: 20px auto;
-    width: 32px;
-    height: 32px;
-    border: 3px solid #333;
-    border-top-color: #9146FF;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+:root{
+  --bg:#0A0A0E;
+  --surface:#14141C;
+  --surface-2:#1B1B26;
+  --border:#26263A;
+  --purple:#9146FF;
+  --purple-dim:rgba(145,70,255,.16);
+  --amber:#FFB454;
+  --red:#FF5C6C;
+  --green:#3DDC97;
+  --text:#F0F0F5;
+  --muted:#8A8A9E;
+  --radius:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  padding:16px 14px 90px;
+  -webkit-font-smoothing:antialiased;
+}
+.display{font-family:'Unbounded',sans-serif}
+
+.player-card{
+  position:relative;
+  background:linear-gradient(150deg,var(--surface-2),var(--surface) 60%);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px 18px;
+  overflow:hidden;
+}
+.player-card::before{
+  content:"";
+  position:absolute;inset:0;
+  background:radial-gradient(420px 180px at 85% -20%,var(--purple-dim),transparent 70%);
+  pointer-events:none;
+}
+.pc-top{display:flex;align-items:center;gap:14px}
+.avatar{
+  width:56px;height:56px;flex:none;
+  border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded';font-weight:700;font-size:22px;color:#fff;
+  background:linear-gradient(135deg,#7C2BFF,#B07CFF);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08),0 8px 24px rgba(145,70,255,.35);
+}
+.pc-name{font-family:'Unbounded';font-weight:700;font-size:17px;line-height:1.25;word-break:break-word}
+.pc-id{margin-top:4px;font-size:12px;color:var(--muted);letter-spacing:.4px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{
+  font-size:12px;font-weight:600;
+  padding:5px 11px;border-radius:99px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.03);
+  color:var(--muted);
+}
+.chip.ok{color:var(--green);border-color:rgba(61,220,151,.35);background:rgba(61,220,151,.08)}
+.chip.warn{color:var(--amber);border-color:rgba(255,180,84,.35);background:rgba(255,180,84,.08)}
+.chip.bad{color:var(--red);border-color:rgba(255,92,108,.35);background:rgba(255,92,108,.08)}
+.chip.tw{color:#C79BFF;border-color:rgba(145,70,255,.4);background:var(--purple-dim)}
+
+.tabs{
+  position:fixed;left:14px;right:14px;bottom:14px;z-index:10;
+  display:flex;gap:4px;padding:5px;
+  background:rgba(20,20,28,.92);
+  backdrop-filter:blur(14px);
+  border:1px solid var(--border);
+  border-radius:16px;
+}
+.tab{
+  flex:1;border:none;background:transparent;color:var(--muted);
+  font-family:'Unbounded';font-weight:500;font-size:11.5px;
+  padding:11px 4px;border-radius:12px;cursor:pointer;
+  transition:all .18s ease;
+}
+.tab.active{background:var(--purple);color:#fff;box-shadow:0 4px 16px rgba(145,70,255,.4)}
+
+.section{display:none;margin-top:16px}
+.section.active{display:block}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:12px;
+  animation:rise .35s ease both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.card{animation:none}}
+
+.card-title{font-size:14px;font-weight:700;margin-bottom:4px;word-break:break-word}
+.card-sub{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+.pips{display:flex;gap:6px;margin-top:12px}
+.pip{
+  flex:1;height:9px;border-radius:5px;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+}
+.pip.on{background:linear-gradient(90deg,var(--amber),#FF8A5C);border-color:transparent;box-shadow:0 0 10px rgba(255,180,84,.4)}
+.pip-label{margin-top:8px;font-size:12px;color:var(--muted)}
+
+.empty{
+  text-align:center;padding:34px 16px;
+  color:var(--muted);font-size:13.5px;line-height:1.6;
+}
+.empty .big{font-family:'Unbounded';font-weight:700;font-size:15px;color:var(--green);display:block;margin-bottom:6px}
+
+.ban-meta{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.7}
+.ban-meta b{color:var(--text)}
+.bar{height:7px;border-radius:5px;background:var(--surface-2);border:1px solid var(--border);margin-top:12px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--purple),#B07CFF);border-radius:5px;transition:width .6s ease}
+.bar-note{margin-top:7px;font-size:12px;color:var(--muted)}
+
+.btn{
+  display:block;width:100%;margin-top:14px;
+  padding:13px;border:none;border-radius:13px;
+  background:var(--purple);color:#fff;
+  font-family:'Unbounded';font-weight:500;font-size:13px;
+  cursor:pointer;transition:transform .12s ease,opacity .12s;
+}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+.badge-req{
+  display:inline-block;margin-top:12px;
+  font-size:12px;font-weight:600;color:var(--amber);
+  padding:6px 12px;border-radius:99px;
+  background:rgba(255,180,84,.1);border:1px solid rgba(255,180,84,.3);
+}
+
+.tw-hero{text-align:center;padding:8px 0 4px}
+.tw-total{font-family:'Unbounded';font-weight:700;font-size:34px;background:linear-gradient(135deg,#B07CFF,#9146FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tw-cap{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
+.days{margin-top:16px}
+.day-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.day-date{width:52px;flex:none;font-size:11.5px;color:var(--muted)}
+.day-bar{flex:1;height:8px;border-radius:5px;background:var(--surface-2);overflow:hidden}
+.day-fill{height:100%;background:linear-gradient(90deg,var(--purple),#C79BFF);border-radius:5px}
+.day-val{width:58px;flex:none;text-align:right;font-size:11.5px;color:var(--text)}
+
+.overlay{
+  position:fixed;inset:0;z-index:20;display:none;
+  background:rgba(6,6,10,.8);backdrop-filter:blur(6px);
+  padding:18px;align-items:flex-end;
+}
+.overlay.open{display:flex}
+.sheet{
+  width:100%;background:var(--surface);
+  border:1px solid var(--border);border-radius:20px;
+  padding:20px 18px;animation:rise .25s ease;
+}
+.sheet h3{font-family:'Unbounded';font-size:14px;margin-bottom:6px}
+.sheet p{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px}
+textarea{
+  width:100%;min-height:110px;resize:vertical;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:13px;padding:12px;color:var(--text);
+  font-family:inherit;font-size:14px;line-height:1.5;outline:none;
+}
+textarea:focus{border-color:var(--purple)}
+.err{text-align:center;padding:60px 20px;color:var(--muted);line-height:1.7}
 </style>
 </head>
 <body>
 
-<div class="card">
-  <h1 id="title">Привязка Twitch-аккаунта</h1>
-  <p id="text">Нажмите кнопку ниже, чтобы войти через Twitch и привязать аккаунт к боту.</p>
-  <div id="content"></div>
+<div id="app"></div>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <h3>Заявка на амнистию</h3>
+    <p id="sheetChat"></p>
+    <textarea id="amnestyText" placeholder="Опишите, почему вас стоит разбанить..."></textarea>
+    <button class="btn" id="sendAmnesty">Отправить заявку</button>
+    <button class="btn ghost" id="cancelAmnesty">Отмена</button>
+  </div>
 </div>
 
 <script>
-const TWITCH_CLIENT_ID = "42ki6up0kqwtkkcit0xu0k1pu7wdt6";
-const BOT_USERNAME = "NightmareDream_RPGbot";
-const REDIRECT_URI = window.location.origin + window.location.pathname;
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor("#0A0A0E"); tg.setBackgroundColor("#0A0A0E"); }
 
-const titleEl = document.getElementById("title");
-const textEl = document.getElementById("text");
-const contentEl = document.getElementById("content");
-
-function showLoginButton() {
-  const authUrl =
-    "https://id.twitch.tv/oauth2/authorize" +
-    "?client_id=" + encodeURIComponent(TWITCH_CLIENT_ID) +
-    "&redirect_uri=" + encodeURIComponent(REDIRECT_URI) +
-    "&response_type=token" +
-    "&scope=";
-
-  contentEl.innerHTML = '<a class="btn" href="' + authUrl + '">Войти через Twitch</a>';
+function decodePayload(){
+  const m = location.hash.match(/[#&]d=([^&]+)/);
+  if(!m) return null;
+  let b64 = m[1].replace(/-/g,"+").replace(/_/g,"/");
+  while(b64.length % 4) b64 += "=";
+  try{
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }catch(e){ return null; }
 }
 
-function showSpinner(message) {
-  textEl.textContent = message;
-  contentEl.innerHTML = '<div class="spinner"></div>';
+function fmtDur(s){
+  s = s|0;
+  const h = Math.floor(s/3600), m = Math.floor(s%3600/60);
+  if(!h && !m) return "<1м";
+  if(!h) return m+"м";
+  return h+"ч "+m+"м";
 }
+function esc(t){const d=document.createElement("div");d.textContent=t??"";return d.innerHTML;}
 
-function showError(message) {
-  titleEl.textContent = "Ошибка";
-  textEl.textContent = message;
-  contentEl.innerHTML = "";
-}
+const data = decodePayload();
+const app = document.getElementById("app");
 
-async function handleCallback(accessToken) {
-  showSpinner("Проверяем аккаунт...");
-
-  try {
-    const resp = await fetch("https://api.twitch.tv/helix/users", {
-      headers: {
-        "Authorization": "Bearer " + accessToken,
-        "Client-Id": TWITCH_CLIENT_ID,
-      },
-    });
-
-    if (!resp.ok) {
-      showError("Не удалось получить данные аккаунта Twitch. Попробуйте ещё раз.");
-      return;
-    }
-
-    const data = await resp.json();
-    const login = data.data && data.data[0] && data.data[0].login;
-
-    if (!login) {
-      showError("Twitch не вернул логин пользователя.");
-      return;
-    }
-
-    titleEl.textContent = "Готово!";
-    textEl.textContent = "Аккаунт " + login + " подтверждён. Открываем Telegram...";
-
-    const nonce = Math.random().toString(36).slice(2, 10);
-    const startParam = "twlink-" + nonce + "-" + login;
-    const deepLink = "https://t.me/" + BOT_USERNAME + "?start=" + startParam;
-
-    contentEl.innerHTML = '<a class="btn" href="' + deepLink + '">Открыть Telegram</a>';
-    window.location.href = deepLink;
-  } catch (e) {
-    showError("Ошибка сети: " + e.message);
-  }
-}
-
-const fragment = new URLSearchParams(window.location.hash.slice(1));
-const accessToken = fragment.get("access_token");
-
-if (accessToken) {
-  handleCallback(accessToken);
+if(!data){
+  app.innerHTML = '<div class="err">Не удалось загрузить данные.<br>Откройте профиль через кнопку в боте (/start).</div>';
 } else {
-  showLoginButton();
+  render(data);
 }
+
+function render(d){
+  const initial = (d.n||"?").trim().charAt(0).toUpperCase();
+  const totalWarns = (d.w||[]).reduce((a,x)=>a+x.n,0);
+  const bansCount = (d.b||[]).length;
+
+  const chips = [];
+  chips.push(totalWarns ? `<span class="chip warn">⚠ ${totalWarns} варн.</span>` : `<span class="chip ok">✓ Чистый</span>`);
+  if(bansCount) chips.push(`<span class="chip bad">🚫 Банов: ${bansCount}</span>`);
+  if(d.t) chips.push(`<span class="chip tw">🎮 ${esc(d.t.l)}</span>`);
+
+  app.innerHTML = `
+    <div class="player-card">
+      <div class="pc-top">
+        <div class="avatar">${esc(initial)}</div>
+        <div>
+          <div class="pc-name">${esc(d.n)}</div>
+          <div class="pc-id">ID ${d.u}</div>
+        </div>
+      </div>
+      <div class="chips">${chips.join("")}</div>
+    </div>
+
+    <div class="section active" id="sec-status">${renderStatus(d)}</div>
+    <div class="section" id="sec-bans">${renderBans(d)}</div>
+    <div class="section" id="sec-twitch">${renderTwitch(d)}</div>
+
+    <div class="tabs">
+      <button class="tab active" data-t="status">Статус</button>
+      <button class="tab" data-t="bans">Баны</button>
+      <button class="tab" data-t="twitch">Twitch</button>
+    </div>`;
+
+  document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    document.getElementById("sec-"+b.dataset.t).classList.add("active");
+  }));
+
+  document.querySelectorAll("[data-amnesty]").forEach(b=>b.addEventListener("click",()=>openAmnesty(b.dataset.amnesty,b.dataset.chat)));
+  const lb = document.getElementById("linkTwitch");
+  if(lb) lb.addEventListener("click",()=>{ if(tg && d.lu) tg.openLink(d.lu); else if(d.lu) location.href=d.lu; });
+}
+
+function renderStatus(d){
+  if(!d.w || !d.w.length){
+    return `<div class="card"><div class="empty"><span class="big">Всё чисто</span>Варнов нет ни в одном чате.<br>Так держать!</div></div>`;
+  }
+  return d.w.map(w=>{
+    let pips = "";
+    for(let i=0;i<w.m;i++) pips += `<div class="pip ${i<w.n?"on":""}"></div>`;
+    return `<div class="card">
+      <div class="card-title">${esc(w.c)}</div>
+      <div class="pips">${pips}</div>
+      <div class="pip-label">${w.n} из ${w.m} — при ${w.m} варнах следует бан</div>
+    </div>`;
+  }).join("");
+}
+
+function renderBans(d){
+  if(!d.b || !d.b.length){
+    return `<div class="card"><div class="empty"><span class="big">Банов нет</span>Активных блокировок не найдено.</div></div>`;
+  }
+  return d.b.map(b=>{
+    const pct = Math.min(100, Math.round(b.days / b.wait * 100));
+    let action;
+    if(b.req){
+      action = `<span class="badge-req">📨 Заявка на рассмотрении</span>`;
+    } else if(b.days >= b.wait){
+      action = `<button class="btn" data-amnesty="${b.id}" data-chat="${esc(b.c)}">⚖ Подать заявку на амнистию</button>`;
+    } else {
+      const left = Math.max(0,(b.wait-b.days)).toFixed(1);
+      action = `<div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+                <div class="bar-note">Заявка станет доступна через ${left} дн.</div>`;
+    }
+    return `<div class="card">
+      <div class="card-title">🚫 ${esc(b.c)}</div>
+      <div class="ban-meta">
+        Причина: <b>${esc(b.r)}</b><br>
+        Дата: ${esc(b.dt)}<br>
+        Прошло: <b>${b.days}</b> / ${b.wait} дн.
+      </div>
+      ${action}
+    </div>`;
+  }).join("");
+}
+
+function renderTwitch(d){
+  if(!d.t){
+    const btn = d.lu ? `<button class="btn" id="linkTwitch">🔗 Привязать Twitch</button>` : "";
+    return `<div class="card"><div class="empty"><span class="big" style="color:#C79BFF">Twitch не привязан</span>Привяжите аккаунт, чтобы видеть время просмотра стрима.</div>${btn}</div>`;
+  }
+  const maxSec = Math.max(1, ...(d.t.d||[]).map(x=>x[1]));
+  const days = (d.t.d||[]).map(x=>{
+    const date = x[0].slice(5).split("-").reverse().join(".");
+    return `<div class="day-row">
+      <div class="day-date">${date}</div>
+      <div class="day-bar"><div class="day-fill" style="width:${Math.round(x[1]/maxSec*100)}%"></div></div>
+      <div class="day-val">${fmtDur(x[1])}</div>
+    </div>`;
+  }).join("");
+  return `<div class="card">
+    <div class="tw-hero">
+      <div class="tw-total">${fmtDur(d.t.s)}</div>
+      <div class="tw-cap">в чате стрима · ${esc(d.t.l)}</div>
+    </div>
+    ${days ? `<div class="days">${days}</div>` : `<div class="card-sub" style="text-align:center;margin-top:10px">Пока нет данных по дням.</div>`}
+  </div>`;
+}
+
+let amnestyChatId = null;
+const overlay = document.getElementById("overlay");
+
+function openAmnesty(chatId, chatName){
+  amnestyChatId = chatId;
+  document.getElementById("sheetChat").textContent = "Чат: " + chatName + ". Опишите одним сообщением, почему вас стоит разбанить — заявку рассмотрят администраторы.";
+  document.getElementById("amnestyText").value = "";
+  overlay.classList.add("open");
+}
+
+document.getElementById("cancelAmnesty").addEventListener("click",()=>overlay.classList.remove("open"));
+
+document.getElementById("sendAmnesty").addEventListener("click",()=>{
+  const text = document.getElementById("amnestyText").value.trim();
+  if(!text){ document.getElementById("amnestyText").focus(); return; }
+  if(tg){
+    tg.sendData(JSON.stringify({action:"amnesty", chat_id:amnestyChatId, text:text}));
+  } else {
+    alert("Откройте приложение через Telegram.");
+  }
+});
 </script>
 
 </body>
