@@ -616,7 +616,11 @@ function openOwnerPanel(chatId){
   document.getElementById("ownerOverlay").classList.add("open");
   bindAdmin();
 }
-document.getElementById("closeOwner").addEventListener("click",()=>document.getElementById("ownerOverlay").classList.remove("open"));
+document.getElementById("ownerOverlay").addEventListener("click",(e)=>{
+  if(e.target.id==="ownerOverlay" || e.target.id==="closeOwner"){
+    document.getElementById("ownerOverlay").classList.remove("open");
+  }
+});
 </script>
 
 <div class="overlay" id="ownerOverlay">
