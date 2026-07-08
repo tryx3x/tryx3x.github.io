@@ -295,19 +295,22 @@ function render(d){
 }
 
 function renderStatus(d){
+  const addBtn = d.bot ? `<a class="btn" style="text-decoration:none;text-align:center" href="https://t.me/${esc(d.bot)}?startgroup=true">+ Добавить бота в свою группу</a>` : "";
+
   if(!d.w || !d.w.length){
-    return `<div class="empty"><span class="big">Записей нет</span><span class="sub">Ни одного предупреждения ни в одном чате</span></div>`;
+    return `<div class="empty"><span class="big">Нет активности</span><span class="sub">Вы пока не состоите в чатах с ботом</span></div>${addBtn}`;
   }
   const rows = d.w.map(w=>{
     let segs = "";
     for(let i=0;i<w.m;i++) segs += `<div class="seg ${i<w.n?"on":""}"></div>`;
+    const msgs = (w.msgs!=null) ? `<span class="row-val mono">${w.msgs} сообщ.</span>` : "";
     return `<div class="row">
-      <div class="row-top"><div class="row-label">${esc(w.c)}</div></div>
+      <div class="row-top"><div class="row-label">${esc(w.c)}</div>${msgs}</div>
       <div class="gauge"><div class="gauge-track">${segs}</div><div class="gauge-num">${w.n}/${w.m}</div></div>
-      <div class="row-note">При ${w.m} предупреждениях следует блокировка</div>
+      ${w.n>0 ? `<div class="row-note">При ${w.m} предупреждениях следует блокировка</div>` : `<div class="row-note">Предупреждений нет</div>`}
     </div>`;
   }).join("");
-  return `<div class="manifest">${rows}</div>`;
+  return `<div class="manifest">${rows}</div>${addBtn}`;
 }
 
 function renderBans(d){
