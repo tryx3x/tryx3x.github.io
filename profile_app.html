@@ -3,195 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Профиль</title>
+<title>Досье</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /*
-  Дизайн-токены
-  Палитра: графитово-чёрный + один рабочий акцент (янтарь) для статуса
-  и Twitch-фиолетовый только там, где речь буквально о Twitch —
-  не смешиваем их в общий "gamer glow", у каждого своя роль.
-  Никаких box-shadow/градиентных заливок кнопок — только плоские
-  поверхности и hairline-границы 1px.
+  design read: личное досье участника комьюнити (модерация + игровой бан +
+  Twitch-дропсы) для аудитории геймеров/зрителей стрима. Язык — "системный
+  отчёт/досье", не шаблонный gamer-дашборд с фиолетовым свечением.
+  dials: variance 6 / motion 4 / density 5 — данных много, но подача
+  строгая, не художественно-воздушная.
+  Сигнатура: манифест-списки с разделителями вместо стопки карточек;
+  "печать" вместо бейджа для статуса бана; построчная выдача при загрузке.
 */
 :root{
-  --bg:#0B0B0D;
-  --surface:#141416;
-  --surface-2:#1B1B1E;
-  --line:#2A2A2E;
-  --line-soft:#202023;
-  --amber:#E8A248;
+  --bg:#0A0A0B;
+  --panel:#111113;
+  --line:#232326;
+  --line-soft:#1A1A1D;
+  --ink:#EDEDEE;
+  --dim:#77777D;
+  --amber:#D9A455;
+  --red:#D9555F;
+  --green:#57C08C;
   --twitch:#9146FF;
-  --red:#E5555F;
-  --green:#4BC98A;
-  --text:#EDEDEF;
-  --muted:#87878E;
-  --radius:14px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   background:var(--bg);
-  color:var(--text);
-  padding:14px 14px 92px;
+  color:var(--ink);
+  padding:14px 14px 88px;
   -webkit-font-smoothing:antialiased;
 }
 .display{font-family:'Unbounded',sans-serif}
 .mono{font-family:'IBM Plex Mono',monospace}
 
-/* ── Карточка игрока ── */
-.player-card{
-  background:var(--surface);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  padding:18px;
+/* ── Тикер статуса ── */
+.ticker{
+  font-family:'IBM Plex Mono';font-size:10.5px;font-weight:500;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+  padding-bottom:10px;margin-bottom:12px;
+  border-bottom:1px solid var(--line-soft);
+  display:flex;align-items:center;gap:8px;
 }
-.pc-top{display:flex;align-items:center;gap:13px}
-.avatar{
-  width:48px;height:48px;flex:none;
-  border:1px solid var(--line);
-  border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Unbounded';font-weight:600;font-size:18px;
-  color:var(--text);
-  background:var(--surface-2);
-}
-.pc-name{font-family:'Unbounded';font-weight:600;font-size:16px;line-height:1.3;word-break:break-word}
-.pc-id{margin-top:3px;font-size:11.5px;color:var(--muted)}
-.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
-.chip{
-  font-size:11.5px;font-weight:600;
-  padding:5px 10px;border-radius:8px;
-  border:1px solid var(--line);
-  color:var(--muted);
-}
-.chip.ok{color:var(--green);border-color:var(--green)}
-.chip.warn{color:var(--amber);border-color:var(--amber)}
-.chip.bad{color:var(--red);border-color:var(--red)}
-.chip.tw{color:var(--twitch);border-color:var(--twitch)}
+.ticker .cur{color:var(--ink)}
+.ticker .dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex:none}
+.ticker .dot.warn{background:var(--amber)}
+.ticker .dot.bad{background:var(--red)}
 
-/* ── Таб-бар ── */
+/* ── Заголовок досье ── */
+.file-head{padding-bottom:14px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+.file-id{font-family:'IBM Plex Mono';font-size:11px;color:var(--dim);letter-spacing:.05em}
+.file-name{font-family:'Unbounded';font-weight:600;font-size:19px;margin-top:5px;line-height:1.25;word-break:break-word}
+
+/* ── Табы как поля брекетов ── */
 .tabs{
-  position:fixed;left:14px;right:14px;bottom:14px;z-index:10;
-  display:flex;gap:2px;
-  background:var(--surface);
-  border:1px solid var(--line);
-  border-radius:13px;
-  overflow-x:auto;
+  position:fixed;left:0;right:0;bottom:0;z-index:10;
+  display:flex;
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom));
 }
 .tab{
-  flex:1;min-width:70px;border:none;background:transparent;color:var(--muted);
-  font-family:'Unbounded';font-weight:500;font-size:10.5px;
-  padding:12px 4px;cursor:pointer;
-  border-bottom:2px solid transparent;
-  transition:color .15s ease,border-color .15s ease;
+  flex:1;border:none;background:transparent;color:var(--dim);
+  font-family:'IBM Plex Mono';font-weight:500;font-size:10px;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:9px 2px;cursor:pointer;position:relative;
 }
-.tab.active{color:var(--text);border-bottom-color:var(--amber)}
+.tab.active{color:var(--ink)}
+.tab.active::after{
+  content:"";position:absolute;left:22%;right:22%;bottom:0;height:2px;
+  background:var(--amber);
+}
 
 /* ── Секции ── */
 .section{display:none;margin-top:14px}
-.section.active{display:block;animation:fade .2s ease both}
-@keyframes fade{from{opacity:0}to{opacity:1}}
-@media (prefers-reduced-motion:reduce){.section.active{animation:none}}
+.section.active{display:block}
 
-.card{
-  background:var(--surface);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  padding:15px;
-  margin-bottom:10px;
+/* ── Манифест: список с разделителями, не коробки ── */
+.manifest{border-top:1px solid var(--line)}
+.row{
+  padding:13px 0;
+  border-bottom:1px solid var(--line-soft);
+  opacity:0;transform:translateY(6px);
+  animation:reveal .32s ease forwards;
 }
-.card-title{font-size:13.5px;font-weight:700;margin-bottom:4px;word-break:break-word}
-.card-sub{font-size:12px;color:var(--muted);line-height:1.55}
+@keyframes reveal{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.row{animation:none;opacity:1;transform:none}}
+.row:nth-child(1){animation-delay:.02s}
+.row:nth-child(2){animation-delay:.08s}
+.row:nth-child(3){animation-delay:.14s}
+.row:nth-child(4){animation-delay:.20s}
+.row:nth-child(5){animation-delay:.26s}
 
-/* ── Пипсы варнов: плоские сегменты ── */
-.pips{display:flex;gap:5px;margin-top:11px}
-.pip{flex:1;height:6px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line-soft)}
-.pip.on{background:var(--amber);border-color:var(--amber)}
-.pip-label{margin-top:8px;font-size:11.5px;color:var(--muted)}
+.row-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.row-label{font-size:13.5px;font-weight:600}
+.row-val{font-family:'IBM Plex Mono';font-size:12px;color:var(--dim)}
+.row-note{margin-top:6px;font-size:12px;color:var(--dim);line-height:1.55}
+.row-note b{color:var(--ink);font-weight:600}
 
-.empty{text-align:center;padding:30px 14px;color:var(--muted);font-size:13px;line-height:1.6}
-.empty .big{font-family:'Unbounded';font-weight:600;font-size:14px;color:var(--text);display:block;margin-bottom:5px}
+/* ── Индикатор варнов: тонкие сегменты в строку с числом ── */
+.gauge{display:flex;align-items:center;gap:9px;margin-top:9px}
+.gauge-track{flex:1;display:flex;gap:4px}
+.seg{flex:1;height:3px;background:var(--line);}
+.seg.on{background:var(--amber)}
+.gauge-num{font-family:'IBM Plex Mono';font-size:11px;color:var(--dim);flex:none}
 
-.ban-meta{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.7}
-.ban-meta b{color:var(--text);font-weight:600}
-.bar{height:5px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line-soft);margin-top:11px;overflow:hidden}
+/* ── Печать статуса ── */
+.stamp{
+  display:inline-block;margin-top:11px;
+  padding:7px 14px;
+  border:1.5px solid var(--red);
+  color:var(--red);
+  font-family:'IBM Plex Mono';font-weight:600;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;
+  transform:rotate(-2deg);
+}
+.stamp.pending{border-color:var(--amber);color:var(--amber)}
+
+.empty{padding:32px 0;text-align:center}
+.empty .big{font-family:'Unbounded';font-weight:600;font-size:14.5px;color:var(--ink);display:block;margin-bottom:5px}
+.empty .sub{font-size:12.5px;color:var(--dim)}
+
+.bar{height:3px;background:var(--line);margin-top:11px;overflow:hidden}
 .bar-fill{height:100%;background:var(--amber)}
-.bar-note{margin-top:7px;font-size:11.5px;color:var(--muted)}
+.bar-note{margin-top:7px;font-size:11.5px;color:var(--dim)}
 
 .btn{
-  display:block;width:100%;margin-top:13px;
-  padding:12px;border:1px solid var(--line);border-radius:11px;
-  background:var(--surface-2);color:var(--text);
-  font-family:'Unbounded';font-weight:500;font-size:12.5px;
+  display:block;width:100%;margin-top:12px;
+  padding:12px;border:1px solid var(--line);
+  background:transparent;color:var(--ink);
+  font-family:'IBM Plex Mono';font-weight:500;font-size:11.5px;
+  letter-spacing:.06em;text-transform:uppercase;
   cursor:pointer;
 }
 .btn.accent{border-color:var(--amber);color:var(--amber)}
 .btn.tw{border-color:var(--twitch);color:var(--twitch)}
-.btn:active{opacity:.7}
-.badge-req{
-  display:inline-block;margin-top:11px;
-  font-size:11.5px;font-weight:600;color:var(--amber);
-  padding:5px 10px;border-radius:8px;
-  border:1px solid var(--amber);
-}
+.btn:active{opacity:.6}
 
 /* ── Twitch ── */
-.tw-hero{text-align:center;padding:6px 0 2px}
-.tw-total{font-family:'IBM Plex Mono';font-weight:500;font-size:30px;color:var(--twitch)}
-.tw-cap{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.4px;text-transform:uppercase}
-.days{margin-top:15px}
-.day-row{display:flex;align-items:center;gap:9px;margin-bottom:8px}
-.day-date{width:48px;flex:none;font-size:11px;color:var(--muted);font-family:'IBM Plex Mono'}
-.day-bar{flex:1;height:5px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line-soft);overflow:hidden}
+.tw-readout{padding:6px 0 16px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tw-num{font-family:'IBM Plex Mono';font-weight:500;font-size:32px;color:var(--twitch);letter-spacing:-.01em}
+.tw-cap{font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+
+.day-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.day-date{width:46px;flex:none;font-family:'IBM Plex Mono';font-size:10.5px;color:var(--dim)}
+.day-bar{flex:1;height:3px;background:var(--line);overflow:hidden}
 .day-fill{height:100%;background:var(--twitch)}
-.day-val{width:52px;flex:none;text-align:right;font-size:11px;color:var(--text);font-family:'IBM Plex Mono'}
+.day-val{width:50px;flex:none;text-align:right;font-family:'IBM Plex Mono';font-size:10.5px;color:var(--ink)}
 
-.steps{margin-top:12px}
-.step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
-.step-n{
-  flex:none;width:20px;height:20px;border:1px solid var(--line);border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'IBM Plex Mono';font-size:10.5px;color:var(--muted);
-}
-.step-t{font-size:12.5px;line-height:1.55;color:var(--text)}
+.steps{margin-top:4px}
+.step{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line-soft)}
+.step-n{flex:none;font-family:'IBM Plex Mono';font-size:11px;color:var(--dim)}
+.step-t{font-size:12.5px;line-height:1.55;color:var(--ink)}
 .step-t code{
-  font-family:'IBM Plex Mono';font-size:11.5px;
-  background:var(--surface-2);border:1px solid var(--line-soft);
-  padding:1px 6px;border-radius:5px;color:var(--twitch);
+  font-family:'IBM Plex Mono';font-size:11px;
+  color:var(--twitch);
 }
 
-/* ── NightmareSpire ── */
-.ns-title{display:flex;align-items:center;gap:8px}
-.ns-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none}
-.ns-dot.bad{background:var(--red)}
-
-/* ── Sheet (заявка на амнистию) ── */
-.overlay{
-  position:fixed;inset:0;z-index:20;display:none;
-  background:rgba(0,0,0,.7);
-  padding:16px;align-items:flex-end;
-}
+/* ── Заявка на амнистию ── */
+.overlay{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.75);padding:14px;align-items:flex-end}
 .overlay.open{display:flex}
-.sheet{
-  width:100%;background:var(--surface);
-  border:1px solid var(--line);border-radius:16px;
-  padding:18px;animation:fade .2s ease;
-}
-.sheet h3{font-family:'Unbounded';font-size:13.5px;margin-bottom:6px;font-weight:600}
-.sheet p{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:11px}
+.sheet{width:100%;background:var(--panel);border:1px solid var(--line);padding:18px}
+.sheet h3{font-family:'Unbounded';font-size:13.5px;font-weight:600;margin-bottom:6px}
+.sheet p{font-size:12px;color:var(--dim);line-height:1.55;margin-bottom:11px}
 textarea{
   width:100%;min-height:104px;resize:vertical;
-  background:var(--surface-2);border:1px solid var(--line);
-  border-radius:11px;padding:11px;color:var(--text);
+  background:var(--bg);border:1px solid var(--line);
+  padding:11px;color:var(--ink);
   font-family:inherit;font-size:13.5px;line-height:1.5;outline:none;
 }
 textarea:focus{border-color:var(--amber)}
-.err{text-align:center;padding:56px 20px;color:var(--muted);line-height:1.7;font-size:13px}
+.err{text-align:center;padding:56px 20px;color:var(--dim);line-height:1.7;font-size:13px}
 </style>
 </head>
 <body>
@@ -210,7 +197,7 @@ textarea:focus{border-color:var(--amber)}
 
 <script>
 const tg = window.Telegram && window.Telegram.WebApp;
-if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor("#0B0B0D"); tg.setBackgroundColor("#0B0B0D"); }
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor("#0A0A0B"); tg.setBackgroundColor("#0A0A0B"); }
 
 function decodePayload(){
   const m = location.hash.match(/[#&]d=([^&]+)/);
@@ -222,7 +209,6 @@ function decodePayload(){
     return JSON.parse(new TextDecoder().decode(bytes));
   }catch(e){ return null; }
 }
-
 function fmtDur(s){
   s = s|0;
   const h = Math.floor(s/3600), m = Math.floor(s%3600/60);
@@ -234,7 +220,6 @@ function esc(t){const d=document.createElement("div");d.textContent=t??"";return
 
 const data = decodePayload();
 const app = document.getElementById("app");
-
 if(!data){
   app.innerHTML = '<div class="err">Не удалось загрузить данные.<br>Откройте профиль через кнопку в боте (/start).</div>';
 } else {
@@ -242,26 +227,20 @@ if(!data){
 }
 
 function render(d){
-  const initial = (d.n||"?").trim().charAt(0).toUpperCase();
   const totalWarns = (d.w||[]).reduce((a,x)=>a+x.n,0);
   const bansCount = (d.b||[]).length;
+  const hasIssue = totalWarns>0 || bansCount>0 || !!d.ns;
 
-  const chips = [];
-  chips.push(totalWarns ? `<span class="chip warn">${totalWarns} варн.</span>` : `<span class="chip ok">Чисто</span>`);
-  if(bansCount) chips.push(`<span class="chip bad">Банов: ${bansCount}</span>`);
-  if(d.ns) chips.push(`<span class="chip bad">NightmareSpire бан</span>`);
-  if(d.t) chips.push(`<span class="chip tw">${esc(d.t.l)}</span>`);
+  let tickerDot = "dot", tickerText = "статус: чисто";
+  if(bansCount || d.ns){ tickerDot = "dot bad"; tickerText = "статус: обнаружены блокировки"; }
+  else if(totalWarns){ tickerDot = "dot warn"; tickerText = "статус: есть предупреждения"; }
 
   app.innerHTML = `
-    <div class="player-card">
-      <div class="pc-top">
-        <div class="avatar">${esc(initial)}</div>
-        <div>
-          <div class="pc-name">${esc(d.n)}</div>
-          <div class="pc-id mono">ID ${d.u}</div>
-        </div>
-      </div>
-      <div class="chips">${chips.join("")}</div>
+    <div class="ticker"><span class="${tickerDot}"></span>${tickerText}<span class="cur mono" style="margin-left:auto">#${d.u}</span></div>
+
+    <div class="file-head">
+      <div class="file-id mono">ДОСЬЕ УЧАСТНИКА</div>
+      <div class="file-name">${esc(d.n)}</div>
     </div>
 
     <div class="section active" id="sec-status">${renderStatus(d)}</div>
@@ -290,28 +269,29 @@ function render(d){
 
 function renderStatus(d){
   if(!d.w || !d.w.length){
-    return `<div class="card"><div class="empty"><span class="big">Варнов нет</span>Чисто во всех чатах.</div></div>`;
+    return `<div class="empty"><span class="big">Записей нет</span><span class="sub">Ни одного предупреждения ни в одном чате</span></div>`;
   }
-  return d.w.map(w=>{
-    let pips = "";
-    for(let i=0;i<w.m;i++) pips += `<div class="pip ${i<w.n?"on":""}"></div>`;
-    return `<div class="card">
-      <div class="card-title">${esc(w.c)}</div>
-      <div class="pips">${pips}</div>
-      <div class="pip-label">${w.n} из ${w.m} — при ${w.m} следует бан</div>
+  const rows = d.w.map(w=>{
+    let segs = "";
+    for(let i=0;i<w.m;i++) segs += `<div class="seg ${i<w.n?"on":""}"></div>`;
+    return `<div class="row">
+      <div class="row-top"><div class="row-label">${esc(w.c)}</div></div>
+      <div class="gauge"><div class="gauge-track">${segs}</div><div class="gauge-num">${w.n}/${w.m}</div></div>
+      <div class="row-note">При ${w.m} предупреждениях следует блокировка</div>
     </div>`;
   }).join("");
+  return `<div class="manifest">${rows}</div>`;
 }
 
 function renderBans(d){
   if(!d.b || !d.b.length){
-    return `<div class="card"><div class="empty"><span class="big">Банов нет</span>Активных блокировок не найдено.</div></div>`;
+    return `<div class="empty"><span class="big">Блокировок нет</span><span class="sub">Активных банов в чатах не найдено</span></div>`;
   }
-  return d.b.map(b=>{
+  const rows = d.b.map(b=>{
     const pct = Math.min(100, Math.round(b.days / b.wait * 100));
     let action;
     if(b.req){
-      action = `<span class="badge-req">Заявка на рассмотрении</span>`;
+      action = `<span class="stamp pending">заявка на рассмотрении</span>`;
     } else if(b.days >= b.wait){
       action = `<button class="btn accent" data-amnesty="${b.id}" data-chat="${esc(b.c)}">Подать заявку на амнистию</button>`;
     } else {
@@ -319,48 +299,41 @@ function renderBans(d){
       action = `<div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
                 <div class="bar-note">Заявка станет доступна через ${left} дн.</div>`;
     }
-    return `<div class="card">
-      <div class="card-title">${esc(b.c)}</div>
-      <div class="ban-meta">
-        Причина: <b>${esc(b.r)}</b><br>
-        Дата: ${esc(b.dt)}<br>
-        Прошло: <b>${b.days}</b> / ${b.wait} дн.
-      </div>
+    return `<div class="row">
+      <div class="row-top"><div class="row-label">${esc(b.c)}</div><div class="row-val">${esc(b.dt)}</div></div>
+      <div class="row-note">Причина: <b>${esc(b.r)}</b> · прошло <b>${b.days}</b> из ${b.wait} дн.</div>
+      <div class="stamp">заблокирован</div>
       ${action}
     </div>`;
   }).join("");
+  return `<div class="manifest">${rows}</div>`;
 }
 
 function renderNightmareSpire(d){
   if(!d.ns){
-    return `<div class="card"><div class="empty"><span class="big">Блокировок нет</span>В NightmareSpire доступ не ограничен.</div></div>`;
+    return `<div class="empty"><span class="big">Блокировок нет</span><span class="sub">Доступ к NightmareSpire не ограничен</span></div>`;
   }
   const until = d.ns.permanent ? "бессрочно" : esc(d.ns.until);
-  return `<div class="card">
-    <div class="ns-title"><span class="ns-dot bad"></span><span class="card-title">Игровой аккаунт заблокирован</span></div>
-    <div class="ban-meta">
-      Причина: <b>${esc(d.ns.reason)}</b><br>
-      ${d.ns.since ? `С даты: ${esc(d.ns.since)}<br>` : ""}
-      До: <b>${until}</b>
-    </div>
-  </div>`;
+  return `<div class="manifest"><div class="row">
+    <div class="row-top"><div class="row-label">Игровой аккаунт</div></div>
+    <div class="row-note">Причина: <b>${esc(d.ns.reason)}</b>${d.ns.since ? ` · с ${esc(d.ns.since)}` : ""} · до <b>${until}</b></div>
+    <div class="stamp">заблокирован</div>
+  </div></div>`;
 }
 
 function renderTwitch(d){
   const dropsCard = `
-    <div class="card">
-      <div class="card-title">Как получить дропсы</div>
-      <div class="card-sub">Награды выдаются по количеству часов, проведённых на трансляции.</div>
-      <div class="steps">
-        <div class="step"><div class="step-n mono">1</div><div class="step-t">Напишите <code>!регистрация</code> в чате трансляции — бот начнёт считать ваше время.</div></div>
-        <div class="step"><div class="step-n mono">2</div><div class="step-t">Смотрите стримы. Время учитывается, пока вы находитесь в чате трансляции.</div></div>
-        <div class="step"><div class="step-n mono">3</div><div class="step-t">Дропсы начисляются по мере накопления часов — прогресс отображается ниже.</div></div>
-      </div>
+    <div class="row-top" style="margin-top:18px"><div class="row-label">Как получить дропсы</div></div>
+    <div class="row-note">Награды начисляются по количеству часов, проведённых на трансляции.</div>
+    <div class="steps">
+      <div class="step"><div class="step-n mono">01</div><div class="step-t">Напишите <code>!регистрация</code> в чате трансляции — начнётся учёт времени.</div></div>
+      <div class="step"><div class="step-n mono">02</div><div class="step-t">Смотрите стримы. Время считается, пока вы в чате трансляции.</div></div>
+      <div class="step"><div class="step-n mono">03</div><div class="step-t">Дропсы начисляются по мере накопления часов из статистики выше.</div></div>
     </div>`;
 
   if(!d.t){
     const btn = d.lu ? `<button class="btn tw" id="linkTwitch">Привязать Twitch</button>` : "";
-    return `<div class="card"><div class="empty"><span class="big">Twitch не привязан</span>Привяжите аккаунт, чтобы отслеживать время просмотра.</div>${btn}</div>`;
+    return `<div class="empty"><span class="big">Twitch не привязан</span><span class="sub">Привяжите аккаунт для учёта времени просмотра</span></div>${btn}`;
   }
 
   const maxSec = Math.max(1, ...(d.t.d||[]).map(x=>x[1]));
@@ -373,28 +346,24 @@ function renderTwitch(d){
     </div>`;
   }).join("");
 
-  return `<div class="card">
-    <div class="tw-hero">
-      <div class="tw-total mono">${fmtDur(d.t.s)}</div>
-      <div class="tw-cap">суммарно в чате стрима · ${esc(d.t.l)}</div>
+  return `
+    <div class="tw-readout">
+      <div class="tw-num">${fmtDur(d.t.s)}</div>
+      <div class="tw-cap">суммарно в чате · ${esc(d.t.l)}</div>
     </div>
-    ${days ? `<div class="days">${days}</div>` : `<div class="card-sub" style="text-align:center;margin-top:10px">Пока нет данных по дням.</div>`}
-  </div>
-  ${dropsCard}`;
+    ${days || `<div class="row-note">Пока нет данных по дням.</div>`}
+    ${dropsCard}`;
 }
 
 let amnestyChatId = null;
 const overlay = document.getElementById("overlay");
-
 function openAmnesty(chatId, chatName){
   amnestyChatId = chatId;
-  document.getElementById("sheetChat").textContent = "Чат: " + chatName + ". Опишите одним сообщением, почему вас стоит разбанить — заявку рассмотрят администраторы.";
+  document.getElementById("sheetChat").textContent = "Чат: " + chatName + ". Опишите одним сообщением, почему вас стоит разбанить.";
   document.getElementById("amnestyText").value = "";
   overlay.classList.add("open");
 }
-
 document.getElementById("cancelAmnesty").addEventListener("click",()=>overlay.classList.remove("open"));
-
 document.getElementById("sendAmnesty").addEventListener("click",()=>{
   const text = document.getElementById("amnestyText").value.trim();
   if(!text){ document.getElementById("amnestyText").focus(); return; }
