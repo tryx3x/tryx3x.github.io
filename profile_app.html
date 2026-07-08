@@ -225,6 +225,15 @@ textarea:focus{border-color:var(--amber)}
   font-size:12px;padding:7px 11px;cursor:pointer;font-family:inherit;
 }
 .pick:active{opacity:.6;border-color:var(--green)}
+.chat-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;text-align:left;
+  background:var(--surface);border:1px solid var(--line);
+  padding:14px;margin-bottom:8px;cursor:pointer;color:var(--ink);
+}
+.chat-item:active{border-color:var(--amber)}
+.chat-item-name{font-size:14px;font-weight:600;word-break:break-word}
+.chat-item-meta{font-size:11px;color:var(--dim);flex:none}
 </style>
 </head>
 <body>
@@ -330,8 +339,7 @@ function renderStatus(d){
     for(let i=0;i<w.m;i++) segs += `<div class="seg ${i<w.n?"on":""}"></div>`;
     const msgs = (w.msgs!=null) ? `<span class="row-val mono">${w.msgs} сообщ.</span>` : "";
     const ownerBadge = w.owner ? `<span class="owner-badge">владелец</span>` : "";
-    const canManage = w.owner || (d.admin && (d.admin.chats||[]).some(c=>String(c.id)===String(w.id)));
-    const manageBtn = canManage ? `<button class="btn" style="margin-top:10px" data-open-owner="${w.id}">Настройки и права</button>` : "";
+    const manageBtn = w.owner ? `<button class="btn" style="margin-top:10px" data-open-owner="${w.id}">Настройки и права</button>` : "";
     return `<div class="row">
       <div class="row-top"><div class="row-label">${esc(w.c)} ${ownerBadge}</div>${msgs}</div>
       <div class="gauge"><div class="gauge-track">${segs}</div><div class="gauge-num">${w.n}/${w.m}</div></div>
@@ -473,12 +481,20 @@ function modLabel(ch, uid){
 
 function renderAdmin(d){
   const a = d.admin;
-  const perms = a.perms || [];
-  const plabels = a.plabels || {};
 
   const chans = (a.tw||[]).length
     ? a.tw.map(c=>`<div class="row"><div class="row-top"><div class="row-label mono">${esc(c)}</div><button class="mini-btn" data-deltwitch data-val="${esc(c)}">удалить</button></div></div>`).join("")
     : `<div class="row-note">Каналов пока нет.</div>`;
+
+  const chatList = (a.chats||[]).length
+    ? a.chats.map(ch=>{
+        const modCount = (ch.mods||[]).length;
+        return `<button class="chat-item" data-open-owner="${ch.id}">
+          <div class="chat-item-name">${esc(ch.title)}</div>
+          <div class="chat-item-meta mono">${modCount} мод. ›</div>
+        </button>`;
+      }).join("")
+    : `<div class="row-note">Чатов пока нет. Добавьте бота в группу.</div>`;
 
   return `
     <div class="row-top" style="margin-bottom:2px"><div class="row-label">Twitch-каналы</div></div>
@@ -488,8 +504,8 @@ function renderAdmin(d){
       <button class="btn accent" style="margin:0;width:auto;padding:10px 14px" data-addtwitch>Добавить</button>
     </div>
 
-    <div class="row-top" style="margin:22px 0 2px"><div class="row-label">Чаты и модераторы</div></div>
-    <div class="manifest">${renderManagePanel(a.chats, a.perms||[], a.plabels||{}, true)}</div>`;
+    <div class="row-top" style="margin:22px 0 10px"><div class="row-label">Чаты и модераторы</div></div>
+    ${chatList}`;
 }
 
 let pendingPerms = {};
@@ -599,25 +615,33 @@ document.getElementById("sendAmnesty").addEventListener("click",()=>{
 
 function openOwnerPanel(chatId){
   if(!data) return;
-  let ch = (data.owned||[]).find(c=>String(c.id)===String(chatId));
+  let ch = null;
   let isAdminPanel = false;
-  if(!ch && data.admin){
+
+  if(data.admin){
     ch = (data.admin.chats||[]).find(c=>String(c.id)===String(chatId));
-    isAdminPanel = true;
+    if(ch) isAdminPanel = true;
+  }
+  if(!ch){
+    ch = (data.owned||[]).find(c=>String(c.id)===String(chatId));
   }
   if(!ch) return;
 
   const usablePerms = isAdminPanel ? (data.perms||[]) : (data.owner_perms||[]);
 
   const panel = document.getElementById("ownerPanel");
-  panel.innerHTML = renderManagePanel([ch], usablePerms, data.plabels||{}, false);
+  panel.innerHTML = renderManagePanel([ch], usablePerms, data.plabels||{}, isAdminPanel);
   panel.setAttribute("data-ownerpanel","1");
 
   document.getElementById("ownerOverlay").classList.add("open");
   bindAdmin();
 }
-document.getElementById("ownerOverlay").addEventListener("click",(e)=>{
-  if(e.target.id==="ownerOverlay" || e.target.id==="closeOwner"){
+document.addEventListener("click",(e)=>{
+  if(e.target.closest("#closeOwner")){
+    document.getElementById("ownerOverlay").classList.remove("open");
+    return;
+  }
+  if(e.target.id==="ownerOverlay"){
     document.getElementById("ownerOverlay").classList.remove("open");
   }
 });
