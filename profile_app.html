@@ -204,6 +204,15 @@ textarea:focus{border-color:var(--amber)}
   border:1px solid var(--line);font-size:11px;color:var(--dim);
 }
 .mod-chip span{cursor:pointer;color:var(--red);font-size:12px}
+.mod-box{border:1px solid var(--line);padding:11px;margin-top:10px}
+.perms{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.perm{
+  border:1px solid var(--line);background:transparent;color:var(--dim);
+  font-family:'IBM Plex Mono';font-size:11px;
+  padding:6px 10px;cursor:pointer;
+}
+.perm.on{border-color:var(--green);color:var(--green)}
+.perm:active{opacity:.6}
 </style>
 </head>
 <body>
@@ -402,21 +411,39 @@ function renderTwitch(d){
 
 function renderAdmin(d){
   const a = d.admin;
+  const perms = a.perms || [];
+  const plabels = a.plabels || {};
+
   const chans = (a.tw||[]).length
     ? a.tw.map(c=>`<div class="row"><div class="row-top"><div class="row-label mono">${esc(c)}</div><button class="mini-btn" data-adm="del_twitch" data-val="${esc(c)}">удалить</button></div></div>`).join("")
     : `<div class="row-note">Каналов пока нет.</div>`;
 
   const chats = (a.chats||[]).length
-    ? a.chats.map(ch=>`
-        <div class="row">
+    ? a.chats.map(ch=>{
+        const mods = ch.mods || [];
+        const modsHtml = mods.length
+          ? mods.map(m=>{
+              const toggles = perms.map(p=>{
+                const on = (m.perms||[]).includes(p);
+                return `<button class="perm ${on?"on":""}" data-adm="toggle_perm" data-chat="${ch.id}" data-uid="${m.id}" data-perm="${p}">${esc(plabels[p]||p)}</button>`;
+              }).join("");
+              return `<div class="mod-box">
+                <div class="row-top"><div class="row-label mono">${m.id}</div><button class="mini-btn" data-adm="del_mod" data-chat="${ch.id}" data-val="${m.id}">убрать</button></div>
+                <div class="perms">${toggles}</div>
+              </div>`;
+            }).join("")
+          : `<div class="row-note">Модераторов нет.</div>`;
+
+        return `<div class="row">
           <div class="row-top"><div class="row-label">${esc(ch.title)}</div><button class="mini-btn" data-adm="del_chat" data-chat="${ch.id}">отключить</button></div>
-          <div class="row-note mono">${ch.id} · модераторов: ${ch.mods.length}</div>
+          <div class="row-note mono">${ch.id}${ch.owner?` · владелец ${ch.owner}`:""}</div>
+          ${modsHtml}
           <div class="mod-line">
-            <input class="inp" id="mod-${ch.id}" placeholder="ID модератора" inputmode="numeric">
+            <input class="inp" id="mod-${ch.id}" placeholder="ID или @username">
             <button class="mini-btn" data-adm="add_mod" data-chat="${ch.id}">+ добавить</button>
           </div>
-          ${ch.mods.map(m=>`<div class="mod-chip mono">${m}<span data-adm="del_mod" data-chat="${ch.id}" data-val="${m}">✕</span></div>`).join("")}
-        </div>`).join("")
+        </div>`;
+      }).join("")
     : `<div class="row-note">Чатов пока нет. Добавьте бота в группу — она появится здесь.</div>`;
 
   return `
@@ -444,6 +471,7 @@ function bindAdmin(){
       const payload = {action:"admin_"+act};
       if(chatId) payload.chat_id = chatId;
       if(value!==null) payload.value = value;
+      if(act==="toggle_perm"){ payload.uid = el.dataset.uid; payload.perm = el.dataset.perm; }
 
       if(tg) tg.sendData(JSON.stringify(payload));
     });
