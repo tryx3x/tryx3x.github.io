@@ -218,6 +218,13 @@ textarea:focus{border-color:var(--amber)}
   color:var(--amber);border:1px solid var(--amber);
   padding:2px 7px;margin-left:6px;vertical-align:middle;letter-spacing:.04em;
 }
+.sub-h{font-size:12px;color:var(--dim);margin:14px 0 8px;font-family:'IBM Plex Mono';text-transform:uppercase;letter-spacing:.06em}
+.pick-list{display:flex;flex-wrap:wrap;gap:6px}
+.pick{
+  border:1px solid var(--line);background:transparent;color:var(--ink);
+  font-size:12px;padding:7px 11px;cursor:pointer;font-family:inherit;
+}
+.pick:active{opacity:.6;border-color:var(--green)}
 </style>
 </head>
 <body>
@@ -323,7 +330,8 @@ function renderStatus(d){
     for(let i=0;i<w.m;i++) segs += `<div class="seg ${i<w.n?"on":""}"></div>`;
     const msgs = (w.msgs!=null) ? `<span class="row-val mono">${w.msgs} сообщ.</span>` : "";
     const ownerBadge = w.owner ? `<span class="owner-badge">владелец</span>` : "";
-    const manageBtn = w.owner ? `<button class="btn" style="margin-top:10px" data-open-owner="${w.id}">Настройки и права</button>` : "";
+    const canManage = w.owner || (d.admin && (d.admin.chats||[]).some(c=>String(c.id)===String(w.id)));
+    const manageBtn = canManage ? `<button class="btn" style="margin-top:10px" data-open-owner="${w.id}">Настройки и права</button>` : "";
     return `<div class="row">
       <div class="row-top"><div class="row-label">${esc(w.c)} ${ownerBadge}</div>${msgs}</div>
       <div class="gauge"><div class="gauge-track">${segs}</div><div class="gauge-num">${w.n}/${w.m}</div></div>
@@ -421,6 +429,7 @@ function renderManagePanel(chats, perms, plabels, isAdmin){
   return (chats||[]).length
     ? chats.map(ch=>{
         const mods = ch.mods || [];
+        const modIds = mods.map(m=>String(m.id));
         const modsHtml = mods.length
           ? mods.map(m=>{
               const toggles = perms.map(p=>{
@@ -428,7 +437,7 @@ function renderManagePanel(chats, perms, plabels, isAdmin){
                 return `<button class="perm ${on?"on":""}" data-toggle data-chat="${ch.id}" data-uid="${m.id}" data-perm="${p}">${esc(plabels[p]||p)}</button>`;
               }).join("");
               return `<div class="mod-box">
-                <div class="row-top"><div class="row-label mono">${m.id}</div><button class="mini-btn" data-delmod data-chat="${ch.id}" data-uid="${m.id}">убрать</button></div>
+                <div class="row-top"><div class="row-label mono">${esc(modLabel(ch, m.id))}</div><button class="mini-btn" data-delmod data-chat="${ch.id}" data-uid="${m.id}">убрать</button></div>
                 <div class="perms">${toggles}</div>
               </div>`;
             }).join("")
@@ -436,18 +445,30 @@ function renderManagePanel(chats, perms, plabels, isAdmin){
 
         const delChat = isAdmin ? `<button class="mini-btn" data-delchat data-chat="${ch.id}">отключить</button>` : "";
 
+        const candidates = (ch.members||[]).filter(m=>!modIds.includes(String(m.id)));
+        const pickList = candidates.length
+          ? `<div class="pick-list">${candidates.map(m=>`<button class="pick" data-pickmod data-chat="${ch.id}" data-uid="${m.id}">${esc(m.label)}</button>`).join("")}</div>`
+          : `<div class="row-note">Нет кандидатов. Участник должен написать в чате, чтобы появиться в списке.</div>`;
+
         return `<div class="row" data-chatblock="${ch.id}">
           <div class="row-top"><div class="row-label">${esc(ch.title)}</div>${delChat}</div>
           <div class="row-note mono">${ch.id}</div>
           ${modsHtml}
-          <div class="mod-line">
-            <input class="inp" id="mod-${ch.id}" placeholder="ID или @username">
-            <button class="mini-btn" data-addmod data-chat="${ch.id}">+ добавить</button>
-          </div>
           <button class="btn accent" data-save data-chat="${ch.id}">Сохранить права</button>
+          <div class="sub-h">Добавить модератора</div>
+          ${pickList}
+          <div class="mod-line" style="margin-top:8px">
+            <input class="inp" id="mod-${ch.id}" placeholder="или @username / ID">
+            <button class="mini-btn" data-addmod data-chat="${ch.id}">+</button>
+          </div>
         </div>`;
       }).join("")
     : `<div class="row-note">Чатов нет.</div>`;
+}
+
+function modLabel(ch, uid){
+  const m = (ch.members||[]).find(x=>String(x.id)===String(uid));
+  return m ? m.label : String(uid);
 }
 
 function renderAdmin(d){
@@ -468,7 +489,7 @@ function renderAdmin(d){
     </div>
 
     <div class="row-top" style="margin:22px 0 2px"><div class="row-label">Чаты и модераторы</div></div>
-    <div class="manifest">${renderManagePanel(a.chats, perms, plabels, true)}</div>`;
+    <div class="manifest">${renderManagePanel(a.chats, a.perms||[], a.plabels||{}, true)}</div>`;
 }
 
 let pendingPerms = {};
@@ -485,6 +506,7 @@ function collectMod(chatId, uid){
 
 function bindAdmin(){
   document.querySelectorAll("[data-toggle]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>{
       const chatId = el.dataset.chat, uid = el.dataset.uid, perm = el.dataset.perm;
       const arr = collectMod(chatId, uid);
@@ -495,6 +517,7 @@ function bindAdmin(){
   });
 
   document.querySelectorAll("[data-save]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>{
       const chatId = el.dataset.chat;
       const changes = {};
@@ -507,6 +530,7 @@ function bindAdmin(){
   });
 
   document.querySelectorAll("[data-addmod]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>{
       const chatId = el.dataset.chat;
       const value = document.getElementById("mod-"+chatId).value.trim();
@@ -516,7 +540,16 @@ function bindAdmin(){
     });
   });
 
+  document.querySelectorAll("[data-pickmod]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
+    el.addEventListener("click",()=>{
+      const action = el.closest("[data-ownerpanel]") ? "owner_add_mod" : "admin_add_mod";
+      if(tg) tg.sendData(JSON.stringify({action:action, chat_id:el.dataset.chat, value:el.dataset.uid}));
+    });
+  });
+
   document.querySelectorAll("[data-delmod]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>{
       const action = el.closest("[data-ownerpanel]") ? "owner_del_mod" : "admin_del_mod";
       if(tg) tg.sendData(JSON.stringify({action:action, chat_id:el.dataset.chat, value:el.dataset.uid}));
@@ -524,19 +557,23 @@ function bindAdmin(){
   });
 
   document.querySelectorAll("[data-deltwitch]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>{ if(tg) tg.sendData(JSON.stringify({action:"admin_del_twitch", value:el.dataset.val})); });
   });
   document.querySelectorAll("[data-addtwitch]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>{
       const value = document.getElementById("new-twitch").value.trim();
       if(value && tg) tg.sendData(JSON.stringify({action:"admin_add_twitch", value:value}));
     });
   });
   document.querySelectorAll("[data-delchat]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>{ if(tg) tg.sendData(JSON.stringify({action:"admin_del_chat", chat_id:el.dataset.chat})); });
   });
 
   document.querySelectorAll("[data-open-owner]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>openOwnerPanel(el.dataset.openOwner));
   });
 }
@@ -561,12 +598,19 @@ document.getElementById("sendAmnesty").addEventListener("click",()=>{
 });
 
 function openOwnerPanel(chatId){
-  if(!data || !data.owned) return;
-  const ch = data.owned.find(c=>String(c.id)===String(chatId));
+  if(!data) return;
+  let ch = (data.owned||[]).find(c=>String(c.id)===String(chatId));
+  let isAdminPanel = false;
+  if(!ch && data.admin){
+    ch = (data.admin.chats||[]).find(c=>String(c.id)===String(chatId));
+    isAdminPanel = true;
+  }
   if(!ch) return;
 
+  const usablePerms = isAdminPanel ? (data.perms||[]) : (data.owner_perms||[]);
+
   const panel = document.getElementById("ownerPanel");
-  panel.innerHTML = renderManagePanel([ch], data.perms||[], data.plabels||{}, false);
+  panel.innerHTML = renderManagePanel([ch], usablePerms, data.plabels||{}, false);
   panel.setAttribute("data-ownerpanel","1");
 
   document.getElementById("ownerOverlay").classList.add("open");
