@@ -179,6 +179,27 @@ textarea{
 }
 textarea:focus{border-color:var(--amber)}
 .err{text-align:center;padding:56px 20px;color:var(--dim);line-height:1.7;font-size:13px}
+
+/* ── Админка ── */
+.mini-btn{
+  border:1px solid var(--line);background:transparent;color:var(--dim);
+  font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.04em;
+  padding:5px 9px;cursor:pointer;flex:none;
+}
+.mini-btn:active{opacity:.6}
+.mod-line{display:flex;gap:7px;margin-top:10px}
+.inp{
+  flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);
+  color:var(--ink);font-family:'IBM Plex Mono';font-size:12px;
+  padding:9px 10px;outline:none;
+}
+.inp:focus{border-color:var(--amber)}
+.mod-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  margin:8px 6px 0 0;padding:5px 9px;
+  border:1px solid var(--line);font-size:11px;color:var(--dim);
+}
+.mod-chip span{cursor:pointer;color:var(--red);font-size:12px}
 </style>
 </head>
 <body>
@@ -229,11 +250,13 @@ if(!data){
 function render(d){
   const totalWarns = (d.w||[]).reduce((a,x)=>a+x.n,0);
   const bansCount = (d.b||[]).length;
-  const hasIssue = totalWarns>0 || bansCount>0 || !!d.ns;
 
   let tickerDot = "dot", tickerText = "статус: чисто";
   if(bansCount || d.ns){ tickerDot = "dot bad"; tickerText = "статус: обнаружены блокировки"; }
   else if(totalWarns){ tickerDot = "dot warn"; tickerText = "статус: есть предупреждения"; }
+
+  const adminTab = d.admin ? `<button class="tab" data-t="admin">Админка</button>` : "";
+  const adminSec = d.admin ? `<div class="section" id="sec-admin">${renderAdmin(d)}</div>` : "";
 
   app.innerHTML = `
     <div class="ticker"><span class="${tickerDot}"></span>${tickerText}<span class="cur mono" style="margin-left:auto">#${d.u}</span></div>
@@ -247,12 +270,14 @@ function render(d){
     <div class="section" id="sec-bans">${renderBans(d)}</div>
     <div class="section" id="sec-ns">${renderNightmareSpire(d)}</div>
     <div class="section" id="sec-twitch">${renderTwitch(d)}</div>
+    ${adminSec}
 
     <div class="tabs">
       <button class="tab active" data-t="status">Статус</button>
       <button class="tab" data-t="bans">Баны</button>
-      <button class="tab" data-t="ns">NightmareSpire</button>
+      <button class="tab" data-t="ns">NMS</button>
       <button class="tab" data-t="twitch">Twitch</button>
+      ${adminTab}
     </div>`;
 
   document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
@@ -261,6 +286,8 @@ function render(d){
     b.classList.add("active");
     document.getElementById("sec-"+b.dataset.t).classList.add("active");
   }));
+
+  bindAdmin();
 
   document.querySelectorAll("[data-amnesty]").forEach(b=>b.addEventListener("click",()=>openAmnesty(b.dataset.amnesty,b.dataset.chat)));
   const lb = document.getElementById("linkTwitch");
@@ -322,6 +349,15 @@ function renderNightmareSpire(d){
 }
 
 function renderTwitch(d){
+  const channels = d.tw_channels || [];
+  let channelBlock;
+  if(channels.length){
+    const list = channels.map(c=>`<div class="row"><div class="row-top"><div class="row-label">twitch.tv/${esc(c)}</div><a class="row-val" style="color:var(--twitch);text-decoration:none" href="https://twitch.tv/${esc(c)}" target="_blank">открыть →</a></div></div>`).join("");
+    channelBlock = `<div class="row-top" style="margin-bottom:2px"><div class="row-label">Каналы для просмотра</div></div><div class="manifest">${list}</div>`;
+  } else {
+    channelBlock = `<div class="empty"><span class="big">Пока нет интеграции</span><span class="sub">Каналы для просмотра ещё не добавлены</span></div>`;
+  }
+
   const dropsCard = `
     <div class="row-top" style="margin-top:18px"><div class="row-label">Как получить дропсы</div></div>
     <div class="row-note">Награды начисляются по количеству часов, проведённых на трансляции.</div>
@@ -333,7 +369,8 @@ function renderTwitch(d){
 
   if(!d.t){
     const btn = d.lu ? `<button class="btn tw" id="linkTwitch">Привязать Twitch</button>` : "";
-    return `<div class="empty"><span class="big">Twitch не привязан</span><span class="sub">Привяжите аккаунт для учёта времени просмотра</span></div>${btn}`;
+    return `<div class="empty"><span class="big">Twitch не привязан</span><span class="sub">Привяжите аккаунт для учёта времени просмотра</span></div>${btn}
+      <div style="margin-top:18px"></div>${channelBlock}`;
   }
 
   const maxSec = Math.max(1, ...(d.t.d||[]).map(x=>x[1]));
@@ -352,7 +389,58 @@ function renderTwitch(d){
       <div class="tw-cap">суммарно в чате · ${esc(d.t.l)}</div>
     </div>
     ${days || `<div class="row-note">Пока нет данных по дням.</div>`}
+    ${channelBlock}
     ${dropsCard}`;
+}
+
+function renderAdmin(d){
+  const a = d.admin;
+  const chans = (a.tw||[]).length
+    ? a.tw.map(c=>`<div class="row"><div class="row-top"><div class="row-label mono">${esc(c)}</div><button class="mini-btn" data-adm="del_twitch" data-val="${esc(c)}">удалить</button></div></div>`).join("")
+    : `<div class="row-note">Каналов пока нет.</div>`;
+
+  const chats = (a.chats||[]).length
+    ? a.chats.map(ch=>`
+        <div class="row">
+          <div class="row-top"><div class="row-label">${esc(ch.title)}</div><button class="mini-btn" data-adm="del_chat" data-chat="${ch.id}">отключить</button></div>
+          <div class="row-note mono">${ch.id} · модераторов: ${ch.mods.length}</div>
+          <div class="mod-line">
+            <input class="inp" id="mod-${ch.id}" placeholder="ID модератора" inputmode="numeric">
+            <button class="mini-btn" data-adm="add_mod" data-chat="${ch.id}">+ добавить</button>
+          </div>
+          ${ch.mods.map(m=>`<div class="mod-chip mono">${m}<span data-adm="del_mod" data-chat="${ch.id}" data-val="${m}">✕</span></div>`).join("")}
+        </div>`).join("")
+    : `<div class="row-note">Чатов пока нет. Добавьте бота в группу — она появится здесь.</div>`;
+
+  return `
+    <div class="row-top" style="margin-bottom:2px"><div class="row-label">Twitch-каналы</div></div>
+    <div class="manifest">${chans}</div>
+    <div class="mod-line" style="margin-top:12px">
+      <input class="inp" id="new-twitch" placeholder="twitch.tv/канал или логин">
+      <button class="btn accent" style="margin:0;width:auto;padding:10px 14px" data-adm="add_twitch">Добавить</button>
+    </div>
+
+    <div class="row-top" style="margin:22px 0 2px"><div class="row-label">Чаты и модераторы</div></div>
+    <div class="manifest">${chats}</div>`;
+}
+
+function bindAdmin(){
+  document.querySelectorAll("[data-adm]").forEach(el=>{
+    el.addEventListener("click",()=>{
+      const act = el.dataset.adm;
+      const chatId = el.dataset.chat || null;
+      let value = el.dataset.val || null;
+
+      if(act==="add_twitch"){ value = document.getElementById("new-twitch").value.trim(); if(!value) return; }
+      if(act==="add_mod"){ value = document.getElementById("mod-"+chatId).value.trim(); if(!value) return; }
+
+      const payload = {action:"admin_"+act};
+      if(chatId) payload.chat_id = chatId;
+      if(value!==null) payload.value = value;
+
+      if(tg) tg.sendData(JSON.stringify(payload));
+    });
+  });
 }
 
 let amnestyChatId = null;
