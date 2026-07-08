@@ -7,21 +7,29 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
+/*
+  Дизайн-токены
+  Палитра: графитово-чёрный + один рабочий акцент (янтарь) для статуса
+  и Twitch-фиолетовый только там, где речь буквально о Twitch —
+  не смешиваем их в общий "gamer glow", у каждого своя роль.
+  Никаких box-shadow/градиентных заливок кнопок — только плоские
+  поверхности и hairline-границы 1px.
+*/
 :root{
-  --bg:#0A0A0E;
-  --surface:#14141C;
-  --surface-2:#1B1B26;
-  --border:#26263A;
-  --purple:#9146FF;
-  --purple-dim:rgba(145,70,255,.16);
-  --amber:#FFB454;
-  --red:#FF5C6C;
-  --green:#3DDC97;
-  --text:#F0F0F5;
-  --muted:#8A8A9E;
-  --radius:18px;
+  --bg:#0B0B0D;
+  --surface:#141416;
+  --surface-2:#1B1B1E;
+  --line:#2A2A2E;
+  --line-soft:#202023;
+  --amber:#E8A248;
+  --twitch:#9146FF;
+  --red:#E5555F;
+  --green:#4BC98A;
+  --text:#EDEDEF;
+  --muted:#87878E;
+  --radius:14px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
@@ -29,150 +37,161 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   background:var(--bg);
   color:var(--text);
-  padding:16px 14px 90px;
+  padding:14px 14px 92px;
   -webkit-font-smoothing:antialiased;
 }
 .display{font-family:'Unbounded',sans-serif}
+.mono{font-family:'IBM Plex Mono',monospace}
 
+/* ── Карточка игрока ── */
 .player-card{
-  position:relative;
-  background:linear-gradient(150deg,var(--surface-2),var(--surface) 60%);
-  border:1px solid var(--border);
+  background:var(--surface);
+  border:1px solid var(--line);
   border-radius:var(--radius);
-  padding:20px 18px;
-  overflow:hidden;
+  padding:18px;
 }
-.player-card::before{
-  content:"";
-  position:absolute;inset:0;
-  background:radial-gradient(420px 180px at 85% -20%,var(--purple-dim),transparent 70%);
-  pointer-events:none;
-}
-.pc-top{display:flex;align-items:center;gap:14px}
+.pc-top{display:flex;align-items:center;gap:13px}
 .avatar{
-  width:56px;height:56px;flex:none;
-  border-radius:16px;
+  width:48px;height:48px;flex:none;
+  border:1px solid var(--line);
+  border-radius:12px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Unbounded';font-weight:700;font-size:22px;color:#fff;
-  background:linear-gradient(135deg,#7C2BFF,#B07CFF);
-  box-shadow:0 0 0 1px rgba(255,255,255,.08),0 8px 24px rgba(145,70,255,.35);
+  font-family:'Unbounded';font-weight:600;font-size:18px;
+  color:var(--text);
+  background:var(--surface-2);
 }
-.pc-name{font-family:'Unbounded';font-weight:700;font-size:17px;line-height:1.25;word-break:break-word}
-.pc-id{margin-top:4px;font-size:12px;color:var(--muted);letter-spacing:.4px}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pc-name{font-family:'Unbounded';font-weight:600;font-size:16px;line-height:1.3;word-break:break-word}
+.pc-id{margin-top:3px;font-size:11.5px;color:var(--muted)}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
 .chip{
-  font-size:12px;font-weight:600;
-  padding:5px 11px;border-radius:99px;
-  border:1px solid var(--border);
-  background:rgba(255,255,255,.03);
+  font-size:11.5px;font-weight:600;
+  padding:5px 10px;border-radius:8px;
+  border:1px solid var(--line);
   color:var(--muted);
 }
-.chip.ok{color:var(--green);border-color:rgba(61,220,151,.35);background:rgba(61,220,151,.08)}
-.chip.warn{color:var(--amber);border-color:rgba(255,180,84,.35);background:rgba(255,180,84,.08)}
-.chip.bad{color:var(--red);border-color:rgba(255,92,108,.35);background:rgba(255,92,108,.08)}
-.chip.tw{color:#C79BFF;border-color:rgba(145,70,255,.4);background:var(--purple-dim)}
+.chip.ok{color:var(--green);border-color:var(--green)}
+.chip.warn{color:var(--amber);border-color:var(--amber)}
+.chip.bad{color:var(--red);border-color:var(--red)}
+.chip.tw{color:var(--twitch);border-color:var(--twitch)}
 
+/* ── Таб-бар ── */
 .tabs{
   position:fixed;left:14px;right:14px;bottom:14px;z-index:10;
-  display:flex;gap:4px;padding:5px;
-  background:rgba(20,20,28,.92);
-  backdrop-filter:blur(14px);
-  border:1px solid var(--border);
-  border-radius:16px;
+  display:flex;gap:2px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:13px;
+  overflow-x:auto;
 }
 .tab{
-  flex:1;border:none;background:transparent;color:var(--muted);
-  font-family:'Unbounded';font-weight:500;font-size:11.5px;
-  padding:11px 4px;border-radius:12px;cursor:pointer;
-  transition:all .18s ease;
+  flex:1;min-width:70px;border:none;background:transparent;color:var(--muted);
+  font-family:'Unbounded';font-weight:500;font-size:10.5px;
+  padding:12px 4px;cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:color .15s ease,border-color .15s ease;
 }
-.tab.active{background:var(--purple);color:#fff;box-shadow:0 4px 16px rgba(145,70,255,.4)}
+.tab.active{color:var(--text);border-bottom-color:var(--amber)}
 
-.section{display:none;margin-top:16px}
-.section.active{display:block}
+/* ── Секции ── */
+.section{display:none;margin-top:14px}
+.section.active{display:block;animation:fade .2s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.section.active{animation:none}}
 
 .card{
   background:var(--surface);
-  border:1px solid var(--border);
+  border:1px solid var(--line);
   border-radius:var(--radius);
-  padding:16px;
-  margin-bottom:12px;
-  animation:rise .35s ease both;
+  padding:15px;
+  margin-bottom:10px;
 }
-@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.card{animation:none}}
+.card-title{font-size:13.5px;font-weight:700;margin-bottom:4px;word-break:break-word}
+.card-sub{font-size:12px;color:var(--muted);line-height:1.55}
 
-.card-title{font-size:14px;font-weight:700;margin-bottom:4px;word-break:break-word}
-.card-sub{font-size:12.5px;color:var(--muted);line-height:1.5}
+/* ── Пипсы варнов: плоские сегменты ── */
+.pips{display:flex;gap:5px;margin-top:11px}
+.pip{flex:1;height:6px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line-soft)}
+.pip.on{background:var(--amber);border-color:var(--amber)}
+.pip-label{margin-top:8px;font-size:11.5px;color:var(--muted)}
 
-.pips{display:flex;gap:6px;margin-top:12px}
-.pip{
-  flex:1;height:9px;border-radius:5px;
-  background:var(--surface-2);
-  border:1px solid var(--border);
-}
-.pip.on{background:linear-gradient(90deg,var(--amber),#FF8A5C);border-color:transparent;box-shadow:0 0 10px rgba(255,180,84,.4)}
-.pip-label{margin-top:8px;font-size:12px;color:var(--muted)}
+.empty{text-align:center;padding:30px 14px;color:var(--muted);font-size:13px;line-height:1.6}
+.empty .big{font-family:'Unbounded';font-weight:600;font-size:14px;color:var(--text);display:block;margin-bottom:5px}
 
-.empty{
-  text-align:center;padding:34px 16px;
-  color:var(--muted);font-size:13.5px;line-height:1.6;
-}
-.empty .big{font-family:'Unbounded';font-weight:700;font-size:15px;color:var(--green);display:block;margin-bottom:6px}
-
-.ban-meta{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.7}
-.ban-meta b{color:var(--text)}
-.bar{height:7px;border-radius:5px;background:var(--surface-2);border:1px solid var(--border);margin-top:12px;overflow:hidden}
-.bar-fill{height:100%;background:linear-gradient(90deg,var(--purple),#B07CFF);border-radius:5px;transition:width .6s ease}
-.bar-note{margin-top:7px;font-size:12px;color:var(--muted)}
+.ban-meta{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.7}
+.ban-meta b{color:var(--text);font-weight:600}
+.bar{height:5px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line-soft);margin-top:11px;overflow:hidden}
+.bar-fill{height:100%;background:var(--amber)}
+.bar-note{margin-top:7px;font-size:11.5px;color:var(--muted)}
 
 .btn{
-  display:block;width:100%;margin-top:14px;
-  padding:13px;border:none;border-radius:13px;
-  background:var(--purple);color:#fff;
-  font-family:'Unbounded';font-weight:500;font-size:13px;
-  cursor:pointer;transition:transform .12s ease,opacity .12s;
+  display:block;width:100%;margin-top:13px;
+  padding:12px;border:1px solid var(--line);border-radius:11px;
+  background:var(--surface-2);color:var(--text);
+  font-family:'Unbounded';font-weight:500;font-size:12.5px;
+  cursor:pointer;
 }
-.btn:active{transform:scale(.98)}
-.btn.ghost{background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+.btn.accent{border-color:var(--amber);color:var(--amber)}
+.btn.tw{border-color:var(--twitch);color:var(--twitch)}
+.btn:active{opacity:.7}
 .badge-req{
-  display:inline-block;margin-top:12px;
-  font-size:12px;font-weight:600;color:var(--amber);
-  padding:6px 12px;border-radius:99px;
-  background:rgba(255,180,84,.1);border:1px solid rgba(255,180,84,.3);
+  display:inline-block;margin-top:11px;
+  font-size:11.5px;font-weight:600;color:var(--amber);
+  padding:5px 10px;border-radius:8px;
+  border:1px solid var(--amber);
 }
 
-.tw-hero{text-align:center;padding:8px 0 4px}
-.tw-total{font-family:'Unbounded';font-weight:700;font-size:34px;background:linear-gradient(135deg,#B07CFF,#9146FF);-webkit-background-clip:text;background-clip:text;color:transparent}
-.tw-cap{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
-.days{margin-top:16px}
-.day-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
-.day-date{width:52px;flex:none;font-size:11.5px;color:var(--muted)}
-.day-bar{flex:1;height:8px;border-radius:5px;background:var(--surface-2);overflow:hidden}
-.day-fill{height:100%;background:linear-gradient(90deg,var(--purple),#C79BFF);border-radius:5px}
-.day-val{width:58px;flex:none;text-align:right;font-size:11.5px;color:var(--text)}
+/* ── Twitch ── */
+.tw-hero{text-align:center;padding:6px 0 2px}
+.tw-total{font-family:'IBM Plex Mono';font-weight:500;font-size:30px;color:var(--twitch)}
+.tw-cap{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.4px;text-transform:uppercase}
+.days{margin-top:15px}
+.day-row{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.day-date{width:48px;flex:none;font-size:11px;color:var(--muted);font-family:'IBM Plex Mono'}
+.day-bar{flex:1;height:5px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line-soft);overflow:hidden}
+.day-fill{height:100%;background:var(--twitch)}
+.day-val{width:52px;flex:none;text-align:right;font-size:11px;color:var(--text);font-family:'IBM Plex Mono'}
 
+.steps{margin-top:12px}
+.step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.step-n{
+  flex:none;width:20px;height:20px;border:1px solid var(--line);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono';font-size:10.5px;color:var(--muted);
+}
+.step-t{font-size:12.5px;line-height:1.55;color:var(--text)}
+.step-t code{
+  font-family:'IBM Plex Mono';font-size:11.5px;
+  background:var(--surface-2);border:1px solid var(--line-soft);
+  padding:1px 6px;border-radius:5px;color:var(--twitch);
+}
+
+/* ── NightmareSpire ── */
+.ns-title{display:flex;align-items:center;gap:8px}
+.ns-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none}
+.ns-dot.bad{background:var(--red)}
+
+/* ── Sheet (заявка на амнистию) ── */
 .overlay{
   position:fixed;inset:0;z-index:20;display:none;
-  background:rgba(6,6,10,.8);backdrop-filter:blur(6px);
-  padding:18px;align-items:flex-end;
+  background:rgba(0,0,0,.7);
+  padding:16px;align-items:flex-end;
 }
 .overlay.open{display:flex}
 .sheet{
   width:100%;background:var(--surface);
-  border:1px solid var(--border);border-radius:20px;
-  padding:20px 18px;animation:rise .25s ease;
+  border:1px solid var(--line);border-radius:16px;
+  padding:18px;animation:fade .2s ease;
 }
-.sheet h3{font-family:'Unbounded';font-size:14px;margin-bottom:6px}
-.sheet p{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px}
+.sheet h3{font-family:'Unbounded';font-size:13.5px;margin-bottom:6px;font-weight:600}
+.sheet p{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:11px}
 textarea{
-  width:100%;min-height:110px;resize:vertical;
-  background:var(--surface-2);border:1px solid var(--border);
-  border-radius:13px;padding:12px;color:var(--text);
-  font-family:inherit;font-size:14px;line-height:1.5;outline:none;
+  width:100%;min-height:104px;resize:vertical;
+  background:var(--surface-2);border:1px solid var(--line);
+  border-radius:11px;padding:11px;color:var(--text);
+  font-family:inherit;font-size:13.5px;line-height:1.5;outline:none;
 }
-textarea:focus{border-color:var(--purple)}
-.err{text-align:center;padding:60px 20px;color:var(--muted);line-height:1.7}
+textarea:focus{border-color:var(--amber)}
+.err{text-align:center;padding:56px 20px;color:var(--muted);line-height:1.7;font-size:13px}
 </style>
 </head>
 <body>
@@ -184,14 +203,14 @@ textarea:focus{border-color:var(--purple)}
     <h3>Заявка на амнистию</h3>
     <p id="sheetChat"></p>
     <textarea id="amnestyText" placeholder="Опишите, почему вас стоит разбанить..."></textarea>
-    <button class="btn" id="sendAmnesty">Отправить заявку</button>
-    <button class="btn ghost" id="cancelAmnesty">Отмена</button>
+    <button class="btn accent" id="sendAmnesty">Отправить заявку</button>
+    <button class="btn" id="cancelAmnesty">Отмена</button>
   </div>
 </div>
 
 <script>
 const tg = window.Telegram && window.Telegram.WebApp;
-if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor("#0A0A0E"); tg.setBackgroundColor("#0A0A0E"); }
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor("#0B0B0D"); tg.setBackgroundColor("#0B0B0D"); }
 
 function decodePayload(){
   const m = location.hash.match(/[#&]d=([^&]+)/);
@@ -228,9 +247,10 @@ function render(d){
   const bansCount = (d.b||[]).length;
 
   const chips = [];
-  chips.push(totalWarns ? `<span class="chip warn">⚠ ${totalWarns} варн.</span>` : `<span class="chip ok">✓ Чистый</span>`);
-  if(bansCount) chips.push(`<span class="chip bad">🚫 Банов: ${bansCount}</span>`);
-  if(d.t) chips.push(`<span class="chip tw">🎮 ${esc(d.t.l)}</span>`);
+  chips.push(totalWarns ? `<span class="chip warn">${totalWarns} варн.</span>` : `<span class="chip ok">Чисто</span>`);
+  if(bansCount) chips.push(`<span class="chip bad">Банов: ${bansCount}</span>`);
+  if(d.ns) chips.push(`<span class="chip bad">NightmareSpire бан</span>`);
+  if(d.t) chips.push(`<span class="chip tw">${esc(d.t.l)}</span>`);
 
   app.innerHTML = `
     <div class="player-card">
@@ -238,7 +258,7 @@ function render(d){
         <div class="avatar">${esc(initial)}</div>
         <div>
           <div class="pc-name">${esc(d.n)}</div>
-          <div class="pc-id">ID ${d.u}</div>
+          <div class="pc-id mono">ID ${d.u}</div>
         </div>
       </div>
       <div class="chips">${chips.join("")}</div>
@@ -246,11 +266,13 @@ function render(d){
 
     <div class="section active" id="sec-status">${renderStatus(d)}</div>
     <div class="section" id="sec-bans">${renderBans(d)}</div>
+    <div class="section" id="sec-ns">${renderNightmareSpire(d)}</div>
     <div class="section" id="sec-twitch">${renderTwitch(d)}</div>
 
     <div class="tabs">
       <button class="tab active" data-t="status">Статус</button>
       <button class="tab" data-t="bans">Баны</button>
+      <button class="tab" data-t="ns">NightmareSpire</button>
       <button class="tab" data-t="twitch">Twitch</button>
     </div>`;
 
@@ -268,7 +290,7 @@ function render(d){
 
 function renderStatus(d){
   if(!d.w || !d.w.length){
-    return `<div class="card"><div class="empty"><span class="big">Всё чисто</span>Варнов нет ни в одном чате.<br>Так держать!</div></div>`;
+    return `<div class="card"><div class="empty"><span class="big">Варнов нет</span>Чисто во всех чатах.</div></div>`;
   }
   return d.w.map(w=>{
     let pips = "";
@@ -276,7 +298,7 @@ function renderStatus(d){
     return `<div class="card">
       <div class="card-title">${esc(w.c)}</div>
       <div class="pips">${pips}</div>
-      <div class="pip-label">${w.n} из ${w.m} — при ${w.m} варнах следует бан</div>
+      <div class="pip-label">${w.n} из ${w.m} — при ${w.m} следует бан</div>
     </div>`;
   }).join("");
 }
@@ -289,16 +311,16 @@ function renderBans(d){
     const pct = Math.min(100, Math.round(b.days / b.wait * 100));
     let action;
     if(b.req){
-      action = `<span class="badge-req">📨 Заявка на рассмотрении</span>`;
+      action = `<span class="badge-req">Заявка на рассмотрении</span>`;
     } else if(b.days >= b.wait){
-      action = `<button class="btn" data-amnesty="${b.id}" data-chat="${esc(b.c)}">⚖ Подать заявку на амнистию</button>`;
+      action = `<button class="btn accent" data-amnesty="${b.id}" data-chat="${esc(b.c)}">Подать заявку на амнистию</button>`;
     } else {
       const left = Math.max(0,(b.wait-b.days)).toFixed(1);
       action = `<div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
                 <div class="bar-note">Заявка станет доступна через ${left} дн.</div>`;
     }
     return `<div class="card">
-      <div class="card-title">🚫 ${esc(b.c)}</div>
+      <div class="card-title">${esc(b.c)}</div>
       <div class="ban-meta">
         Причина: <b>${esc(b.r)}</b><br>
         Дата: ${esc(b.dt)}<br>
@@ -309,11 +331,38 @@ function renderBans(d){
   }).join("");
 }
 
-function renderTwitch(d){
-  if(!d.t){
-    const btn = d.lu ? `<button class="btn" id="linkTwitch">🔗 Привязать Twitch</button>` : "";
-    return `<div class="card"><div class="empty"><span class="big" style="color:#C79BFF">Twitch не привязан</span>Привяжите аккаунт, чтобы видеть время просмотра стрима.</div>${btn}</div>`;
+function renderNightmareSpire(d){
+  if(!d.ns){
+    return `<div class="card"><div class="empty"><span class="big">Блокировок нет</span>В NightmareSpire доступ не ограничен.</div></div>`;
   }
+  const until = d.ns.permanent ? "бессрочно" : esc(d.ns.until);
+  return `<div class="card">
+    <div class="ns-title"><span class="ns-dot bad"></span><span class="card-title">Игровой аккаунт заблокирован</span></div>
+    <div class="ban-meta">
+      Причина: <b>${esc(d.ns.reason)}</b><br>
+      ${d.ns.since ? `С даты: ${esc(d.ns.since)}<br>` : ""}
+      До: <b>${until}</b>
+    </div>
+  </div>`;
+}
+
+function renderTwitch(d){
+  const dropsCard = `
+    <div class="card">
+      <div class="card-title">Как получить дропсы</div>
+      <div class="card-sub">Награды выдаются по количеству часов, проведённых на трансляции.</div>
+      <div class="steps">
+        <div class="step"><div class="step-n mono">1</div><div class="step-t">Напишите <code>!регистрация</code> в чате трансляции — бот начнёт считать ваше время.</div></div>
+        <div class="step"><div class="step-n mono">2</div><div class="step-t">Смотрите стримы. Время учитывается, пока вы находитесь в чате трансляции.</div></div>
+        <div class="step"><div class="step-n mono">3</div><div class="step-t">Дропсы начисляются по мере накопления часов — прогресс отображается ниже.</div></div>
+      </div>
+    </div>`;
+
+  if(!d.t){
+    const btn = d.lu ? `<button class="btn tw" id="linkTwitch">Привязать Twitch</button>` : "";
+    return `<div class="card"><div class="empty"><span class="big">Twitch не привязан</span>Привяжите аккаунт, чтобы отслеживать время просмотра.</div>${btn}</div>`;
+  }
+
   const maxSec = Math.max(1, ...(d.t.d||[]).map(x=>x[1]));
   const days = (d.t.d||[]).map(x=>{
     const date = x[0].slice(5).split("-").reverse().join(".");
@@ -323,13 +372,15 @@ function renderTwitch(d){
       <div class="day-val">${fmtDur(x[1])}</div>
     </div>`;
   }).join("");
+
   return `<div class="card">
     <div class="tw-hero">
-      <div class="tw-total">${fmtDur(d.t.s)}</div>
-      <div class="tw-cap">в чате стрима · ${esc(d.t.l)}</div>
+      <div class="tw-total mono">${fmtDur(d.t.s)}</div>
+      <div class="tw-cap">суммарно в чате стрима · ${esc(d.t.l)}</div>
     </div>
     ${days ? `<div class="days">${days}</div>` : `<div class="card-sub" style="text-align:center;margin-top:10px">Пока нет данных по дням.</div>`}
-  </div>`;
+  </div>
+  ${dropsCard}`;
 }
 
 let amnestyChatId = null;
