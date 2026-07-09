@@ -497,8 +497,12 @@ function renderChatSettings(ch){
     <textarea class="inp" id="wtext-${ch.id}" placeholder="Текст приветствия. {mention} — упоминание новичка" style="min-height:64px;margin-bottom:8px">${esc(s.welcome_text||"")}</textarea>
     <input class="inp" id="wbtn-${ch.id}" placeholder="Текст кнопки" value="${esc(s.welcome_button||"Прочитал правила")}" style="margin-bottom:8px">
     <input class="inp" id="wmute-${ch.id}" inputmode="numeric" placeholder="Секунд до кнопки" value="${s.welcome_mute_seconds!=null?s.welcome_mute_seconds:60}" style="margin-bottom:8px">
-    <input class="inp" id="wthread-${ch.id}" inputmode="numeric" placeholder="ID ветки (пусто = General)" value="${s.welcome_thread_id!=null?s.welcome_thread_id:''}" style="margin-bottom:8px">
-    <div class="row-note">Если в группе включены темы (топики), укажи ID нужной ветки — иначе приветствие уйдёт в General.</div>
+    <input class="inp" id="wthread-${ch.id}" inputmode="numeric" placeholder="ID ветки для приветствия (пусто = General)" value="${s.welcome_thread_id!=null?s.welcome_thread_id:''}" style="margin-bottom:8px">
+    <div class="row-note">Узнать ID ветки: команда <code>!chatid</code> прямо в нужной ветке.</div>
+
+    <div class="sub-h">Уведомления бота</div>
+    <input class="inp" id="nthread-${ch.id}" inputmode="numeric" placeholder="ID ветки для уведомлений (пусто = General)" value="${s.notify_thread_id!=null?s.notify_thread_id:''}" style="margin-bottom:8px">
+    <div class="row-note">Куда слать автовыдачу варнов/банов, антирейд и другие оповещения бота — например в отдельную «служебную» ветку.</div>
 
     <div class="sub-h">Автомодерация</div>
     <button class="perm ${s.automod_enabled?"on":""}" data-amenabled data-chat="${ch.id}" style="margin-bottom:8px">${s.automod_enabled?"Включена":"Выключена"}</button>
@@ -673,6 +677,7 @@ function bindAdmin(){
         welcome_button: (document.getElementById("wbtn-"+chatId).value||"").trim(),
         welcome_mute_seconds: parseInt(document.getElementById("wmute-"+chatId).value)||0,
         welcome_thread_id: (document.getElementById("wthread-"+chatId).value||"").trim(),
+        notify_thread_id: (document.getElementById("nthread-"+chatId).value||"").trim(),
         automod_enabled: document.querySelector(`[data-amenabled][data-chat="${chatId}"]`).classList.contains("on"),
         automod: automod,
         automod_action: action,
