@@ -469,9 +469,43 @@ function renderManagePanel(chats, perms, plabels, isAdmin){
             <input class="inp" id="mod-${ch.id}" placeholder="или @username / ID">
             <button class="mini-btn" data-addmod data-chat="${ch.id}">+</button>
           </div>
+          ${renderChatSettings(ch)}
         </div>`;
       }).join("")
     : `<div class="row-note">Чатов нет.</div>`;
+}
+
+function renderChatSettings(ch){
+  const s = ch.settings || {};
+  const am = s.automod || {};
+  const amLabels = (data && data.amlabels) || {};
+  const amActions = (data && data.amactions) || {};
+
+  const amToggles = Object.keys(amLabels).map(k=>{
+    const on = !!am[k];
+    return `<button class="perm ${on?"on":""}" data-amtoggle data-chat="${ch.id}" data-key="${k}">${esc(amLabels[k])}</button>`;
+  }).join("");
+
+  const actionBtns = Object.keys(amActions).map(k=>{
+    const on = (s.automod_action||"warn")===k;
+    return `<button class="perm ${on?"on":""}" data-amaction data-chat="${ch.id}" data-act="${k}">${esc(amActions[k])}</button>`;
+  }).join("");
+
+  return `
+    <div class="sub-h">Приветствие</div>
+    <button class="perm ${s.welcome_enabled?"on":""}" data-wtoggle data-chat="${ch.id}" style="margin-bottom:8px">${s.welcome_enabled?"Включено":"Выключено"}</button>
+    <textarea class="inp" id="wtext-${ch.id}" placeholder="Текст приветствия. {mention} — упоминание новичка" style="min-height:64px;margin-bottom:8px">${esc(s.welcome_text||"")}</textarea>
+    <input class="inp" id="wbtn-${ch.id}" placeholder="Текст кнопки" value="${esc(s.welcome_button||"Прочитал правила")}" style="margin-bottom:8px">
+    <input class="inp" id="wmute-${ch.id}" inputmode="numeric" placeholder="Секунд до кнопки" value="${s.welcome_mute_seconds!=null?s.welcome_mute_seconds:60}" style="margin-bottom:8px">
+
+    <div class="sub-h">Автомодерация</div>
+    <button class="perm ${s.automod_enabled?"on":""}" data-amenabled data-chat="${ch.id}" style="margin-bottom:8px">${s.automod_enabled?"Включена":"Выключена"}</button>
+    <div class="perms">${amToggles}</div>
+    <div class="sub-h" style="margin-top:12px">Действие при нарушении</div>
+    <div class="perms">${actionBtns}</div>
+    <input class="inp" id="ammute-${ch.id}" inputmode="numeric" placeholder="Секунд мута (для действия «мут»)" value="${s.automod_mute_seconds!=null?s.automod_mute_seconds:300}" style="margin-top:8px">
+
+    <button class="btn accent" data-savesettings data-chat="${ch.id}" style="margin-top:12px">Сохранить настройки</button>`;
 }
 
 function modLabel(ch, uid){
@@ -591,6 +625,58 @@ function bindAdmin(){
   document.querySelectorAll("[data-open-owner]").forEach(el=>{
     if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>openOwnerPanel(el.dataset.openOwner));
+  });
+
+  document.querySelectorAll("[data-wtoggle]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
+    el.addEventListener("click",()=>{
+      const on = el.classList.toggle("on");
+      el.textContent = on ? "Включено" : "Выключено";
+    });
+  });
+  document.querySelectorAll("[data-amenabled]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
+    el.addEventListener("click",()=>{
+      const on = el.classList.toggle("on");
+      el.textContent = on ? "Включена" : "Выключена";
+    });
+  });
+  document.querySelectorAll("[data-amtoggle]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
+    el.addEventListener("click",()=>el.classList.toggle("on"));
+  });
+  document.querySelectorAll("[data-amaction]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
+    el.addEventListener("click",()=>{
+      const chatId = el.dataset.chat;
+      document.querySelectorAll(`[data-amaction][data-chat="${chatId}"]`).forEach(b=>b.classList.remove("on"));
+      el.classList.add("on");
+    });
+  });
+  document.querySelectorAll("[data-savesettings]").forEach(el=>{
+    if(el._bound) return; el._bound = true;
+    el.addEventListener("click",()=>{
+      const chatId = el.dataset.chat;
+      const automod = {};
+      document.querySelectorAll(`[data-amtoggle][data-chat="${chatId}"]`).forEach(b=>{
+        automod[b.dataset.key] = b.classList.contains("on");
+      });
+      let action = "warn";
+      const activeAction = document.querySelector(`[data-amaction][data-chat="${chatId}"].on`);
+      if(activeAction) action = activeAction.dataset.act;
+
+      const settings = {
+        welcome_enabled: document.querySelector(`[data-wtoggle][data-chat="${chatId}"]`).classList.contains("on"),
+        welcome_text: (document.getElementById("wtext-"+chatId).value||"").trim(),
+        welcome_button: (document.getElementById("wbtn-"+chatId).value||"").trim(),
+        welcome_mute_seconds: parseInt(document.getElementById("wmute-"+chatId).value)||0,
+        automod_enabled: document.querySelector(`[data-amenabled][data-chat="${chatId}"]`).classList.contains("on"),
+        automod: automod,
+        automod_action: action,
+        automod_mute_seconds: parseInt(document.getElementById("ammute-"+chatId).value)||0,
+      };
+      if(tg) tg.sendData(JSON.stringify({action:"save_settings", chat_id:chatId, settings:settings}));
+    });
   });
 }
 
