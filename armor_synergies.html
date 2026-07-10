@@ -47,7 +47,6 @@ body {
   min-height: 100vh;
 }
 
-/* ── Частицы (угли / изморозь) ────────────────────────────────────── */
 .motes { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
 .mote {
   --drift: 0px;
@@ -72,7 +71,6 @@ body {
 
 .wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 44px 20px 90px; }
 
-/* ── Шапка ─────────────────────────────────────────────────────────── */
 header.top { text-align: center; margin-bottom: 30px; }
 .eyebrow {
   font-family: 'JetBrains Mono', monospace;
@@ -110,7 +108,6 @@ h1.title {
   transition: width .6s cubic-bezier(.2,.8,.2,1);
 }
 
-/* ── Фильтры ───────────────────────────────────────────────────────── */
 .filters {
   position: sticky; top: 0; z-index: 6;
   background: color-mix(in srgb, var(--bg) 86%, transparent);
@@ -146,7 +143,6 @@ h1.title {
 }
 .chip svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.7; }
 
-/* ── Сетка ─────────────────────────────────────────────────────────── */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
 
 .card {
@@ -176,7 +172,6 @@ h1.title {
   border-left-color: var(--arch-locked);
   background: var(--bg-2);
 }
-/* Резервируем место под печать, чтобы она не наезжала на бейдж */
 .card.locked .card-head { padding-right: 42px; }
 
 .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -314,10 +309,6 @@ const ARCHETYPES = {
 const Q_ICON = '<circle cx="8" cy="8" r="6"/><path d="M6.2 6.4 C6.2 5.1 7 4.4 8.1 4.4 C9.2 4.4 10 5.1 10 6.1 C10 7.6 8.1 7.6 8.1 9.1 M8.1 11.4 L8.1 11.5"/>';
 const STAT_MAX = 32;
 
-/* Прогресс игрока:
-   1) window.NIGHTMARE_DISCOVERED = [...]
-   2) ?lz=<LZString.compressToEncodedURIComponent(JSON-массива имён)>
-   3) ?discovered=Имя1,Имя2 */
 function resolveDiscovered() {
   if (Array.isArray(window.NIGHTMARE_DISCOVERED)) return new Set(window.NIGHTMARE_DISCOVERED);
   const params = new URLSearchParams(location.search);
@@ -383,8 +374,6 @@ function buildFilters() {
 function matches(s) {
   const isOpen = discovered.has(s.name);
   if (state.count !== null && s.ingredient_count !== state.count) return false;
-  /* Закрытые записи не участвуют в поиске и фильтре по архетипу —
-     иначе они выдавали бы скрытую информацию о составе и типе. */
   if (state.archetype !== null) {
     if (!isOpen) return false;
     if (s.archetype !== state.archetype) return false;
