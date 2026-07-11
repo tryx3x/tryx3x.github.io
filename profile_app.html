@@ -9,15 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/*
-  design read: личное досье участника комьюнити (модерация + игровой бан +
-  Twitch-дропсы) для аудитории геймеров/зрителей стрима. Язык — "системный
-  отчёт/досье", не шаблонный gamer-дашборд с фиолетовым свечением.
-  dials: variance 6 / motion 4 / density 5 — данных много, но подача
-  строгая, не художественно-воздушная.
-  Сигнатура: манифест-списки с разделителями вместо стопки карточек;
-  "печать" вместо бейджа для статуса бана; построчная выдача при загрузке.
-*/
+
 :root{
   --bg:#0A0A0B;
   --panel:#111113;
@@ -42,7 +34,6 @@ body{
 .display{font-family:'Unbounded',sans-serif}
 .mono{font-family:'IBM Plex Mono',monospace}
 
-/* ── Тикер статуса ── */
 .ticker{
   font-family:'IBM Plex Mono';font-size:10.5px;font-weight:500;
   letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
@@ -55,12 +46,10 @@ body{
 .ticker .dot.warn{background:var(--amber)}
 .ticker .dot.bad{background:var(--red)}
 
-/* ── Заголовок досье ── */
 .file-head{padding-bottom:14px;margin-bottom:4px;border-bottom:1px solid var(--line)}
 .file-id{font-family:'IBM Plex Mono';font-size:11px;color:var(--dim);letter-spacing:.05em}
 .file-name{font-family:'Unbounded';font-weight:600;font-size:19px;margin-top:5px;line-height:1.25;word-break:break-word}
 
-/* ── Табы как поля брекетов ── */
 .tabs{
   position:fixed;left:0;right:0;bottom:0;z-index:10;
   display:flex;
@@ -84,11 +73,9 @@ body{
   body{padding-bottom:96px}
 }
 
-/* ── Секции ── */
 .section{display:none;margin-top:14px}
 .section.active{display:block}
 
-/* ── Манифест: список с разделителями, не коробки ── */
 .manifest{border-top:1px solid var(--line)}
 .row{
   padding:13px 0;
@@ -110,14 +97,12 @@ body{
 .row-note{margin-top:6px;font-size:12px;color:var(--dim);line-height:1.55}
 .row-note b{color:var(--ink);font-weight:600}
 
-/* ── Индикатор варнов: тонкие сегменты в строку с числом ── */
 .gauge{display:flex;align-items:center;gap:9px;margin-top:9px}
 .gauge-track{flex:1;display:flex;gap:4px}
 .seg{flex:1;height:3px;background:var(--line);}
 .seg.on{background:var(--amber)}
 .gauge-num{font-family:'IBM Plex Mono';font-size:11px;color:var(--dim);flex:none}
 
-/* ── Печать статуса ── */
 .stamp{
   display:inline-block;margin-top:11px;
   padding:7px 14px;
@@ -149,7 +134,6 @@ body{
 .btn.tw{border-color:var(--twitch);color:var(--twitch)}
 .btn:active{opacity:.6}
 
-/* ── Twitch ── */
 .tw-readout{padding:6px 0 16px;border-bottom:1px solid var(--line);margin-bottom:14px}
 .tw-num{font-family:'IBM Plex Mono';font-weight:500;font-size:32px;color:var(--twitch);letter-spacing:-.01em}
 .tw-cap{font-family:'IBM Plex Mono';font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
@@ -169,7 +153,6 @@ body{
   color:var(--twitch);
 }
 
-/* ── Заявка на амнистию ── */
 .overlay{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.75);padding:14px;align-items:flex-end}
 .overlay.open{display:flex}
 .sheet{width:100%;background:var(--panel);border:1px solid var(--line);padding:18px}
@@ -184,7 +167,6 @@ textarea{
 textarea:focus{border-color:var(--amber)}
 .err{text-align:center;padding:56px 20px;color:var(--dim);line-height:1.7;font-size:13px}
 
-/* ── Админка ── */
 .mini-btn{
   border:1px solid var(--line);background:transparent;color:var(--dim);
   font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.04em;
@@ -234,6 +216,15 @@ textarea:focus{border-color:var(--amber)}
 .chat-item:active{border-color:var(--amber)}
 .chat-item-name{font-size:14px;font-weight:600;word-break:break-word}
 .chat-item-meta{font-size:11px;color:var(--dim);flex:none}
+
+.toast{
+  position:fixed;left:14px;right:14px;bottom:76px;z-index:30;
+  background:var(--panel);border:1px solid var(--line);
+  padding:12px 14px;font-size:13px;color:var(--ink);
+  opacity:0;transform:translateY(8px);pointer-events:none;
+  transition:opacity .2s ease,transform .2s ease;
+}
+.toast.show{opacity:1;transform:none}
 </style>
 </head>
 <body>
@@ -251,19 +242,15 @@ textarea:focus{border-color:var(--amber)}
 </div>
 
 <script>
+const API_BASE_URL = "https://ВАШ_ПОДДОМЕН.duckdns.org";
+
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor("#0A0A0B"); tg.setBackgroundColor("#0A0A0B"); }
 
-function decodePayload(){
-  const m = location.hash.match(/[#&]d=([^&]+)/);
-  if(!m) return null;
-  let b64 = m[1].replace(/-/g,"+").replace(/_/g,"/");
-  while(b64.length % 4) b64 += "=";
-  try{
-    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-    return JSON.parse(new TextDecoder().decode(bytes));
-  }catch(e){ return null; }
+function authHeader(){
+  return tg && tg.initData ? { "Authorization": "tma " + tg.initData } : {};
 }
+
 function fmtDur(s){
   s = s|0;
   const h = Math.floor(s/3600), m = Math.floor(s%3600/60);
@@ -273,13 +260,62 @@ function fmtDur(s){
 }
 function esc(t){const d=document.createElement("div");d.textContent=t??"";return d.innerHTML;}
 
-const data = decodePayload();
+let data = null;
 const app = document.getElementById("app");
-if(!data){
-  app.innerHTML = '<div class="err">Не удалось загрузить данные.<br>Откройте профиль через кнопку в боте (/start).</div>';
-} else {
-  render(data);
+
+async function loadProfile(){
+  if(!tg || !tg.initData){
+    app.innerHTML = '<div class="err">Откройте это приложение через кнопку в боте (/start) — вне Telegram оно не работает.</div>';
+    return;
+  }
+  app.innerHTML = '<div class="err">Загрузка…</div>';
+  try{
+    const resp = await fetch(API_BASE_URL + "/api/profile", { headers: authHeader() });
+    if(!resp.ok){
+      app.innerHTML = '<div class="err">Не удалось загрузить данные (код '+resp.status+').<br>Попробуйте закрыть и открыть приложение заново.</div>';
+      return;
+    }
+    data = await resp.json();
+    render(data);
+  }catch(e){
+    app.innerHTML = '<div class="err">Ошибка сети. Проверьте подключение и попробуйте снова.</div>';
+  }
 }
+
+async function callAction(payload){
+  try{
+    const resp = await fetch(API_BASE_URL + "/api/action", {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, authHeader()),
+      body: JSON.stringify(payload),
+    });
+    const d = await resp.json();
+    if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(resp.ok ? "success" : "error");
+    if(d.message) toast(d.message);
+
+    const reopenChatId = currentPanelChatId;
+    await loadProfile();
+    if(reopenChatId) openOwnerPanel(reopenChatId);
+  }catch(e){
+    toast("Ошибка сети, попробуйте снова.");
+  }
+}
+
+function toast(text){
+  let t = document.getElementById("toast");
+  if(!t){
+    t = document.createElement("div");
+    t.id = "toast";
+    t.className = "toast";
+    document.body.appendChild(t);
+  }
+  t.textContent = text;
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove("show"), 3200);
+}
+
+loadProfile();
 
 function render(d){
   const totalWarns = (d.w||[]).reduce((a,x)=>a+x.n,0);
@@ -581,7 +617,7 @@ function bindAdmin(){
         const [cid, uid] = key.split(":");
         if(cid===String(chatId)) changes[uid] = pendingPerms[key];
       });
-      if(tg) tg.sendData(JSON.stringify({action:"save_perms", chat_id:chatId, changes:changes}));
+      callAction({action:"save_perms", chat_id:chatId, changes:changes});
     });
   });
 
@@ -592,7 +628,7 @@ function bindAdmin(){
       const value = document.getElementById("mod-"+chatId).value.trim();
       if(!value) return;
       const action = el.closest("[data-ownerpanel]") ? "owner_add_mod" : "admin_add_mod";
-      if(tg) tg.sendData(JSON.stringify({action:action, chat_id:chatId, value:value}));
+      callAction({action:action, chat_id:chatId, value:value});
     });
   });
 
@@ -600,7 +636,7 @@ function bindAdmin(){
     if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>{
       const action = el.closest("[data-ownerpanel]") ? "owner_add_mod" : "admin_add_mod";
-      if(tg) tg.sendData(JSON.stringify({action:action, chat_id:el.dataset.chat, value:el.dataset.uid}));
+      callAction({action:action, chat_id:el.dataset.chat, value:el.dataset.uid});
     });
   });
 
@@ -608,24 +644,24 @@ function bindAdmin(){
     if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>{
       const action = el.closest("[data-ownerpanel]") ? "owner_del_mod" : "admin_del_mod";
-      if(tg) tg.sendData(JSON.stringify({action:action, chat_id:el.dataset.chat, value:el.dataset.uid}));
+      callAction({action:action, chat_id:el.dataset.chat, value:el.dataset.uid});
     });
   });
 
   document.querySelectorAll("[data-deltwitch]").forEach(el=>{
     if(el._bound) return; el._bound = true;
-    el.addEventListener("click",()=>{ if(tg) tg.sendData(JSON.stringify({action:"admin_del_twitch", value:el.dataset.val})); });
+    el.addEventListener("click",()=>{ callAction({action:"admin_del_twitch", value:el.dataset.val}); });
   });
   document.querySelectorAll("[data-addtwitch]").forEach(el=>{
     if(el._bound) return; el._bound = true;
     el.addEventListener("click",()=>{
       const value = document.getElementById("new-twitch").value.trim();
-      if(value && tg) tg.sendData(JSON.stringify({action:"admin_add_twitch", value:value}));
+      if(value) callAction({action:"admin_add_twitch", value:value});
     });
   });
   document.querySelectorAll("[data-delchat]").forEach(el=>{
     if(el._bound) return; el._bound = true;
-    el.addEventListener("click",()=>{ if(tg) tg.sendData(JSON.stringify({action:"admin_del_chat", chat_id:el.dataset.chat})); });
+    el.addEventListener("click",()=>{ callAction({action:"admin_del_chat", chat_id:el.dataset.chat}); });
   });
 
   document.querySelectorAll("[data-open-owner]").forEach(el=>{
@@ -683,7 +719,7 @@ function bindAdmin(){
         automod_action: action,
         automod_mute_seconds: parseInt(document.getElementById("ammute-"+chatId).value)||0,
       };
-      if(tg) tg.sendData(JSON.stringify({action:"save_settings", chat_id:chatId, settings:settings}));
+      callAction({action:"save_settings", chat_id:chatId, settings:settings});
     });
   });
 }
@@ -700,12 +736,11 @@ document.getElementById("cancelAmnesty").addEventListener("click",()=>overlay.cl
 document.getElementById("sendAmnesty").addEventListener("click",()=>{
   const text = document.getElementById("amnestyText").value.trim();
   if(!text){ document.getElementById("amnestyText").focus(); return; }
-  if(tg){
-    tg.sendData(JSON.stringify({action:"amnesty", chat_id:amnestyChatId, text:text}));
-  } else {
-    alert("Откройте приложение через Telegram.");
-  }
+  overlay.classList.remove("open");
+  callAction({action:"amnesty", chat_id:amnestyChatId, text:text});
 });
+
+let currentPanelChatId = null;
 
 function openOwnerPanel(chatId){
   if(!data) return;
@@ -721,6 +756,9 @@ function openOwnerPanel(chatId){
   }
   if(!ch) return;
 
+  currentPanelChatId = chatId;
+  pendingPerms = {};
+
   const usablePerms = isAdminPanel ? (data.perms||[]) : (data.owner_perms||[]);
 
   const panel = document.getElementById("ownerPanel");
@@ -732,10 +770,12 @@ function openOwnerPanel(chatId){
 }
 document.addEventListener("click",(e)=>{
   if(e.target.closest("#closeOwner")){
+    currentPanelChatId = null;
     document.getElementById("ownerOverlay").classList.remove("open");
     return;
   }
   if(e.target.id==="ownerOverlay"){
+    currentPanelChatId = null;
     document.getElementById("ownerOverlay").classList.remove("open");
   }
 });
