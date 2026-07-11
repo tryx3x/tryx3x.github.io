@@ -281,8 +281,17 @@ function esc(t){const d=document.createElement("div");d.textContent=t??"";return
 let data = null;
 const app = document.getElementById("app");
 
+async function waitForInitData(maxTries, delay){
+  for(let i=0;i<maxTries;i++){
+    if(tg && tg.initData) return true;
+    await new Promise(r=>setTimeout(r, delay));
+  }
+  return false;
+}
+
 async function loadProfile(){
-  if(!tg || !tg.initData){
+  const ready = await waitForInitData(20, 150);
+  if(!ready){
     const diag = [
       "SDK Telegram: " + (tg ? "загружен" : "НЕ загружен"),
       "initData: " + (tg ? (tg.initData ? ("есть, длина " + tg.initData.length) : "пусто") : "н/д"),
