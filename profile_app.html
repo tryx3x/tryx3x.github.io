@@ -295,6 +295,7 @@ async function loadProfile(){
     const diag = [
       "SDK Telegram: " + (tg ? "загружен" : "НЕ загружен"),
       "initData: " + (tg ? (tg.initData ? ("есть, длина " + tg.initData.length) : "пусто") : "н/д"),
+      "initDataUnsafe: " + (tg && tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length ? JSON.stringify(tg.initDataUnsafe).slice(0,120) : "пусто"),
       "platform: " + (tg ? tg.platform : "н/д"),
       "version: " + (tg ? tg.version : "н/д"),
     ].join("<br>");
