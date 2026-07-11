@@ -325,7 +325,12 @@ async function callAction(payload){
     });
     const d = await resp.json();
     if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(resp.ok ? "success" : "error");
-    if(d.message) toast(d.message);
+
+    if(payload.action === "claim_twitch_spins" && d.message){
+      showSpinResult(d.message);
+    } else if(d.message){
+      toast(d.message);
+    }
 
     const reopenChatId = currentPanelChatId;
     await loadProfile();
@@ -333,6 +338,12 @@ async function callAction(payload){
   }catch(e){
     toast("Ошибка сети, попробуйте снова.");
   }
+}
+
+function showSpinResult(message){
+  const panel = document.getElementById("spinResultBody");
+  panel.innerHTML = message.replace(/\n/g, "<br>");
+  document.getElementById("spinResultOverlay").classList.add("open");
 }
 
 function toast(text){
@@ -396,6 +407,13 @@ function render(d){
   document.querySelectorAll("[data-amnesty]").forEach(b=>b.addEventListener("click",()=>openAmnesty(b.dataset.amnesty,b.dataset.chat)));
   const lb = document.getElementById("linkTwitch");
   if(lb) lb.addEventListener("click",()=>{ if(tg && d.lu) tg.openLink(d.lu); else if(d.lu) location.href=d.lu; });
+
+  const claimBtn = document.getElementById("claimSpins");
+  if(claimBtn) claimBtn.addEventListener("click",()=>{
+    claimBtn.disabled = true;
+    claimBtn.textContent = "Забираем...";
+    callAction({action:"claim_twitch_spins"});
+  });
 }
 
 function renderStatus(d){
@@ -493,11 +511,21 @@ function renderTwitch(d){
     </div>`;
   }).join("");
 
+  const spins = d.t.spins || 0;
+  const spinBlock = spins > 0
+    ? `<div class="row" style="border-left:2px solid var(--amber);padding-left:12px">
+        <div class="row-top"><div class="row-label">🎰 Доступно круток: ${spins}</div></div>
+        <div class="row-note">Крутка выдаёт случайный ресурс из объединённого пула наград всех сундуков. Все крутки заберутся разом одним промокодом.</div>
+        <button class="btn accent" id="claimSpins">Забрать награду</button>
+      </div>`
+    : `<div class="row-note">🎰 Круток пока нет — 1 крутка начисляется за каждый полный час в чате трансляции.</div>`;
+
   return `
     <div class="tw-readout">
       <div class="tw-num">${fmtDur(d.t.s)}</div>
       <div class="tw-cap">суммарно в чате · ${esc(d.t.l)}</div>
     </div>
+    ${spinBlock}
     ${days || `<div class="row-note">Пока нет данных по дням.</div>`}
     ${channelBlock}
     ${dropsCard}`;
@@ -811,6 +839,14 @@ document.addEventListener("click",(e)=>{
   if(e.target.id==="ownerOverlay"){
     currentPanelChatId = null;
     document.getElementById("ownerOverlay").classList.remove("open");
+    return;
+  }
+  if(e.target.closest("#closeSpinResult")){
+    document.getElementById("spinResultOverlay").classList.remove("open");
+    return;
+  }
+  if(e.target.id==="spinResultOverlay"){
+    document.getElementById("spinResultOverlay").classList.remove("open");
   }
 });
 </script>
@@ -821,6 +857,14 @@ document.addEventListener("click",(e)=>{
     <p>Назначайте модераторов и выдавайте им права. Не забудьте «Сохранить права».</p>
     <div id="ownerPanel"></div>
     <button class="btn" id="closeOwner" style="margin-top:14px">Закрыть</button>
+  </div>
+</div>
+
+<div class="overlay" id="spinResultOverlay">
+  <div class="sheet" style="max-height:82vh;overflow-y:auto">
+    <h3>🎰 Результат крутки</h3>
+    <div id="spinResultBody" class="mono" style="font-size:13px;line-height:1.6"></div>
+    <button class="btn accent" id="closeSpinResult" style="margin-top:14px">Понятно, закрыть</button>
   </div>
 </div>
 
