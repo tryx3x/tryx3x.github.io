@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080708">
+  <title>История Башни — Nightmare Spire</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#080708;--surface:#100d0f;--raised:#171114;--line:rgb(242 226 222/10%);--line-red:rgb(220 67 87/34%);--text:#eee5e2;--secondary:#b1a3a4;--muted:#76696c;--accent:#dc4357;--hot:#ff7180;--rare:#c8a65a;--success:#78ba8d;--ease:cubic-bezier(.2,.75,.2,1)}
+    *{box-sizing:border-box}
+    html{background:var(--bg);scroll-behavior:smooth}
+    body{min-width:280px;min-height:100dvh;margin:0;overflow-x:clip;color:var(--text);background:radial-gradient(75% 40% at 50% -8%,rgb(175 27 51/17%),transparent 72%),var(--bg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.5}
+    body::before{position:fixed;inset:0;z-index:-1;background:linear-gradient(90deg,transparent 49.9%,rgb(220 67 87/4%) 50%,transparent 50.1%),repeating-radial-gradient(circle at 50% 8%,transparent 0 86px,rgb(220 67 87/2.5%) 87px 88px);content:"";pointer-events:none}
+    button,input{font:inherit;color:inherit}
+    button:focus-visible,input:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+    .app{width:min(100%,720px);margin:auto;padding-bottom:max(30px,env(safe-area-inset-bottom))}
+    .masthead{padding:max(24px,env(safe-area-inset-top)) 18px 20px;border-bottom:1px solid var(--line)}
+    .eyebrow{margin:0 0 6px;color:var(--accent);font-size:.62rem;font-weight:780;letter-spacing:.22em;text-transform:uppercase}
+    h1{max-width:12ch;margin:0;font-size:clamp(2.5rem,13vw,5rem);font-weight:570;letter-spacing:-.06em;line-height:.86;text-wrap:balance}
+    .masthead__sub{max-width:40ch;margin:15px 0 0;color:var(--muted);font-size:.8rem}
+    .overview{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.6fr);gap:1px;margin:14px;background:var(--line)}
+    .peak{position:relative;min-height:168px;padding:20px 18px;overflow:hidden;background:linear-gradient(145deg,rgb(200 166 90/10%),transparent 58%),var(--surface)}
+    .peak::after{position:absolute;right:-38px;bottom:-72px;width:190px;height:190px;border:1px solid rgb(200 166 90/15%);clip-path:polygon(50% 0,100% 100%,0 100%);content:""}
+    .peak__label{margin:0;color:var(--rare);font-size:.62rem;font-weight:750;letter-spacing:.18em;text-transform:uppercase}
+    .peak__floor{position:relative;z-index:1;margin:8px 0 3px;font-size:clamp(3.2rem,15vw,5.4rem);font-weight:560;letter-spacing:-.07em;line-height:.8;font-variant-numeric:tabular-nums}
+    .peak__floor small{font-size:.7rem;font-weight:650;letter-spacing:.13em;text-transform:uppercase}
+    .peak__hero{position:relative;z-index:1;margin:12px 0 0;color:var(--secondary);font-size:.78rem}.peak__hero strong{color:var(--text);font-weight:650}
+    .metrics{display:grid;gap:1px;background:var(--line)}
+    .metric{display:grid;padding:13px 11px;background:var(--surface);align-content:center}
+    .metric strong{font-size:1.12rem;font-weight:650;font-variant-numeric:tabular-nums}.metric span{color:var(--muted);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase}
+    .controls{position:sticky;top:0;z-index:7;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px 14px;background:rgb(8 7 8/96%)}
+    .search{min-width:0;height:44px;padding:0 13px;border:1px solid var(--line);border-radius:0;background:var(--surface);outline:0}.search:focus{border-color:var(--line-red)}
+    .filter{height:44px;padding:0 13px;border:1px solid var(--line);background:var(--surface);color:var(--secondary);font-size:.7rem;font-weight:700;cursor:pointer}.filter[aria-pressed="true"]{border-color:var(--rare);color:var(--rare);background:rgb(200 166 90/7%)}
+    .archive{padding:5px 14px 30px}
+    .archive__heading{display:flex;margin:15px 0 8px;align-items:end;justify-content:space-between;gap:16px}.archive__heading h2{margin:0;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase}.archive__heading span{color:var(--muted);font-size:.67rem}
+    .timeline{position:relative;padding-left:44px}.timeline::before{position:absolute;top:0;bottom:0;left:17px;width:1px;background:linear-gradient(var(--rare),var(--accent) 12%,var(--line) 88%,transparent);content:""}
+    .record{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;min-height:58px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center;animation:record-in 380ms var(--ease) both}
+    .record::before{position:absolute;top:50%;left:-32px;width:7px;height:7px;border:1px solid var(--accent);border-radius:50%;background:var(--bg);content:"";transform:translateY(-50%)}
+    .record::after{position:absolute;top:50%;left:-24px;width:18px;height:1px;background:var(--line-red);content:""}
+    .record--milestone{min-height:72px;border-bottom-color:rgb(200 166 90/20%)}.record--milestone::before{left:-35px;width:13px;height:13px;border-color:var(--rare);box-shadow:0 0 14px rgb(200 166 90/28%)}.record--milestone::after{left:-21px;width:15px;background:var(--rare)}
+    .record--peak{background:linear-gradient(90deg,rgb(200 166 90/7%),transparent);margin-inline:-8px;padding-inline:8px}
+    .record__floor{display:flex;align-items:baseline;gap:6px}.record__floor strong{font-size:1rem;font-weight:700;font-variant-numeric:tabular-nums}.record--milestone .record__floor strong{color:var(--rare);font-size:1.3rem}.record__floor span{color:var(--muted);font-size:.62rem;text-transform:uppercase}
+    .record__hero{margin-top:3px;color:var(--secondary);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.record__hero--hidden{color:var(--muted);font-style:italic}.record__date{color:var(--muted);font-size:.66rem;text-align:right;white-space:nowrap}
+    .record__tag{display:block;margin-top:3px;color:var(--accent);font-size:.56rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.record--milestone .record__tag{color:var(--rare)}
+    .empty{display:grid;min-height:48dvh;padding:30px;text-align:center;place-content:center}.empty__sign{color:var(--accent);font-size:2rem}.empty h2{margin:12px 0 5px;font-size:1.15rem}.empty p{max-width:32ch;margin:0;color:var(--muted);font-size:.8rem}
+    @keyframes record-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    @media(max-width:390px){.overview{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.metric:last-child{grid-column:1/-1}.controls{grid-template-columns:1fr}.filter{width:100%}.record{grid-template-columns:1fr}.record__date{text-align:left}.timeline{padding-left:38px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.record{animation:none}*{transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header class="masthead">
+    <p class="eyebrow">Nightmare Spire · Архив</p>
+    <h1>История Башни</h1>
+    <p class="masthead__sub">Имена тех, кто первым поднялся на каждый этаж и оставил след в памяти Шпиля.</p>
+  </header>
+  <div id="content"><section class="empty"><div class="empty__sign">◇</div><h2>Открываем архив</h2><p>Восстанавливаем записи покорителей Башни.</p></section></div>
+</main>
+<script>
+const tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand()}
+const esc=value=>String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+const milestone=floor=>floor%100===0?"Легенда":floor%50===0?"Великий рубеж":floor%25===0?"Веха":floor%10===0?"Этап":floor===1?"Начало":null;
+let records=[],milestonesOnly=false,query="";
+function normalize(item){
+  if(Array.isArray(item))return{floor:Number(item[0])||0,player:String(item[1]||"???"),hidden:item[2]===1,date:String(item[3]||""),pid:Number(item[4])||0};
+  return{floor:Number(item.f??item.floor)||0,player:String(item.p??item.player??"???"),hidden:(item.h??item.hidden)===1||(item.h??item.hidden)===true,date:String(item.d??item.date_fmt??""),pid:Number(item.i??item.pid)||0};
+}
+function empty(title,text,sign="◇"){document.querySelector("#content").innerHTML=`<section class="empty"><div class="empty__sign">${sign}</div><h2>${title}</h2><p>${text}</p></section>`}
+function filtered(){
+  return records.filter(r=>(!milestonesOnly||milestone(r.floor))&&(!query||r.player.toLowerCase().includes(query)||String(r.floor).includes(query)));
+}
+function archiveRender(){
+  const list=filtered(),max=Math.max(...records.map(r=>r.floor)),timeline=document.querySelector("#timeline");
+  document.querySelector("#result-count").textContent=`Показано: ${list.length}`;
+  timeline.innerHTML=list.map((r,index)=>{
+    const mark=milestone(r.floor),peak=r.floor===max;
+    return `<article class="record ${mark?"record--milestone":""} ${peak?"record--peak":""}" style="animation-delay:${Math.min(index,30)*18}ms">
+      <div><div class="record__floor"><strong>${r.floor}</strong><span>этаж</span></div>
+      <div class="record__hero ${r.hidden?"record__hero--hidden":""}">${r.hidden?"Скрытый герой":esc(r.player)}</div>
+      ${(peak||mark)?`<span class="record__tag">${peak?"Вершина":mark}</span>`:""}</div>
+      <time class="record__date">${esc(r.date)}</time>
+    </article>`;
+  }).join("")||`<section class="empty"><div class="empty__sign">⌕</div><h2>Записей не найдено</h2><p>Измените запрос или отключите фильтр рубежей.</p></section>`;
+}
+function render(){
+  const max=Math.max(...records.map(r=>r.floor)),peak=records.find(r=>r.floor===max),heroes=new Set(records.map(r=>r.pid).filter(Boolean)).size,marks=records.filter(r=>milestone(r.floor)).length;
+  document.querySelector("#content").innerHTML=`<section class="overview">
+    <div class="peak"><p class="peak__label">Текущая вершина</p><p class="peak__floor">${max} <small>этаж</small></p><p class="peak__hero">Первым достиг: <strong>${peak.hidden?"Скрытый герой":esc(peak.player)}</strong></p></div>
+    <div class="metrics"><div class="metric"><strong>${records.length}</strong><span>этажей</span></div><div class="metric"><strong>${heroes}</strong><span>героев</span></div><div class="metric"><strong>${marks}</strong><span>рубежей</span></div></div>
+  </section>
+  <div class="controls"><input class="search" id="search" type="search" placeholder="Имя героя или этаж…" aria-label="Поиск по истории"><button class="filter" id="milestone-filter" aria-pressed="false">Только рубежи</button></div>
+  <section class="archive"><div class="archive__heading"><h2>Летопись восхождения</h2><span id="result-count"></span></div><div class="timeline" id="timeline"></div></section>`;
+  document.querySelector("#search").addEventListener("input",event=>{query=event.target.value.trim().toLowerCase();archiveRender()});
+  document.querySelector("#milestone-filter").addEventListener("click",event=>{milestonesOnly=!milestonesOnly;event.currentTarget.setAttribute("aria-pressed",String(milestonesOnly));archiveRender()});
+  archiveRender();
+}
+try{
+  const params=new URLSearchParams(location.search);let json=null;
+  const lz=params.get("lz");
+  if(lz&&window.LZString)json=LZString.decompressFromEncodedURIComponent(lz);
+  else{const raw=params.get("data");if(raw){try{JSON.parse(raw);json=raw}catch{json=decodeURIComponent(raw)}}}
+  if(!json)empty("Башня ждёт героев","Рекордов пока нет. Станьте первым покорителем.");
+  else{const parsed=JSON.parse(json);if(!Array.isArray(parsed)||!parsed.length)empty("Башня ждёт героев","Рекордов пока нет. Станьте первым покорителем.");else{records=parsed.map(normalize).filter(r=>r.floor>0).sort((a,b)=>b.floor-a.floor);render()}}
+}catch(error){console.error("Tower history data error",error);empty("Не удалось открыть архив","Данные истории повреждены или устарели. Откройте раздел повторно.","!")}
+</script>
+</body>
+</html>
