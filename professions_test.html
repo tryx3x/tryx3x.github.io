@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080708">
+  <title>Профессии — Nightmare Spire</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080708;
+      --surface: #100d0f;
+      --surface-raised: #171114;
+      --line: rgb(242 226 222 / 10%);
+      --line-strong: rgb(221 67 86 / 35%);
+      --text: #eee5e2;
+      --text-secondary: #b1a3a4;
+      --text-muted: #76696c;
+      --accent: #dc4357;
+      --accent-hot: #ff7180;
+      --rare: #c8a65a;
+      --success: #78ba8d;
+      --danger: #bc6670;
+      --safe-top: max(14px, env(safe-area-inset-top));
+      --safe-bottom: max(28px, env(safe-area-inset-bottom));
+      --ease: cubic-bezier(.2, .75, .2, 1);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      background: var(--bg);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-width: 280px;
+      min-height: 100dvh;
+      margin: 0;
+      overflow-x: clip;
+      color: var(--text);
+      background:
+        radial-gradient(90% 42% at 50% -12%, rgb(174 27 51 / 16%), transparent 70%),
+        radial-gradient(60% 45% at 105% 78%, rgb(112 14 37 / 10%), transparent),
+        var(--bg);
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image:
+        linear-gradient(rgb(255 255 255 / 1.4%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255 / 1%) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: linear-gradient(to bottom, black, transparent 72%);
+      content: "";
+      pointer-events: none;
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible,
+    summary:focus-visible {
+      outline: 2px solid var(--accent-hot);
+      outline-offset: 3px;
+    }
+
+    .app {
+      width: min(100%, 640px);
+      min-height: 100dvh;
+      margin-inline: auto;
+      padding-bottom: var(--safe-bottom);
+    }
+
+    .masthead {
+      display: flex;
+      min-height: 78px;
+      padding: var(--safe-top) 18px 12px;
+      border-bottom: 1px solid var(--line);
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .masthead__eyebrow {
+      margin: 0 0 3px;
+      color: var(--accent);
+      font-size: .65rem;
+      font-weight: 750;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+
+    .masthead h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 6vw, 2rem);
+      font-weight: 620;
+      letter-spacing: -.035em;
+      line-height: 1;
+    }
+
+    .masthead__total {
+      max-width: 14ch;
+      margin: 0;
+      color: var(--text-muted);
+      font-size: .72rem;
+      text-align: right;
+    }
+
+    .profession-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 5px;
+      padding: 8px 12px 10px;
+      overflow-x: auto;
+      background: linear-gradient(to bottom, rgb(8 7 8 / 98%) 72%, rgb(8 7 8 / 88%));
+      scrollbar-width: none;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+    }
+
+    .profession-nav::-webkit-scrollbar { display: none; }
+
+    .profession-tab {
+      position: relative;
+      display: grid;
+      min-width: 76px;
+      min-height: 62px;
+      padding: 8px 7px 10px;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      place-items: center;
+      scroll-snap-align: center;
+    }
+
+    .profession-tab::after {
+      position: absolute;
+      right: 12px;
+      bottom: 2px;
+      left: 12px;
+      height: 2px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgb(220 67 87 / 55%);
+      content: "";
+      opacity: 0;
+      transform: scaleX(.25);
+      transition: opacity 180ms ease, transform 280ms var(--ease);
+    }
+
+    .profession-tab[aria-selected="true"]::after {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+
+    .profession-tab__icon {
+      display: grid;
+      width: 26px;
+      height: 26px;
+      opacity: .46;
+      filter: grayscale(1);
+      place-items: center;
+      transition: opacity 180ms ease, filter 180ms ease, transform 280ms var(--ease);
+    }
+
+    .profession-tab[aria-selected="true"] .profession-tab__icon {
+      opacity: 1;
+      filter: none;
+      transform: translateY(-2px);
+    }
+
+    .profession-tab__icon img,
+    .profession-emblem img,
+    .material__icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .profession-tab__name {
+      max-width: 9ch;
+      overflow: hidden;
+      color: var(--text-muted);
+      font-size: .65rem;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .profession-tab[aria-selected="true"] .profession-tab__name { color: var(--text); }
+
+    .profession-view {
+      padding: 10px 14px 30px;
+      animation: view-in 360ms var(--ease) both;
+    }
+
+    .profession-hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 14px;
+      padding: 20px 18px 18px;
+      overflow: hidden;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(145deg, rgb(220 67 87 / 9%), transparent 54%),
+        var(--surface);
+    }
+
+    .profession-hero::after {
+      position: absolute;
+      right: -45px;
+      bottom: -70px;
+      width: 180px;
+      height: 180px;
+      border: 1px solid rgb(220 67 87 / 12%);
+      border-radius: 50%;
+      box-shadow: inset 0 0 45px rgb(220 67 87 / 4%);
+      content: "";
+    }
+
+    .profession-emblem {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      width: 58px;
+      height: 68px;
+      border: 1px solid var(--line);
+      background: rgb(0 0 0 / 28%);
+      clip-path: polygon(50% 0, 100% 18%, 92% 78%, 50% 100%, 8% 78%, 0 18%);
+      font-size: 1.7rem;
+      place-items: center;
+    }
+
+    .profession-emblem img {
+      width: 34px;
+      height: 34px;
+    }
+
+    .profession-identity {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+    }
+
+    .profession-identity__meta {
+      margin: 0 0 3px;
+      color: var(--rare);
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .profession-identity h2 {
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-size: clamp(1.7rem, 8vw, 2.4rem);
+      font-weight: 590;
+      letter-spacing: -.045em;
+      line-height: .98;
+    }
+
+    .progress {
+      grid-column: 1 / -1;
+      margin-top: 7px;
+    }
+
+    .progress__numbers {
+      display: flex;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+      font-size: .76rem;
+      font-variant-numeric: tabular-nums;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .progress__numbers strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .progress__track {
+      position: relative;
+      height: 5px;
+      overflow: hidden;
+      background: rgb(0 0 0 / 46%);
+    }
+
+    .progress__fill {
+      position: relative;
+      height: 100%;
+      background: linear-gradient(90deg, #8f1e35, var(--accent));
+      transform-origin: left;
+      animation: progress-in 700ms var(--ease) both;
+    }
+
+    .progress__fill::after {
+      position: absolute;
+      top: -3px;
+      right: -2px;
+      width: 5px;
+      height: 11px;
+      background: var(--accent-hot);
+      box-shadow: 0 0 12px var(--accent);
+      content: "";
+    }
+
+    .summary {
+      display: grid;
+      margin: 12px 0 20px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .summary-row {
+      display: grid;
+      grid-template-columns: minmax(110px, .8fr) minmax(0, 1.2fr);
+      gap: 14px;
+      padding: 11px 4px;
+      border-bottom: 1px solid var(--line);
+      align-items: baseline;
+    }
+
+    .summary-row:last-child { border-bottom: 0; }
+    .summary-row__label { color: var(--text-muted); font-size: .78rem; }
+    .summary-row__value {
+      color: var(--text);
+      font-size: .86rem;
+      font-weight: 600;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+    .summary-row__value--rare { color: var(--rare); }
+
+    .section {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section > summary {
+      display: grid;
+      min-height: 58px;
+      padding: 12px 4px;
+      cursor: pointer;
+      list-style: none;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .section > summary::-webkit-details-marker { display: none; }
+    .section__title {
+      display: block;
+      font-size: .92rem;
+      font-weight: 650;
+    }
+    .section__summary {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-muted);
+      font-size: .7rem;
+    }
+    .section__toggle {
+      color: var(--accent);
+      font-size: 1.25rem;
+      transition: transform 260ms var(--ease);
+    }
+    .section[open] .section__toggle { transform: rotate(45deg); }
+    .section__body { padding: 0 4px 18px; }
+
+    .material-list,
+    .type-list,
+    .stat-list {
+      display: grid;
+    }
+
+    .material,
+    .type,
+    .stat {
+      display: grid;
+      min-height: 48px;
+      padding: 9px 0;
+      border-top: 1px solid var(--line);
+      align-items: center;
+      gap: 10px;
+    }
+
+    .material { grid-template-columns: 28px minmax(0, 1fr) auto; }
+    .material__icon {
+      display: grid;
+      width: 24px;
+      height: 24px;
+      color: var(--text-muted);
+      place-items: center;
+    }
+    .material__name, .type__name { font-size: .84rem; font-weight: 620; }
+    .type__name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .type__name img {
+      width: 21px;
+      height: 21px;
+      object-fit: contain;
+    }
+    .material__note, .type__note {
+      color: var(--text-muted);
+      font-size: .68rem;
+    }
+    .material__state {
+      color: var(--success);
+      font-size: .68rem;
+      text-align: right;
+    }
+    .material--locked .material__icon { filter: grayscale(1); opacity: .38; }
+    .material--locked .material__state { color: var(--text-muted); }
+
+    .stat { grid-template-columns: minmax(0, 1fr) auto; }
+    .stat__label { color: var(--text-secondary); font-size: .8rem; }
+    .stat__value {
+      color: var(--text);
+      font-size: .8rem;
+      font-weight: 650;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat__value--positive { color: var(--success); }
+    .stat__value--rare { color: var(--rare); }
+
+    .type {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 7px;
+    }
+
+    .modifier-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 12px;
+    }
+    .modifier {
+      color: var(--text-secondary);
+      font-size: .7rem;
+      white-space: nowrap;
+    }
+    .modifier--negative { color: var(--text-muted); }
+    .modifier strong { color: var(--accent-hot); font-weight: 700; }
+    .modifier--negative strong { color: var(--danger); }
+
+    .rare-panel {
+      padding: 8px 0 8px 14px;
+      border-left: 1px solid var(--rare);
+    }
+
+    .profession-note {
+      margin: 14px 0 0;
+      color: var(--text-muted);
+      font-size: .75rem;
+      line-height: 1.55;
+    }
+
+    .state {
+      display: grid;
+      min-height: 56dvh;
+      padding: 32px 24px;
+      text-align: center;
+      place-content: center;
+    }
+    .state__sign { color: var(--accent); font-size: 2rem; }
+    .state h2 { margin: 12px 0 6px; font-size: 1.2rem; }
+    .state p { max-width: 32ch; margin: 0; color: var(--text-muted); font-size: .84rem; }
+
+    @keyframes view-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes progress-in {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    @media (min-width: 560px) {
+      .profession-view { padding-inline: 22px; }
+      .profession-hero { padding: 25px 24px 22px; }
+      .summary-row { padding-inline: 8px; }
+    }
+
+    @media (max-width: 360px) {
+      .masthead { padding-inline: 14px; }
+      .profession-view { padding-inline: 10px; }
+      .summary-row { grid-template-columns: 1fr; gap: 3px; }
+      .summary-row__value { text-align: left; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .profession-view, .progress__fill { animation: none; }
+      *, *::before, *::after { transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="masthead">
+      <div>
+        <p class="masthead__eyebrow">Nightmare Spire</p>
+        <h1>Профессии</h1>
+      </div>
+      <p class="masthead__total" id="profession-total">Ремесленные архивы</p>
+    </header>
+    <div id="app-content" aria-live="polite">
+      <section class="state">
+        <div class="state__sign">◇</div>
+        <h2>Открываем архивы</h2>
+        <p>Загружаем сведения о профессиях героя.</p>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const telegram = window.Telegram && window.Telegram.WebApp;
+    if (telegram) {
+      telegram.ready();
+      telegram.expand();
+    }
+
+    const ICON_ROOT = "https://tryx3x.github.io/icons/";
+    const iconImage = (file, label = "") =>
+      `<img src="${ICON_ROOT}${file}" alt="${escapeHtml(label)}">`;
+    const escapeHtml = (value) =>
+      String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    const formatNumber = (value) =>
+      Number(value || 0).toLocaleString("ru-RU");
+
+    const PROFESSION_META = {
+      mining: { short: "Шахтёр", icon: "⛏", theme: "Порода и редкие жилы" },
+      smithing: { short: "Кузнец", icon: iconImage("hammer.png", "Кузнец"), theme: "Оружие и ковка" },
+      armorsmithing: { short: "Бронник", icon: iconImage("armor_smitting.png", "Бронник"), theme: "Защита и вес" },
+      alchemy: { short: "Алхимик", icon: iconImage("alchemical.png", "Алхимик"), theme: "Составы и эффекты" },
+      jeweling: { short: "Ювелир", icon: iconImage("jevel.png", "Ювелир"), theme: "Металлы и самоцветы" },
+      jewelcrafting: { short: "Ювелир", icon: iconImage("jevel.png", "Ювелир"), theme: "Металлы и самоцветы" }
+    };
+
+    const ORE_ICONS = [
+      ["адамант", "adamant_ore.png"], ["метеор", "meteor_ore.png"],
+      ["мифрил", "myfril_ore.png"], ["платин", "platin_ore.png"],
+      ["дамас", "damassk_ore.png"], ["титан", "titan_ore.png"],
+      ["золот", "gold_ore.png"], ["серебр", "silver_ore.png"],
+      ["медн", "copper_ore.png"], ["олов", "tin__ore.png"],
+      ["желез", "iron_ore.png"], ["жильн", "vein_ore.png"]
+    ];
+    const GEM_ICONS = [
+      ["рубин", "ruby.png"], ["сапфир", "sapfir.png"],
+      ["изумруд", "emerald.png"], ["алмаз", "diamond.png"],
+      ["аметист", "ametist.png"], ["топаз", "topaz.png"],
+      ["оникс", "onyx.png"], ["лунн", "moon_stone.png"],
+      ["пустот", "void_gems.png"], ["душ", "soul_gems.png"]
+    ];
+
+    const WEAPON_TYPES = [
+      ["Кинжал", [["Ловкость", "++"], ["Сила", "+"], ["Крит", "++"], ["Живучесть", "−"]]],
+      ["Меч", [["Сила", "++"], ["Ловкость", "+"], ["Маг. сила", "−"]]],
+      ["Топор", [["Сила", "+++"], ["Живучесть", "+"], ["Ловкость", "−"], ["Маг. сила", "−−"]]],
+      ["Посох", [["Маг. сила", "++"], ["Живучесть", "+"], ["Сила", "−"]]],
+      ["Жезл", [["Ловкость", "++"], ["Маг. сила", "+"], ["Крит", "++"], ["Сила", "−−"]]],
+      ["Орб", [["Маг. сила", "+++"], ["Сила", "−−−"], ["Ловкость", "−"], ["Живучесть", "−"]]]
+    ];
+    const ARMOR_TYPES = [
+      ["Лёгкая броня", [["Ловкость", "++"], ["Живучесть", "+"]]],
+      ["Средняя броня", [["Сила", "+"], ["Живучесть", "+"], ["Ловкость", "−"]]],
+      ["Тяжёлая броня", [["Сила", "++"], ["Живучесть", "++"], ["Ловкость", "−−−"]]]
+    ];
+    const JEWELRY_TYPES = [
+      ["Кольцо", [["Состав", "2 металла + 1 самоцвет"]]],
+      ["Серьга", [["Состав", "2 металла + 1 самоцвет"]]],
+      ["Амулет", [["Состав", "2 металла + 1 самоцвет"]]]
+    ];
+    const GEM_TYPES = [
+      ["Рубин", [["Сила", "+++"]], "ruby.png"],
+      ["Сапфир", [["Маг. сила", "+++"]], "sapfir.png"],
+      ["Изумруд", [["Живучесть", "+++"]], "emerald.png"],
+      ["Алмаз", [["Сила", "+"], ["Ловкость", "+"], ["Маг. сила", "+"]], "diamond.png"],
+      ["Аметист", [["Маг. сила", "+++"], ["Живучесть", "+"]], "ametist.png"],
+      ["Топаз", [["Сила", "++"], ["Ловкость", "++"]], "topaz.png"],
+      ["Оникс", [["Ловкость", "+++"], ["Крит", "+"]], "onyx.png"],
+      ["Лунный камень", [["Ловкость", "+"], ["Живучесть", "++"], ["Маг. сила", "++"]], "moon_stone.png"],
+      ["Кристалл пустоты", [["Сила", "++"], ["Ловкость", "++"], ["Маг. сила", "+++"], ["Крит", "+"]], "void_gems.png"],
+      ["Душа-самоцвет", [["Все характеристики", "++"], ["Крит", "++"]], "soul_gems.png"]
+    ];
+    const ALCHEMY_TYPES = [
+      ["Пилюля", [["Состав", "Одна категория"], ["Эффекты", "Полная сила"]]],
+      ["Зелье", [["Состав", "Разные категории"], ["Сила", "×0.6"], ["Длительность", "Больше"]]],
+      ["Яд", [["Состав", "Негативные эффекты"], ["Цель", "Противник"]]]
+    ];
+
+    function normalizedProfession(raw) {
+      return {
+        code: String(raw && raw.c || "unknown"),
+        name: String(raw && raw.n || "Неизвестная профессия"),
+        level: Math.max(0, Number(raw && raw.l) || 0),
+        experience: Math.max(0, Number(raw && raw.e) || 0),
+        experienceNext: Math.max(0, Number(raw && raw.x) || 0),
+        mining: raw && typeof raw.m === "object" ? raw.m : {}
+      };
+    }
+
+    function findIcon(name, table) {
+      const source = String(name).toLowerCase();
+      const match = table.find(([key]) => source.includes(key));
+      return match ? iconImage(match[1], name) : "·";
+    }
+
+    function section(title, summary, body, open = false) {
+      return `<details class="section"${open ? " open" : ""}>
+        <summary>
+          <span><span class="section__title">${title}</span><span class="section__summary">${summary}</span></span>
+          <span class="section__toggle" aria-hidden="true">+</span>
+        </summary>
+        <div class="section__body">${body}</div>
+      </details>`;
+    }
+
+    function statRows(rows, rare = false) {
+      return `<div class="${rare ? "rare-panel" : ""}"><div class="stat-list">${
+        rows.map(([label, value, kind = ""]) =>
+          `<div class="stat"><span class="stat__label">${label}</span>
+          <span class="stat__value ${kind ? `stat__value--${kind}` : ""}">${value}</span></div>`
+        ).join("")
+      }</div></div>`;
+    }
+
+    function modifierTypes(types) {
+      return `<div class="type-list">${types.map(([name, modifiers, icon]) =>
+        `<div class="type">
+          <div class="type__name">${icon ? iconImage(icon, name) : ""}${escapeHtml(name)}</div>
+          <div class="modifier-list">${modifiers.map(([label, value]) => {
+            const negative = String(value).includes("−") || String(value).includes("×0.6");
+            return `<span class="modifier${negative ? " modifier--negative" : ""}">${escapeHtml(label)} <strong>${escapeHtml(value)}</strong></span>`;
+          }).join("")}</div>
+        </div>`
+      ).join("")}</div>`;
+    }
+
+    function materials(available, locked, icons) {
+      const ready = (available || []).map((name) =>
+        `<div class="material"><span class="material__icon">${findIcon(name, icons)}</span>
+        <span><span class="material__name">${escapeHtml(name)}</span><span class="material__note">Доступно для ремесла</span></span>
+        <span class="material__state">Открыто</span></div>`
+      );
+      const closed = (locked || []).map(([name, level]) =>
+        `<div class="material material--locked"><span class="material__icon">${findIcon(name, icons)}</span>
+        <span><span class="material__name">${escapeHtml(name)}</span><span class="material__note">Ещё не изучено</span></span>
+        <span class="material__state">${escapeHtml(level)} ур.</span></div>`
+      );
+      return `<div class="material-list">${ready.concat(closed).join("")}</div>`;
+    }
+
+    function professionSummary(profession) {
+      const { code, level, mining } = profession;
+      if (code === "mining") {
+        return [
+          ["Мастерство", `≈ ${escapeHtml(mining.ef || "—")} ед. в час`],
+          ["Доступно", `${(mining.am || []).length} руд · ${(mining.ag || []).length} самоцветов`],
+          ["Развитие", `${Number(mining.u) || 0}/${Number(mining.mx) || 5} · ${escapeHtml(mining.lb || "шахта")}`]
+        ];
+      }
+      if (code === "smithing") return [["Мастерство", `Урон оружия +${(level * 1.3).toFixed(1)}`], ["Крит", `+${(level * .15).toFixed(1)}%`], ["Доступно", "6 типов оружия"]];
+      if (code === "armorsmithing") return [["Физ. защита", `+${(level * .6).toFixed(1)}`], ["Маг. защита", `+${(level * .4).toFixed(1)}`], ["Доступно", "3 класса брони"]];
+      if (code === "alchemy") return [["Шанс варки", `${Math.min(93, 40 + level * 2.8).toFixed(0)}%`], ["Сила эффектов", `+${(level * .3).toFixed(1)}`], ["Доступно", "Пилюли · зелья · яды"]];
+      if (code === "jeweling" || code === "jewelcrafting") return [["Мастерство", `К статам +${Math.round(level * .3)}`], ["Доступно", "3 украшения · 10 самоцветов"], ["Ограничение", "Крит до 10%"]];
+      return [["Мастерство", "Нет данных"], ["Доступно", "Будет добавлено"], ["Следующее открытие", "Неизвестно"]];
+    }
+
+    function professionDetails(profession) {
+      const { code, level, mining } = profession;
+      if (code === "mining") {
+        return [
+          section("Эффективность", "Добыча, самоцветы и развитие шахты",
+            statRows([
+              ["Добыча в час", `≈ ${escapeHtml(mining.ef || "—")} ед.`],
+              ["Шанс самоцвета", `${escapeHtml(mining.gm || "—")}% / час`],
+              ["Уровень шахты", `${Number(mining.u) || 0}/${Number(mining.mx) || 5}`, "rare"]
+            ]), true),
+          section("Руды", `${(mining.am || []).length} доступно`, materials(mining.am, mining.lm, ORE_ICONS)),
+          section("Самоцветы", `${(mining.ag || []).length} доступно`, materials(mining.ag, mining.lg, GEM_ICONS)),
+          section("Редкие находки", "Особые результаты сессии",
+            statRows([
+              ["Жильная руда", "8% + 1%/час"],
+              ["Драгоценный камень", "4% + 1%/час"],
+              ["Сущность Земли", "0.1%", "rare"]
+            ], true))
+        ].join("");
+      }
+      if (code === "smithing") {
+        return section("Мастерство кузнеца", "Постоянный бонус профессии",
+          statRows([["К урону оружия", `+${(level * 1.3).toFixed(1)}`, "positive"], ["К шансу крита", `+${(level * .15).toFixed(1)}%`, "positive"]]), true) +
+          section("Типы оружия", "Характеристики и специализация", modifierTypes(WEAPON_TYPES)) +
+          `<p class="profession-note">Итоговый урон зависит от материалов, синергий, редкости и уровня кузнеца.</p>`;
+      }
+      if (code === "armorsmithing") {
+        return section("Мастерство бронника", "Постоянный бонус профессии",
+          statRows([["К физической защите", `+${(level * .6).toFixed(1)}`, "positive"], ["К магической защите", `+${(level * .4).toFixed(1)}`, "positive"]]), true) +
+          section("Классы брони", "Вес и модификаторы", modifierTypes(ARMOR_TYPES)) +
+          `<p class="profession-note">Итоговая защита зависит от материалов, синергий, редкости и уровня бронника.</p>`;
+      }
+      if (code === "alchemy") {
+        return section("Мастерство алхимика", "Вероятность и сила результата",
+          statRows([["Шанс успешной варки", `${Math.min(93, 40 + level * 2.8).toFixed(0)}%`, "positive"], ["К силе эффектов", `+${(level * .3).toFixed(1)}`, "positive"]]), true) +
+          section("Типы состава", "Пилюли, зелья и яды", modifierTypes(ALCHEMY_TYPES)) +
+          section("Механика", "Основные правила варки",
+            statRows([["Эффектов на крафт", "2 · с босс-материалом 3"], ["Ступеней качества", "7"], ["Ингредиентов", "от 2"]])) +
+          section("Босс-материалы", "Гарантированный усиленный результат",
+            statRows([["Провал варки", "Невозможен", "rare"], ["Минимум качества", "Обычное", "rare"], ["Длительность", "×1.5", "rare"]], true));
+      }
+      if (code === "jeweling" || code === "jewelcrafting") {
+        return section("Мастерство ювелира", "Постоянный бонус профессии",
+          statRows([["К каждому стату", `+${Math.round(level * .3)}`, "positive"], ["Предел крита", "10%"]]), true) +
+          section("Украшения", "2 металла + 1 самоцвет", modifierTypes(JEWELRY_TYPES)) +
+          section("Самоцветы", "Основные усиления", modifierTypes(GEM_TYPES)) +
+          `<p class="profession-note">Металлы и их комбинации умножают статы самоцвета, редкость усиливает результат.</p>`;
+      }
+      return section("Сведения", "Информация готовится", `<p class="profession-note">Подробности этой профессии будут добавлены позже.</p>`, true);
+    }
+
+    function hero(profession) {
+      const meta = PROFESSION_META[profession.code] || { icon: "◇", theme: "Неизвестное ремесло" };
+      const maximum = profession.experienceNext;
+      const percent = maximum > 0 ? Math.min(100, profession.experience / maximum * 100) : 100;
+      const remaining = Math.max(0, maximum - profession.experience);
+      return `<section class="profession-hero">
+        <div class="profession-emblem">${meta.icon}</div>
+        <div class="profession-identity">
+          <p class="profession-identity__meta">Уровень ${profession.level}</p>
+          <h2>${escapeHtml(profession.name)}</h2>
+        </div>
+        <div class="progress">
+          <div class="progress__numbers"><strong>${formatNumber(profession.experience)} опыта</strong><span>до уровня: ${formatNumber(remaining)}</span></div>
+          <div class="progress__track" aria-label="Прогресс опыта ${Math.round(percent)}%">
+            <div class="progress__fill" style="width:${percent}%"></div>
+          </div>
+        </div>
+      </section>`;
+    }
+
+    function renderView(profession) {
+      const rows = professionSummary(profession);
+      return `<article class="profession-view" id="profession-panel" role="tabpanel">
+        ${hero(profession)}
+        <div class="summary">${rows.map(([label, value], index) =>
+          `<div class="summary-row"><span class="summary-row__label">${label}</span><span class="summary-row__value${index === 2 ? " summary-row__value--rare" : ""}">${value}</span></div>`
+        ).join("")}</div>
+        ${professionDetails(profession)}
+      </article>`;
+    }
+
+    function renderApplication(professions) {
+      const content = document.querySelector("#app-content");
+      const total = professions.reduce((sum, profession) => sum + profession.level, 0);
+      document.querySelector("#profession-total").textContent =
+        `${professions.length} профессий · ${total} уровней`;
+
+      content.innerHTML = `<nav class="profession-nav" role="tablist" aria-label="Профессии">
+        ${professions.map((profession, index) => {
+          const meta = PROFESSION_META[profession.code] || { short: profession.name, icon: "◇" };
+          return `<button class="profession-tab" role="tab" data-index="${index}" aria-selected="${index === 0}">
+            <span class="profession-tab__icon">${meta.icon}</span>
+            <span class="profession-tab__name">${escapeHtml(meta.short)}</span>
+          </button>`;
+        }).join("")}
+      </nav><div id="profession-stage">${renderView(professions[0])}</div>`;
+
+      const tabs = [...content.querySelectorAll(".profession-tab")];
+      const activate = (index, focus = false) => {
+        tabs.forEach((tab, tabIndex) => {
+          tab.setAttribute("aria-selected", String(tabIndex === index));
+          tab.tabIndex = tabIndex === index ? 0 : -1;
+        });
+        document.querySelector("#profession-stage").innerHTML = renderView(professions[index]);
+        tabs[index].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        if (focus) tabs[index].focus();
+      };
+
+      tabs.forEach((tab, index) => {
+        tab.tabIndex = index === 0 ? 0 : -1;
+        tab.addEventListener("click", () => activate(index));
+        tab.addEventListener("keydown", (event) => {
+          if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+          event.preventDefault();
+          const next =
+            event.key === "Home" ? 0 :
+            event.key === "End" ? tabs.length - 1 :
+            event.key === "ArrowRight" ? (index + 1) % tabs.length :
+            (index - 1 + tabs.length) % tabs.length;
+          activate(next, true);
+        });
+      });
+    }
+
+    function renderState(title, message, sign = "◇") {
+      document.querySelector("#app-content").innerHTML =
+        `<section class="state"><div class="state__sign">${sign}</div><h2>${title}</h2><p>${message}</p></section>`;
+    }
+
+    try {
+      const raw = new URLSearchParams(location.search).get("data");
+      if (!raw) {
+        renderState("Профессии ещё не освоены", "Освойте первое ремесло в игре, и сведения появятся в этом архиве.");
+      } else {
+        let parsed;
+        try {
+          parsed = JSON.parse(raw);
+        } catch {
+          parsed = JSON.parse(decodeURIComponent(raw));
+        }
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          renderState("Профессии ещё не освоены", "Освойте первое ремесло в игре, и сведения появятся в этом архиве.");
+        } else {
+          renderApplication(parsed.map(normalizedProfession));
+        }
+      }
+    } catch (error) {
+      console.error("Professions data error", error);
+      renderState("Не удалось открыть архив", "Данные профессий повреждены или устарели. Вернитесь в игру и откройте раздел повторно.", "!");
+    }
+  </script>
+</body>
+</html>
