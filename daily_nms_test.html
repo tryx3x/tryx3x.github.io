@@ -22,7 +22,7 @@
     .series{text-align:right}.series strong{display:block;color:var(--rare);font-size:.83rem}.series span{color:var(--muted);font-size:.68rem}
     .path-wrap{position:sticky;top:0;z-index:8;padding:10px 0 12px;background:linear-gradient(to bottom,rgb(8 7 8/99%) 78%,rgb(8 7 8/90%))}
     .path{display:flex;gap:5px;padding:0 14px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity}.path::-webkit-scrollbar{display:none}
-    .day{position:relative;display:grid;min-width:48px;height:54px;padding:5px 2px 8px;border:0;background:transparent;cursor:pointer;place-items:center;scroll-snap-align:center}
+    .day{position:relative;display:grid;min-width:48px;height:54px;padding:5px 2px 8px;border:0;background:transparent;cursor:pointer;place-items:center;scroll-snap-align:center;transition:color 180ms ease,transform 260ms var(--ease),background 260ms ease}
     .day::after{position:absolute;right:8px;bottom:2px;left:8px;height:2px;background:var(--line);content:""}
     .day__num{font-size:.78rem;font-weight:650;font-variant-numeric:tabular-nums}.day__state{color:var(--muted);font-size:.52rem}
     .day--done::after{background:var(--accent)}.day--done .day__state{color:var(--success)}
@@ -30,8 +30,11 @@
     .day--current::after{background:var(--hot);box-shadow:0 0 12px var(--accent)}
     .day--future{color:var(--muted)}
     .day--milestone .day__num{color:var(--rare)}.day--milestone::after{background:var(--rare)}
+    .day:hover{color:var(--text);transform:translateY(-2px)}
+    .day[aria-pressed="true"]{background:rgb(220 67 87/7%);transform:translateY(-3px)}
+    .day[aria-pressed="true"]::after{right:4px;left:4px;box-shadow:0 0 10px currentColor}
     .main{padding:10px 14px 32px}
-    .reward{position:relative;padding:22px 18px 18px;border-top:1px solid var(--strong);border-bottom:1px solid var(--line);background:linear-gradient(145deg,rgb(220 67 87/9%),transparent 52%),var(--surface);animation:enter 320ms var(--ease) both}
+    .reward{position:relative;padding:22px 18px 18px;border-top:1px solid var(--strong);border-bottom:1px solid var(--line);background:linear-gradient(145deg,rgb(220 67 87/9%),transparent 52%),var(--surface);animation:enter 460ms var(--ease) both}
     .reward--milestone{border-top-color:var(--rare);background:linear-gradient(145deg,rgb(200 166 90/10%),transparent 56%),var(--surface)}
     .reward__meta{display:flex;margin-bottom:8px;align-items:center;justify-content:space-between;gap:12px}
     .reward__day{color:var(--accent);font-size:.65rem;font-weight:750;letter-spacing:.16em;text-transform:uppercase}
@@ -41,15 +44,22 @@
     .reward-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
     .reward-stat{min-width:0;padding:12px 9px;border-right:1px solid var(--line)}.reward-stat:last-child{border-right:0}
     .reward-stat__label{display:block;color:var(--muted);font-size:.64rem}.reward-stat__value{display:block;margin-top:2px;font-size:.88rem;font-weight:680;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+    .reward-stat{animation:item-in 420ms var(--ease) both}.reward-stat:nth-child(2){animation-delay:55ms}.reward-stat:nth-child(3){animation-delay:110ms}
     .chest{display:flex;margin-top:14px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center;justify-content:space-between;gap:14px}.chest__label{color:var(--secondary);font-size:.76rem}.chest__name{font-size:.82rem;font-weight:620;text-align:right}
     .vip{display:none;margin-top:16px;padding:14px 0 2px;border-top:1px solid rgb(200 166 90/35%)}.vip--show{display:block}.vip__title{margin:0 0 8px;color:var(--rare);font-size:.65rem;font-weight:750;letter-spacing:.15em;text-transform:uppercase}.vip__line{display:flex;padding:5px 0;color:var(--secondary);font-size:.76rem;justify-content:space-between;gap:12px}.vip__line strong{color:var(--text);font-variant-numeric:tabular-nums;text-align:right}
-    .claim{width:100%;min-height:52px;margin-top:18px;border:1px solid var(--accent);background:var(--accent);color:#100508;font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:transform 160ms ease,background 160ms ease}.claim:active{transform:scale(.985)}.claim:disabled{cursor:wait;opacity:.6}.claim[hidden]{display:none}
+    .vip--show{animation:item-in 480ms 140ms var(--ease) both}
+    .vip-gate{margin-top:16px;padding:13px 0 2px;border-top:1px solid rgb(200 166 90/24%)}
+    .vip-gate__label{margin:0 0 4px;color:var(--rare);font-size:.67rem;font-weight:720;letter-spacing:.08em}
+    .vip-gate__text{margin:0;color:var(--muted);font-size:.73rem;line-height:1.5}
+    .claim{position:relative;width:100%;min-height:52px;margin-top:18px;overflow:hidden;border:1px solid var(--accent);background:var(--accent);color:#100508;font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:transform 180ms ease,background 180ms ease,box-shadow 240ms ease}.claim::after{position:absolute;top:0;left:-45%;width:30%;height:100%;background:linear-gradient(105deg,transparent,rgb(255 255 255/45%),transparent);content:"";transform:skewX(-18deg);animation:claim-light 1300ms 500ms var(--ease) both}.claim:hover{box-shadow:0 9px 28px rgb(220 67 87/28%);transform:translateY(-1px)}.claim:active{transform:scale(.985)}.claim:disabled{cursor:wait;opacity:.6}.claim[hidden]{display:none}
     .claimed{margin:17px 0 0;color:var(--success);font-size:.78rem;text-align:center}.status{min-height:20px;margin:10px 0 0;color:var(--secondary);font-size:.75rem;text-align:center}
     .milestones{margin-top:24px}.milestones h2{margin:0 0 8px;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase}
     .milestone{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:10px;padding:11px 0;border-top:1px solid var(--line);align-items:center}.milestone__day{color:var(--rare);font-size:.75rem;font-weight:700}.milestone__name{font-size:.78rem}.milestone__state{color:var(--muted);font-size:.66rem;text-align:right}.milestone--done .milestone__state{color:var(--success)}.milestone--next .milestone__state{color:var(--rare)}
-    @keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    @keyframes enter{from{opacity:0;filter:blur(5px);transform:translateY(10px)}to{opacity:1;filter:blur(0);transform:none}}
+    @keyframes item-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    @keyframes claim-light{from{left:-45%}to{left:120%}}
     @media(max-width:360px){.reward-grid{grid-template-columns:1fr}.reward-stat{display:flex;padding:9px 0;border-right:0;border-bottom:1px solid var(--line);justify-content:space-between}.reward-stat:last-child{border-bottom:0}.reward-stat__value{margin:0}.masthead{padding-inline:14px}.main{padding-inline:10px}}
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reward{animation:none}*{transition-duration:.01ms!important}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reward,.reward-stat,.vip--show,.claim::after{animation:none}*{transition-duration:.01ms!important}}
   </style>
 </head>
 <body>
@@ -119,6 +129,7 @@ function rewardRender(){
   <div class="reward-grid"><div class="reward-stat"><span class="reward-stat__label">Серебро</span><strong class="reward-stat__value">${fmt(r.gold)}</strong></div><div class="reward-stat"><span class="reward-stat__label">Опыт</span><strong class="reward-stat__value">${fmt(r.exp)}</strong></div><div class="reward-stat"><span class="reward-stat__label">Алмазы</span><strong class="reward-stat__value">${fmt(r.gems)}</strong></div></div>
   ${r.box?`<div class="chest"><span class="chest__label">Особый дар</span><strong class="chest__name">${r.box.name}${r.box.qty>1?` ×${r.box.qty}`:""}</strong></div>`:""}
   <div class="vip ${isVip?"vip--show":""}"><p class="vip__title">VIP ${vipLevel} · дополнительный дар</p>${vipLines(vb)}${ext?`<p class="vip__title">Серия ${realStreak} · дар Башни</p>${vipLines(ext)}`:""}</div>
+  ${!isVip?`<div class="vip-gate"><p class="vip-gate__label">Серия доступна с VIP</p><p class="vip-gate__text">VIP сохраняет продолжительную серию и открывает дополнительный дар за каждый день.</p></div>`:""}
   <button class="claim" id="claim" ${selected===streak&&canClaim?"":"hidden"}>Забрать дар</button>
   ${selected===streak&&!canClaim?`<p class="claimed">Сегодняшний дар получен</p>`:""}<p class="status" id="status"></p></article>`;
   document.querySelector("#claim")?.addEventListener("click",claimReward);
@@ -143,8 +154,8 @@ async function claimReward(){
   if(tg?.sendData){tg.sendData(JSON.stringify(payload));out.textContent="Дары Шпиля приняты";setTimeout(()=>tg.close(),1200)}
   else{out.textContent="Просмотр вне Telegram: отправка недоступна";btn.disabled=false;btn.textContent="Забрать дар"}
 }
-document.querySelector("#series-value").textContent=`Серия: ${realStreak} ${ending(realStreak)}`;
-document.querySelector("#today-state").textContent=canClaim?"Дар доступен":"Сегодня получено";
+document.querySelector("#series-value").textContent=isVip?`Серия: ${realStreak} ${ending(realStreak)}`:"Серия доступна с VIP";
+document.querySelector("#today-state").textContent=isVip?(canClaim?"VIP-дар доступен":"Сегодня получено"):(canClaim?"Обычный дар доступен":"Сегодня получено");
 render();
 </script>
 </body>
