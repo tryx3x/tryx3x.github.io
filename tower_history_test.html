@@ -79,7 +79,7 @@ function archiveRender(){
     const mark=milestone(r.floor),peak=r.floor===max;
     return `<article class="record ${mark?"record--milestone":""} ${peak?"record--peak":""}" style="animation-delay:${Math.min(index,30)*18}ms">
       <div><div class="record__floor"><strong>${r.floor}</strong><span>этаж</span></div>
-      <div class="record__hero ${r.hidden?"record__hero--hidden":""}">${r.hidden?"Скрытый герой":esc(r.player)}</div>
+      <div class="record__hero ${r.hidden?"record__hero--hidden":""}">${r.hidden?"Скрытый пробуждённый":esc(r.player)}</div>
       ${(peak||mark)?`<span class="record__tag">${peak?"Вершина":mark}</span>`:""}</div>
       <time class="record__date">${esc(r.date)}</time>
     </article>`;
@@ -88,7 +88,7 @@ function archiveRender(){
 function render(){
   const max=Math.max(...records.map(r=>r.floor)),peak=records.find(r=>r.floor===max),heroes=new Set(records.map(r=>r.pid).filter(Boolean)).size,marks=records.filter(r=>milestone(r.floor)).length;
   document.querySelector("#content").innerHTML=`<section class="overview">
-    <div class="peak"><p class="peak__label">Текущая вершина</p><p class="peak__floor">${max} <small>этаж</small></p><p class="peak__hero">Первым достиг: <strong>${peak.hidden?"Скрытый герой":esc(peak.player)}</strong></p></div>
+    <div class="peak"><p class="peak__label">Текущая вершина</p><p class="peak__floor">${max} <small>этаж</small></p><p class="peak__hero">Первым достиг: <strong>${peak.hidden?"Скрытый пробуждённый":esc(peak.player)}</strong></p></div>
     <div class="metrics"><div class="metric"><strong>${records.length}</strong><span>этажей</span></div><div class="metric"><strong>${heroes}</strong><span>героев</span></div><div class="metric"><strong>${marks}</strong><span>рубежей</span></div></div>
   </section>
   <div class="controls"><input class="search" id="search" type="search" placeholder="Имя героя или этаж…" aria-label="Поиск по истории"><button class="filter" id="milestone-filter" aria-pressed="false">Только рубежи</button></div>
