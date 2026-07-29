@@ -2669,8 +2669,7 @@
     }
 
     body.apocalypse-collapse .suction-glyph {
-      animation: glyph-spaghettification var(--glyph-duration, 3600ms)
-        cubic-bezier(0.74, 0, 0.96, 0.58) forwards;
+      animation: glyph-dissolve 900ms ease-out forwards;
       animation-delay: var(--glyph-delay, 0ms);
     }
 
@@ -2817,47 +2816,59 @@
       }
     }
 
-    @keyframes glyph-spaghettification {
+    @keyframes glyph-dissolve {
       0% {
         opacity: 1;
         filter: blur(0);
         transform: none;
       }
-      30% {
-        opacity: 1;
-        filter: blur(0);
+      42% {
+        opacity: 0.58;
+        filter: blur(1.5px);
         transform:
           translate3d(
             var(--glyph-x-early),
             var(--glyph-y-early),
             0
           )
-          rotate(var(--glyph-rotate))
-          scaleX(0.82)
-          scaleY(1.18);
-      }
-      72% {
-        opacity: 0.84;
-        filter: blur(1.2px);
-        transform:
-          translate3d(
-            var(--glyph-x-deep),
-            var(--glyph-y-deep),
-            0
-          )
-          rotate(var(--glyph-rotate))
-          scaleX(0.12)
-          scaleY(2.6);
+          scale(0.94);
       }
       100% {
         opacity: 0;
-        filter: blur(7px);
-        transform:
-          translate3d(var(--glyph-x), var(--glyph-y), 0)
-          rotate(var(--glyph-rotate))
-          scaleX(0.01)
-          scaleY(3.8);
+        filter: blur(5px);
+        transform: translate3d(
+          var(--glyph-x-deep),
+          var(--glyph-y-deep),
+          0
+        ) scale(0.72);
       }
+    }
+
+    body.apocalypse-persisted {
+      overflow: hidden;
+      background: #050405;
+      cursor: crosshair;
+    }
+
+    body.apocalypse-persisted .site-header,
+    body.apocalypse-persisted .toolbar,
+    body.apocalypse-persisted .update-feed,
+    body.apocalypse-persisted .site-footer,
+    body.apocalypse-persisted .quick-nav,
+    body.apocalypse-persisted .ambient-field,
+    body.apocalypse-persisted .cursor-orb,
+    body.apocalypse-persisted .cursor-dot,
+    body.apocalypse-persisted .apocalypse-star,
+    body.apocalypse-persisted .singularity-seed,
+    body.apocalypse-persisted .apocalypse-final {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    body.apocalypse-persisted .apocalypse-burst {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: none;
     }
 
     @keyframes singularity-density {
@@ -5789,27 +5800,34 @@
             particle.angle +
             elapsed * 0.001 * particle.speed * (1 + density * 4.5) +
             particle.phase * density;
-          const x = centerX + Math.cos(angle) * fall;
-          const y =
-            centerY +
-            Math.sin(angle) * fall * particle.inclination;
-          const previousAngle = angle - 0.025 * (1 + density * 7);
-          const previousX = centerX + Math.cos(previousAngle) * fall;
-          const previousY =
-            centerY +
-            Math.sin(previousAngle) * fall * particle.inclination;
           const alpha =
             Math.min(0.94, 0.18 + density * 0.9) *
             Math.min(1, elapsed / 700);
+          const arcLength =
+            0.018 +
+            density * 0.115 +
+            Math.min(0.045, 18 / Math.max(80, fall));
           context.beginPath();
-          context.moveTo(previousX, previousY);
-          context.lineTo(x, y);
+          context.save();
+          context.translate(centerX, centerY);
+          context.scale(1, particle.inclination);
+          context.arc(
+            0,
+            0,
+            fall,
+            angle - arcLength,
+            angle
+          );
           context.strokeStyle =
             particle.warmth > 0.34
               ? `rgb(245 68 91 / ${alpha})`
               : `rgb(255 231 220 / ${alpha})`;
-          context.lineWidth = particle.size * (0.7 + density * 1.7);
+          context.lineWidth =
+            particle.size *
+            (0.62 + density * 1.25) /
+            Math.sqrt(particle.inclination);
           context.stroke();
+          context.restore();
         });
 
         interfaceMatter.forEach((particle) => {
@@ -5825,32 +5843,34 @@
           const angle =
             particle.angle +
             eased * Math.PI * 2 * particle.turns;
-          const x = centerX + Math.cos(angle) * radius;
-          const y =
-            centerY +
-            Math.sin(angle) * radius * (1 - eased * 0.34);
-          const tailAngle = angle - 0.035 * (1 + eased * 13);
-          const tailRadius = radius + 4 + eased * 22;
-          const tailX = centerX + Math.cos(tailAngle) * tailRadius;
-          const tailY =
-            centerY +
-            Math.sin(tailAngle) * tailRadius * (1 - eased * 0.34);
+          const orbitScaleY = 1 - eased * 0.34;
+          const trailArc =
+            0.025 +
+            eased * 0.2 +
+            Math.min(0.055, 16 / Math.max(70, radius));
           const alpha =
             Math.min(1, localProgress * 7) *
             Math.max(0, 1 - Math.pow(localProgress, 5));
           context.beginPath();
-          context.moveTo(tailX, tailY);
-          context.quadraticCurveTo(
-            (tailX + x) / 2 + Math.sin(angle) * 5,
-            (tailY + y) / 2 - Math.cos(angle) * 5,
-            x,
-            y
+          context.save();
+          context.translate(centerX, centerY);
+          context.scale(1, orbitScaleY);
+          context.arc(
+            0,
+            0,
+            Math.max(1, radius),
+            angle - trailArc,
+            angle
           );
           context.strokeStyle = particle.color;
           context.globalAlpha = alpha;
-          context.lineWidth = particle.size * (0.8 + eased * 1.8);
+          context.lineWidth =
+            particle.size *
+            (0.72 + eased * 1.45) /
+            Math.sqrt(orbitScaleY);
           context.stroke();
           context.globalAlpha = 1;
+          context.restore();
         });
 
         context.globalCompositeOperation = "source-over";
@@ -5950,6 +5970,10 @@
           hue: Math.random() > 0.22 ? 351 : 22,
           target: targetPoints[index % targetPoints.length],
           phase: Math.random() * Math.PI * 2,
+          offsetX: 0,
+          offsetY: 0,
+          velocityX: 0,
+          velocityY: 0,
         };
         }
       );
@@ -5967,10 +5991,35 @@
       );
       const startedAt = performance.now();
       const duration = 4600;
+      const pointer = {
+        x: -10000,
+        y: -10000,
+        active: false,
+      };
+
+      if (!mobileCinematic) {
+        window.addEventListener(
+          "pointermove",
+          (event) => {
+            pointer.x = event.clientX;
+            pointer.y = event.clientY;
+            pointer.active = true;
+          },
+          { passive: true }
+        );
+        document.documentElement.addEventListener(
+          "pointerleave",
+          () => {
+            pointer.active = false;
+          },
+          { passive: true }
+        );
+      }
 
       const render = (now) => {
         const elapsed = now - startedAt;
         const progress = Math.min(1, elapsed / duration);
+        const persistent = elapsed >= duration;
         context.clearRect(0, 0, width, height);
         context.globalCompositeOperation = "lighter";
 
@@ -5993,23 +6042,51 @@
         }
 
         nebulae.forEach((cloud) => {
-          const cloudProgress = Math.max(
-            0,
-            Math.min(1, (progress - 0.06 - cloud.delay) / 0.62)
-          );
-          if (cloudProgress <= 0 || cloudProgress >= 1) return;
+          const cloudAge =
+            (progress - 0.06 - cloud.delay) / 0.62;
+          const cloudMature = persistent || cloudAge >= 0.72;
+          const cloudProgress = cloudMature
+            ? 0.64 +
+              Math.sin(now * 0.00019 + cloud.angle * 2.1) * 0.07
+            : Math.max(0, cloudAge);
+          if (cloudProgress <= 0) return;
           const bloom = 1 - Math.pow(1 - cloudProgress, 2.4);
-          const fade = Math.sin(cloudProgress * Math.PI);
+          const fade = cloudMature
+            ? 0.5 + Math.sin(now * 0.00027 + cloud.angle) * 0.13
+            : Math.sin(cloudProgress * Math.PI);
           const distance =
             Math.max(width, height) * cloud.reach * bloom;
-          const cloudX = centerX + Math.cos(cloud.angle) * distance;
-          const cloudY = centerY + Math.sin(cloud.angle) * distance;
+          const driftAngle =
+            cloud.angle +
+            (cloudMature
+              ? Math.sin(now * 0.00011 + cloud.rotation) * 0.22
+              : 0);
+          const cloudX =
+            centerX +
+            Math.cos(driftAngle) *
+              distance *
+              (1 + Math.sin(now * 0.00013 + cloud.angle) * 0.06);
+          const cloudY =
+            centerY +
+            Math.sin(driftAngle) *
+              distance *
+              (1 + Math.cos(now * 0.00015 + cloud.angle) * 0.07);
           const cloudRadius =
             Math.max(width, height) * (0.08 + bloom * 0.26);
+          const cloudBreath = cloudMature
+            ? 1 + Math.sin(now * 0.00023 + cloud.angle * 3) * 0.11
+            : 1;
           context.save();
           context.translate(cloudX, cloudY);
-          context.rotate(cloud.rotation + progress * 0.18);
-          context.scale(cloud.scaleX, cloud.scaleY);
+          context.rotate(
+            cloud.rotation +
+              progress * 0.18 +
+              (cloudMature ? now * 0.000018 : 0)
+          );
+          context.scale(
+            cloud.scaleX * cloudBreath,
+            cloud.scaleY / cloudBreath
+          );
           const vapor = context.createRadialGradient(
             0,
             0,
@@ -6129,14 +6206,42 @@
             Math.sin(assembly * Math.PI) *
             (1 - assembly) *
             (18 + particle.size * 9);
-          const x =
+          let x =
             blastX +
             (particle.target.x - blastX) * settle +
             Math.cos(particle.phase + assembly * Math.PI * 3) * orbit;
-          const y =
+          let y =
             blastY +
             (particle.target.y - blastY) * settle +
             Math.sin(particle.phase + assembly * Math.PI * 3) * orbit;
+          if (persistent) {
+            const currentX = particle.target.x + particle.offsetX;
+            const currentY = particle.target.y + particle.offsetY;
+            if (pointer.active) {
+              const pointerX = currentX - pointer.x;
+              const pointerY = currentY - pointer.y;
+              const pointerDistance = Math.max(
+                1,
+                Math.hypot(pointerX, pointerY)
+              );
+              const influence = Math.max(0, 1 - pointerDistance / 138);
+              if (influence > 0) {
+                const force = influence * influence * 3.8;
+                particle.velocityX +=
+                  (pointerX / pointerDistance) * force;
+                particle.velocityY +=
+                  (pointerY / pointerDistance) * force;
+              }
+            }
+            particle.velocityX += -particle.offsetX * 0.022;
+            particle.velocityY += -particle.offsetY * 0.022;
+            particle.velocityX *= 0.91;
+            particle.velocityY *= 0.91;
+            particle.offsetX += particle.velocityX;
+            particle.offsetY += particle.velocityY;
+            x = particle.target.x + particle.offsetX;
+            y = particle.target.y + particle.offsetY;
+          }
           const tail = particle.glow ? 12 + travel * 0.05 : 2;
           const alpha = Math.min(1, progress * 18);
           if (assembly < 0.82) {
@@ -6157,7 +6262,7 @@
           }
         });
 
-        if (progress < 1) requestAnimationFrame(render);
+        requestAnimationFrame(render);
       };
       requestAnimationFrame(render);
     };
@@ -6347,7 +6452,9 @@
         const finish = () => {
           window.clearInterval(timerChaos);
           window.clearInterval(textChaos);
-          document.body.classList.add("apocalypse-ended");
+          document.body.classList.add(
+            reduceMotion ? "apocalypse-ended" : "apocalypse-persisted"
+          );
           document.documentElement.scrollTop = 0;
         };
 
