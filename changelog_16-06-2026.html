@@ -2987,6 +2987,87 @@
       body.apocalypse-active .quick-nav {
         animation-duration: 210ms;
       }
+
+      body:not(.apocalypse-active):not(.apocalypse-persisted) {
+        overflow-x: clip;
+      }
+
+      .site-header {
+        display: grid;
+        width: min(calc(100% - 1.5rem), var(--max-width));
+        max-width: 100%;
+        max-height: none;
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        gap: 0.75rem;
+        padding: 1.15rem 0 1.6rem;
+        align-items: start;
+        overflow: hidden;
+      }
+
+      .site-header__copy {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        grid-row: 2;
+      }
+
+      .site-header .eyebrow {
+        width: fit-content;
+        max-width: 100%;
+        margin-bottom: 0.85rem;
+        padding: 0.48rem 0.72rem;
+        font-size: clamp(0.5rem, 2.7vw, 0.64rem);
+        letter-spacing: 0.12em;
+        line-height: 1.45;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .site-header h1 {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        font-size: clamp(2.45rem, 13vw, 3.8rem);
+        font-weight: 540;
+        letter-spacing: -0.035em;
+        line-height: 0.88;
+        overflow-wrap: normal;
+        word-break: normal;
+        text-wrap: balance;
+      }
+
+      .site-header h1::after {
+        width: 3.25rem;
+        margin-top: 1.1rem;
+      }
+
+      .site-header .spire-mark {
+        width: 86px;
+        max-width: 24vw;
+        height: auto;
+        margin: 0;
+        grid-row: 1;
+        justify-self: end;
+        align-self: start;
+      }
+
+      .site-header .spire-mark svg {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .site-header .spire-mark__hint {
+        display: none;
+      }
+
+      .apocalypse-final h2 {
+        max-width: 90vw;
+        font-size: clamp(3.5rem, 18vw, 6rem);
+        letter-spacing: -0.04em;
+        white-space: nowrap;
+      }
     }
   </style>
 </head>
@@ -5909,14 +5990,20 @@
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
 
       const textCanvas = document.createElement("canvas");
-      textCanvas.width = Math.min(1400, Math.max(640, width * ratio));
-      textCanvas.height = Math.min(520, Math.max(220, height * 0.42 * ratio));
-      const textContext = textCanvas.getContext("2d");
-      const textSize = Math.min(
-        textCanvas.height * 0.72,
-        textCanvas.width * 0.205
+      textCanvas.width = Math.round(
+        Math.min(1400, Math.max(280, width * ratio * 0.9))
       );
+      textCanvas.height = Math.round(
+        Math.min(520, Math.max(180, height * 0.34 * ratio))
+      );
+      const textContext = textCanvas.getContext("2d");
+      let textSize = textCanvas.height * 0.68;
       textContext.font = `600 ${textSize}px "Roboto Condensed Local", sans-serif`;
+      const measuredText = textContext.measureText("СКОРО").width;
+      if (measuredText > textCanvas.width * 0.9) {
+        textSize *= (textCanvas.width * 0.9) / measuredText;
+        textContext.font = `600 ${textSize}px "Roboto Condensed Local", sans-serif`;
+      }
       textContext.textAlign = "center";
       textContext.textBaseline = "middle";
       textContext.fillStyle = "#fff";
