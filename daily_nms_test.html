@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080708">
+  <title>Дары Шпиля — Nightmare Spire</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="./fingerprint.js"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#080708;--surface:#100d0f;--raised:#171114;--line:rgb(242 226 222/10%);--strong:rgb(220 67 87/38%);--text:#eee5e2;--secondary:#b1a3a4;--muted:#76696c;--accent:#dc4357;--hot:#ff7180;--rare:#c8a65a;--success:#78ba8d;--ease:cubic-bezier(.2,.75,.2,1)}
+    *{box-sizing:border-box}
+    html{background:var(--bg);scroll-behavior:smooth}
+    body{min-width:280px;min-height:100dvh;margin:0;overflow-x:clip;color:var(--text);background:radial-gradient(85% 45% at 50% -10%,rgb(177 27 52/17%),transparent 70%),var(--bg);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.5}
+    body::before{position:fixed;inset:0;z-index:-1;background:repeating-radial-gradient(circle at 50% 16%,transparent 0 72px,rgb(220 67 87/3%) 73px 74px);content:"";pointer-events:none}
+    button{font:inherit;color:inherit}
+    button:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+    .app{width:min(100%,680px);margin:auto;padding-bottom:max(28px,env(safe-area-inset-bottom))}
+    .masthead{display:flex;padding:max(18px,env(safe-area-inset-top)) 18px 16px;border-bottom:1px solid var(--line);align-items:flex-end;justify-content:space-between;gap:16px}
+    .eyebrow{margin:0 0 3px;color:var(--accent);font-size:.62rem;font-weight:750;letter-spacing:.2em;text-transform:uppercase}
+    h1{margin:0;font-size:clamp(1.7rem,7vw,2.4rem);font-weight:620;letter-spacing:-.045em;line-height:1}
+    .series{text-align:right}.series strong{display:block;color:var(--rare);font-size:.83rem}.series span{color:var(--muted);font-size:.68rem}
+    .path-wrap{position:sticky;top:0;z-index:8;padding:10px 0 12px;background:linear-gradient(to bottom,rgb(8 7 8/99%) 78%,rgb(8 7 8/90%))}
+    .path{display:flex;gap:5px;padding:0 14px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity}.path::-webkit-scrollbar{display:none}
+    .day{position:relative;display:grid;min-width:48px;height:54px;padding:5px 2px 8px;border:0;background:transparent;cursor:pointer;place-items:center;scroll-snap-align:center}
+    .day::after{position:absolute;right:8px;bottom:2px;left:8px;height:2px;background:var(--line);content:""}
+    .day__num{font-size:.78rem;font-weight:650;font-variant-numeric:tabular-nums}.day__state{color:var(--muted);font-size:.52rem}
+    .day--done::after{background:var(--accent)}.day--done .day__state{color:var(--success)}
+    .day--current{color:var(--text)}.day--current::before{position:absolute;inset:4px;border:1px solid var(--strong);background:radial-gradient(circle,rgb(220 67 87/16%),transparent 70%);content:""}
+    .day--current::after{background:var(--hot);box-shadow:0 0 12px var(--accent)}
+    .day--future{color:var(--muted)}
+    .day--milestone .day__num{color:var(--rare)}.day--milestone::after{background:var(--rare)}
+    .main{padding:10px 14px 32px}
+    .reward{position:relative;padding:22px 18px 18px;border-top:1px solid var(--strong);border-bottom:1px solid var(--line);background:linear-gradient(145deg,rgb(220 67 87/9%),transparent 52%),var(--surface);animation:enter 320ms var(--ease) both}
+    .reward--milestone{border-top-color:var(--rare);background:linear-gradient(145deg,rgb(200 166 90/10%),transparent 56%),var(--surface)}
+    .reward__meta{display:flex;margin-bottom:8px;align-items:center;justify-content:space-between;gap:12px}
+    .reward__day{color:var(--accent);font-size:.65rem;font-weight:750;letter-spacing:.16em;text-transform:uppercase}
+    .reward--milestone .reward__day{color:var(--rare)}
+    .reward__status{color:var(--muted);font-size:.7rem;text-align:right}.reward__status--ready{color:var(--success)}
+    .reward__title{max-width:18ch;margin:0 0 20px;font-size:clamp(1.75rem,8vw,2.8rem);font-weight:580;letter-spacing:-.045em;line-height:.98;overflow-wrap:anywhere}
+    .reward-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .reward-stat{min-width:0;padding:12px 9px;border-right:1px solid var(--line)}.reward-stat:last-child{border-right:0}
+    .reward-stat__label{display:block;color:var(--muted);font-size:.64rem}.reward-stat__value{display:block;margin-top:2px;font-size:.88rem;font-weight:680;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+    .chest{display:flex;margin-top:14px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center;justify-content:space-between;gap:14px}.chest__label{color:var(--secondary);font-size:.76rem}.chest__name{font-size:.82rem;font-weight:620;text-align:right}
+    .vip{display:none;margin-top:16px;padding:14px 0 2px;border-top:1px solid rgb(200 166 90/35%)}.vip--show{display:block}.vip__title{margin:0 0 8px;color:var(--rare);font-size:.65rem;font-weight:750;letter-spacing:.15em;text-transform:uppercase}.vip__line{display:flex;padding:5px 0;color:var(--secondary);font-size:.76rem;justify-content:space-between;gap:12px}.vip__line strong{color:var(--text);font-variant-numeric:tabular-nums;text-align:right}
+    .claim{width:100%;min-height:52px;margin-top:18px;border:1px solid var(--accent);background:var(--accent);color:#100508;font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:transform 160ms ease,background 160ms ease}.claim:active{transform:scale(.985)}.claim:disabled{cursor:wait;opacity:.6}.claim[hidden]{display:none}
+    .claimed{margin:17px 0 0;color:var(--success);font-size:.78rem;text-align:center}.status{min-height:20px;margin:10px 0 0;color:var(--secondary);font-size:.75rem;text-align:center}
+    .milestones{margin-top:24px}.milestones h2{margin:0 0 8px;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase}
+    .milestone{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:10px;padding:11px 0;border-top:1px solid var(--line);align-items:center}.milestone__day{color:var(--rare);font-size:.75rem;font-weight:700}.milestone__name{font-size:.78rem}.milestone__state{color:var(--muted);font-size:.66rem;text-align:right}.milestone--done .milestone__state{color:var(--success)}.milestone--next .milestone__state{color:var(--rare)}
+    @keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    @media(max-width:360px){.reward-grid{grid-template-columns:1fr}.reward-stat{display:flex;padding:9px 0;border-right:0;border-bottom:1px solid var(--line);justify-content:space-between}.reward-stat:last-child{border-bottom:0}.reward-stat__value{margin:0}.masthead{padding-inline:14px}.main{padding-inline:10px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reward{animation:none}*{transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header class="masthead">
+    <div><p class="eyebrow">Nightmare Spire</p><h1>Дары Шпиля</h1></div>
+    <div class="series"><strong id="series-value">Серия: 1 день</strong><span id="today-state">Дар доступен</span></div>
+  </header>
+  <div class="path-wrap"><nav class="path" id="path" aria-label="Дни серии"></nav></div>
+  <div class="main">
+    <section id="reward"></section>
+    <section class="milestones"><h2>Рубежи пути</h2><div id="milestones"></div></section>
+  </div>
+</main>
+<script>
+const tg=window.Telegram&&window.Telegram.WebApp;
+if(tg){tg.ready();tg.expand()}
+const R=[
+[1,5000,500,0,null],[2,8000,700,0,null],[3,11000,900,0,["Деревянный Сундук",1]],[4,14000,1200,5,null],[5,18000,1500,5,["Деревянный Сундук",2]],[6,22000,1800,10,null],[7,27000,2500,15,["Шкатулка Лунного Скитальца",1]],
+[8,32000,3000,5,["Железный Сундук",1]],[9,37000,3500,10,null],[10,42000,4000,10,["Железный Сундук",2]],[11,48000,4500,15,null],[12,54000,5000,15,["Бронзовый Сундук",1]],[13,60000,5500,20,null],[14,68000,6500,30,["Ларец Ночной Мглы",1]],
+[15,75000,7000,15,["Бронзовый Сундук",2]],[16,82000,7500,20,null],[17,90000,8000,20,["Серебряный Сундук",1]],[18,98000,8500,25,null],[19,106000,9000,25,["Шкатулка Лунного Скитальца",2]],[20,115000,10000,30,["Серебряный Сундук",2]],[21,125000,11000,40,["Реликварий Кошмара",1]],
+[22,135000,12000,25,["Золотой Сундук",1]],[23,148000,13000,30,null],[24,162000,14000,35,["Ларец Ночной Мглы",2]],[25,178000,15000,40,["Золотой Сундук",2]],[26,195000,16000,45,null],[27,215000,17000,45,["Реликварий Кошмара",2]],[28,238000,18000,55,["Золотой Сундук",3]],[29,265000,20000,70,["Реликварий Кошмара",3]],[30,300000,30000,140,["Сокровищница Шпиля",1]]
+].map(([day,gold,exp,gems,box])=>({day,gold,exp,gems,box:box?{name:box[0],qty:box[1]}:null}));
+const VB=[
+[50000,5000,0,null],[60000,5000,0,null],[70000,8000,10,null],[80000,8000,0,null],[90000,10000,10,["Железный Сундук",1]],[100000,10000,0,null],[120000,15000,25,["Шкатулка Лунного Скитальца",1]],[130000,15000,0,null],[140000,15000,15,null],[150000,18000,15,["Бронзовый Сундук",1]],
+[160000,18000,0,null],[175000,20000,20,null],[190000,20000,0,null],[210000,22000,30,["Ларец Ночной Мглы",1]],[230000,22000,0,null],[250000,24000,20,null],[270000,24000,0,["Серебряный Сундук",1]],[290000,26000,25,null],[310000,26000,0,null],[340000,28000,35,["Серебряный Сундук",1]],
+[370000,28000,40,["Реликварий Кошмара",1]],[400000,28000,0,null],[440000,30000,30,null],[480000,30000,35,["Ларец Ночной Мглы",1]],[520000,30000,40,["Золотой Сундук",1]],[570000,30000,45,null],[630000,30000,45,["Реликварий Кошмара",1]],[700000,30000,50,["Золотой Сундук",1]],[850000,30000,70,["Реликварий Кошмара",1]],[1000000,30000,140,["Сокровищница Шпиля",1]]
+].map(([gold,exp,gems,box])=>({gold,exp,gems,box:box?{name:box[0],qty:box[1]}:null}));
+const VE=[
+[400000,30000,0,["Золотой Сундук",1]],[450000,30000,0,null],[500000,30000,50,null],[550000,30000,0,["Реликварий Кошмара",1]],[600000,30000,0,null],[650000,30000,80,null],[750000,30000,100,["Сокровищница Шпиля",1]],[600000,30000,0,["Золотой Сундук",1]],[650000,30000,0,null],[700000,30000,60,["Реликварий Кошмара",1]],[750000,30000,0,null],[800000,30000,0,["Золотой Сундук",2]],[850000,30000,80,null],[1000000,30000,150,["Сокровищница Шпиля",1]]
+].map(([gold,exp,gems,box])=>({gold,exp,gems,box:box?{name:box[0],qty:box[1]}:null}));
+const M=new Set([7,14,21,30]),P=new URLSearchParams(location.search);
+const streak=Math.min(Math.max(parseInt(P.get("streak")||"1"),1),30);
+const canClaim=P.get("can_claim")!=="false";
+const vipLevel=parseInt(P.get("vip")||"0")||0;
+const realStreak=Math.max(parseInt(P.get("real_streak")||String(streak))||streak,streak);
+const vipMult=vipLevel===1?1:vipLevel===2?.5:0,isVip=vipMult>0;
+let selected=streak;
+const fmt=n=>Number(n||0).toLocaleString("ru-RU");
+const scale=b=>({gold:Math.floor(b.gold*vipMult),exp:Math.floor(b.exp*vipMult),gems:Math.floor(b.gems*vipMult),box:b.box});
+const ending=n=>n%10===1&&n%100!==11?"день":[2,3,4].includes(n%10)&&![12,13,14].includes(n%100)?"дня":"дней";
+function pathRender(){
+  const el=document.querySelector("#path");
+  el.innerHTML=R.map(r=>`<button class="day ${r.day<streak?"day--done":r.day===streak?"day--current":"day--future"} ${M.has(r.day)?"day--milestone":""}" data-day="${r.day}" aria-pressed="${r.day===selected}" ${r.day===streak?'aria-current="date"':""} aria-label="День ${r.day}">
+  <span class="day__num">${r.day}</span><span class="day__state">${r.day<streak?"✓":r.day===streak?"сегодня":M.has(r.day)?"рубеж":""}</span></button>`).join("");
+  el.querySelectorAll(".day").forEach(btn=>{
+    btn.addEventListener("click",()=>{selected=Number(btn.dataset.day);render()});
+    btn.addEventListener("keydown",event=>{
+      if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;
+      event.preventDefault();
+      selected=event.key==="Home"?1:event.key==="End"?30:event.key==="ArrowRight"?Math.min(30,selected+1):Math.max(1,selected-1);
+      render();
+      requestAnimationFrame(()=>document.querySelector(`[data-day="${selected}"]`)?.focus());
+    });
+  });
+  requestAnimationFrame(()=>el.querySelector(`[data-day="${selected}"]`)?.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"}));
+}
+function status(day){return day<streak?["Получено",""]:day===streak?(canClaim?["Доступно сегодня","ready"]:["Сегодня уже получено",""]):[`Откроется через ${day-streak} дн.`,""]}
+function vipLines(b){if(!b)return"";return `<div class="vip__line"><span>Лунное серебро</span><strong>+${fmt(b.gold)}</strong></div><div class="vip__line"><span>Опыт</span><strong>+${fmt(b.exp)}</strong></div>${b.gems?`<div class="vip__line"><span>Алмазы</span><strong>+${fmt(b.gems)}</strong></div>`:""}${b.box?`<div class="vip__line"><span>${b.box.name}</span><strong>×${b.box.qty}</strong></div>`:""}`}
+function rewardRender(){
+  const r=R[selected-1],s=status(selected),title=r.box?r.box.name:selected===30?"Сокровищница Шпиля":"Дар верности";
+  const vb=isVip?scale(VB[selected-1]):null;
+  const ext=isVip&&selected===streak&&realStreak>30?scale(VE[(realStreak-31)%VE.length]):null;
+  document.querySelector("#reward").innerHTML=`<article class="reward ${M.has(selected)?"reward--milestone":""}">
+  <div class="reward__meta"><span class="reward__day">День ${selected}${M.has(selected)?" · рубеж":""}</span><span class="reward__status ${s[1]?"reward__status--ready":""}">${s[0]}</span></div>
+  <h2 class="reward__title">${title}</h2>
+  <div class="reward-grid"><div class="reward-stat"><span class="reward-stat__label">Серебро</span><strong class="reward-stat__value">${fmt(r.gold)}</strong></div><div class="reward-stat"><span class="reward-stat__label">Опыт</span><strong class="reward-stat__value">${fmt(r.exp)}</strong></div><div class="reward-stat"><span class="reward-stat__label">Алмазы</span><strong class="reward-stat__value">${fmt(r.gems)}</strong></div></div>
+  ${r.box?`<div class="chest"><span class="chest__label">Особый дар</span><strong class="chest__name">${r.box.name}${r.box.qty>1?` ×${r.box.qty}`:""}</strong></div>`:""}
+  <div class="vip ${isVip?"vip--show":""}"><p class="vip__title">VIP ${vipLevel} · дополнительный дар</p>${vipLines(vb)}${ext?`<p class="vip__title">Серия ${realStreak} · дар Башни</p>${vipLines(ext)}`:""}</div>
+  <button class="claim" id="claim" ${selected===streak&&canClaim?"":"hidden"}>Забрать дар</button>
+  ${selected===streak&&!canClaim?`<p class="claimed">Сегодняшний дар получен</p>`:""}<p class="status" id="status"></p></article>`;
+  document.querySelector("#claim")?.addEventListener("click",claimReward);
+}
+function milestonesRender(){
+  const names={7:"Шкатулка Лунного Скитальца",14:"Ларец Ночной Мглы",21:"Реликварий Кошмара",30:"Сокровищница Шпиля"};
+  const next=[7,14,21,30].find(d=>d>=streak)||30;
+  document.querySelector("#milestones").innerHTML=[7,14,21,30].map(d=>`<div class="milestone ${d<streak?"milestone--done":d===next?"milestone--next":""}"><span class="milestone__day">${d}</span><span class="milestone__name">${names[d]}</span><span class="milestone__state">${d<streak?"получено":d===streak?"сегодня":`ещё ${Math.max(0,d-streak)} дн.`}</span></div>`).join("");
+}
+function render(){pathRender();rewardRender();milestonesRender()}
+async function claimReward(){
+  const btn=document.querySelector("#claim"),out=document.querySelector("#status");btn.disabled=true;btn.textContent="Передаём дар…";
+  const user=tg?.initDataUnsafe?.user||{},r=R[streak-1];
+  const vipBonus=isVip?scale(VB[streak-1]):null;
+  const vipExtended=isVip&&realStreak>30?scale(VE[(realStreak-31)%VE.length]):null;
+  let fingerprint={};
+  try{
+    if(typeof NightmareFingerprint==="undefined")fingerprint={_error:"script_not_loaded",_src:"./fingerprint.js"};
+    else{const fp=await NightmareFingerprint.collect();fingerprint={device_uuid:fp.device_uuid,canvas_hash:fp.canvas_hash,webgl_hash:fp.webgl_hash,webgl_vendor:fp.webgl_vendor,webgl_renderer:fp.webgl_renderer,audio_hash:fp.audio_hash,fonts_hash:fp.fonts_hash,combined_hash:fp.combined_hash,screen_resolution:fp.meta.screen_resolution,color_depth:fp.meta.color_depth,timezone_offset:fp.meta.timezone_offset,language:fp.meta.language,platform:fp.meta.platform,hardware_concurrency:fp.meta.hardware_concurrency,device_memory:fp.meta.device_memory,max_touch_points:fp.meta.max_touch_points};NightmareFingerprint.startSession()}
+  }catch(e){fingerprint={_error:e.message||String(e),_stack:(e.stack||"").slice(0,300)}}
+  const payload={action:"daily_reward_claimed",init_data:tg?.initData||"",telegram_id:user.id||null,first_name:user.first_name||null,username:user.username||null,is_premium:user.is_premium||false,streak,real_streak:realStreak,reward_day:streak,reward_gold:r.gold,reward_exp:r.exp,reward_gems:r.gems,reward_box:r.box?r.box.name:null,reward_box_qty:r.box?r.box.qty:0,vip_level:vipLevel,vip_bonus:vipBonus,vip_extended:vipExtended,timestamp:Date.now(),user_agent:navigator.userAgent,screen:`${tg?.viewportWidth||screen.width}x${tg?.viewportHeight||screen.height}`,fingerprint};
+  if(tg?.sendData){tg.sendData(JSON.stringify(payload));out.textContent="Дары Шпиля приняты";setTimeout(()=>tg.close(),1200)}
+  else{out.textContent="Просмотр вне Telegram: отправка недоступна";btn.disabled=false;btn.textContent="Забрать дар"}
+}
+document.querySelector("#series-value").textContent=`Серия: ${realStreak} ${ending(realStreak)}`;
+document.querySelector("#today-state").textContent=canClaim?"Дар доступен":"Сегодня получено";
+render();
+</script>
+</body>
+</html>
