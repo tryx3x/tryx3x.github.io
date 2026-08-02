@@ -3200,7 +3200,7 @@
       <span class="toolbar__label">Дата</span>
       <select class="date-select" id="date-filter">
         <option value="all">Даты</option>
-        <option value="2026-08-01">1 августа 2026</option>
+        <option value="2026-08-07">7 августа 2026</option>
         <option value="2026-07-26">26 июля 2026</option>
         <option value="2026-07-19">19 июля 2026</option>
         <option value="2026-07-17">17 июля 2026</option>
@@ -3281,15 +3281,15 @@
 
   <main id="updates" class="update-feed">
     <section class="current-release" aria-label="Последнее обновление">
-    <article class="release release--current reveal" id="release-2026-08-01" data-date="2026-08-01" aria-labelledby="release-2026-08-01-title">
+    <article class="release release--current reveal" id="release-2026-08-07" data-date="2026-08-07" aria-labelledby="release-2026-08-07-title">
       <aside class="release__date">
-        <time datetime="2026-08-01">1 августа 2026</time>
-        <a class="release__anchor" href="#release-2026-08-01">Открыть выпуск</a>
+        <time datetime="2026-08-07">7 августа 2026</time>
+        <a class="release__anchor" href="#release-2026-08-07">Открыть выпуск</a>
         <button
           class="release__copy"
           type="button"
-          data-copy-release="release-2026-08-01"
-          aria-label="Скопировать ссылку на выпуск от 1 августа 2026"
+          data-copy-release="release-2026-08-07"
+          aria-label="Скопировать ссылку на выпуск от 7 августа 2026"
         >
           Скопировать ссылку
         </button>
@@ -3297,16 +3297,18 @@
       <div class="release__content">
         <header class="release__header">
           
-          <h2 id="release-2026-08-01-title">Обновление от 1 августа 2026</h2>
+          <h2 id="release-2026-08-07-title">Обновление от 7 августа 2026</h2>
         </header>
 
         <details class="change-group" data-category="clans">
           <summary>
-            <h3 id="release-2026-08-01-clans-1">Кланы</h3>
+            <h3 id="release-2026-08-07-clans-1">Кланы</h3>
             <span class="change-group__toggle" aria-hidden="true"></span>
           </summary>
-          <div class="change-group__body" role="region" aria-labelledby="release-2026-08-01-clans-1">
+          <div class="change-group__body" role="region" aria-labelledby="release-2026-08-07-clans-1">
             <ul class="change-list">
+            <li>Обновлено главное меню клана: сведения, казна, постройки и бонусы стали компактнее и понятнее.</li>
+            <li>В меню показано заполнение казны и на сколько дней хватит средств для обслуживания построек.</li>
             <li>Обновлён экран Зала клана и список доступных заданий.</li>
             <li>Награду за клановое задание больше нельзя получить повторно.</li>
             <li>Сдача предметов и вклад в общее задание больше не рассинхронизируются.</li>
@@ -3319,11 +3321,12 @@
         </details>
         <details class="change-group" data-category="items">
           <summary>
-            <h3 id="release-2026-08-01-items-2">Предметы</h3>
+            <h3 id="release-2026-08-07-items-2">Предметы</h3>
             <span class="change-group__toggle" aria-hidden="true"></span>
           </summary>
-          <div class="change-group__body" role="region" aria-labelledby="release-2026-08-01-items-2">
+          <div class="change-group__body" role="region" aria-labelledby="release-2026-08-07-items-2">
             <ul class="change-list">
+            <li>Снятая инкрустация теперь возвращается в инвентарь и больше не пропадает.</li>
             <li>Названия предметов очищены от старых тегов и встроенных эмодзи.</li>
             <li>Собственные эмодзи предметов унифицированы в инвентаре, наградах, добыче, профессиях и торговле.</li>
             <li>Поиск показывает количество предмета, место хранения и историю перемещений.</li>
@@ -3333,32 +3336,47 @@
         </details>
         <details class="change-group" data-category="interface">
           <summary>
-            <h3 id="release-2026-08-01-interface-3">Интерфейс</h3>
+            <h3 id="release-2026-08-07-interface-3">Интерфейс</h3>
             <span class="change-group__toggle" aria-hidden="true"></span>
           </summary>
-          <div class="change-group__body" role="region" aria-labelledby="release-2026-08-01-interface-3">
+          <div class="change-group__body" role="region" aria-labelledby="release-2026-08-07-interface-3">
             <ul class="change-list">
             <li>Обновлены экраны входа в Башню, обнаруженного противника и статуса персонажа.</li>
+            <li>Статус персонажа получил более лёгкое оформление без крупных серых блоков и шкалу опыта в стиле прогресса Башни.</li>
             <li>Активные бонусы и параметры стали компактнее.</li>
             <li>Обновлено оформление заданий Гильдии наёмников.</li>
             <li>Клановые меню и клавиатуры приведены к единому формату.</li>
             <li>Исправлена кнопка возврата из меню клановых построек.</li>
-            <li>Журнал обновлений получил багровый RPG-дизайн, интерактивный фон и удобную мобильную навигацию.</li>
-            <li>В шапку добавлен настраиваемый таймер до следующего обновления.</li>
-            <li>Архив разделён на месяцы и отдельные раскрываемые даты.</li>
-            <li>Кланы, предметы, интерфейс и другие разделы выпуска раскрываются независимо.</li>
-            <li>Для каждого выпуска доступны открытие по прямому URL и копирование ссылки.</li>
-            <li>Добавлены матовая каменная текстура, красное свечение и знак Шпиля без эмодзи.</li>
-            <li>Подключён локальный кириллический шрифт для одинакового оформления на всех устройствах.</li>
+            <li>Журнал обновлений получил новое оформление, удобную мобильную навигацию, фильтры по датам и разделам.</li>
+            </ul>
+          </div>
+        </details>
+        <details class="change-group" data-category="combat">
+          <summary>
+            <h3 id="release-2026-08-07-combat-4">Боевая система</h3>
+            <span class="change-group__toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="change-group__body" role="region" aria-labelledby="release-2026-08-07-combat-4">
+            <ul class="change-list">
+            <li>В событии «Засада» атака теперь попадает в выбранного противника, а не всегда в первую цель.</li>
+            <li>«Хаос» теперь наносит дополнительный урон в размере трети от основного удара.</li>
+            <li>Оружейные эффекты срабатывают один раз за удар и используют указанный шанс.</li>
+            <li>«Слабость» и снижение ловкости корректно влияют на характеристики и уклонение.</li>
+            <li>Очерёдность ходов в PvP и групповых боях теперь учитывает ловкость.</li>
+            <li>Уклонение переработано: равные по ловкости противники чаще попадают друг по другу, а максимальный шанс ограничен.</li>
+            <li>Комбинированный урон правильно взаимодействует с физическими и магическими щитами.</li>
+            <li>Универсальный щит от эффекта брони теперь действительно поглощает урон и сохраняет остаток между ударами.</li>
+            <li>Если питомец или призванная душа атакуют во время «Паса», игрок восстанавливает только половину маны и выносливости.</li>
+            <li>Время на ход составляет 120 секунд в одиночном бою, 60 секунд в групповом и 45 секунд в PvP. После истечения времени автоматически выбирается «Пас».</li>
             </ul>
           </div>
         </details>
         <details class="change-group" data-category="market">
           <summary>
-            <h3 id="release-2026-08-01-market-4">Рынок</h3>
+            <h3 id="release-2026-08-07-market-5">Рынок</h3>
             <span class="change-group__toggle" aria-hidden="true"></span>
           </summary>
-          <div class="change-group__body" role="region" aria-labelledby="release-2026-08-01-market-4">
+          <div class="change-group__body" role="region" aria-labelledby="release-2026-08-07-market-5">
             <ul class="change-list">
             <li>Исправлены переносы строк в торговых сообщениях.</li>
             <li>Числа с разделителями теперь корректно принимаются при покупке и продаже.</li>
