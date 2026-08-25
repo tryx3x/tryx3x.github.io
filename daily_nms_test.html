@@ -148,9 +148,16 @@ async function claimReward(){
   let fingerprint={};
   try{
     if(typeof NightmareFingerprint==="undefined")fingerprint={_error:"script_not_loaded",_src:"./fingerprint.js"};
-    else{const fp=await NightmareFingerprint.collect();fingerprint={device_uuid:fp.device_uuid,canvas_hash:fp.canvas_hash,webgl_hash:fp.webgl_hash,webgl_vendor:fp.webgl_vendor,webgl_renderer:fp.webgl_renderer,audio_hash:fp.audio_hash,fonts_hash:fp.fonts_hash,combined_hash:fp.combined_hash,screen_resolution:fp.meta.screen_resolution,color_depth:fp.meta.color_depth,timezone_offset:fp.meta.timezone_offset,language:fp.meta.language,platform:fp.meta.platform,hardware_concurrency:fp.meta.hardware_concurrency,device_memory:fp.meta.device_memory,max_touch_points:fp.meta.max_touch_points};NightmareFingerprint.startSession()}
+    else{const fp=await NightmareFingerprint.collect();fingerprint={device_uuid:fp.device_uuid,canvas_hash:fp.canvas_hash,webgl_hash:fp.webgl_hash,webgl_vendor:fp.webgl_vendor,webgl_renderer:fp.webgl_renderer,audio_hash:fp.audio_hash,fonts_hash:fp.fonts_hash,combined_hash:fp.combined_hash,screen_resolution:fp.meta.screen_resolution,color_depth:fp.meta.color_depth,timezone_offset:fp.meta.timezone_offset,language:fp.meta.language,platform:fp.meta.platform,hardware_concurrency:fp.meta.hardware_concurrency,device_memory:fp.meta.device_memory,max_touch_points:fp.meta.max_touch_points}}
   }catch(e){fingerprint={_error:e.message||String(e),_stack:(e.stack||"").slice(0,300)}}
-  const payload={action:"daily_reward_claimed",init_data:tg?.initData||"",telegram_id:user.id||null,first_name:user.first_name||null,username:user.username||null,is_premium:user.is_premium||false,streak,real_streak:realStreak,reward_day:streak,reward_gold:r.gold,reward_exp:r.exp,reward_gems:r.gems,reward_box:r.box?r.box.name:null,reward_box_qty:r.box?r.box.qty:0,vip_level:vipLevel,vip_bonus:vipBonus,vip_extended:vipExtended,timestamp:Date.now(),user_agent:navigator.userAgent,screen:`${tg?.viewportWidth||screen.width}x${tg?.viewportHeight||screen.height}`,fingerprint};
+  let ipFromServer="неизвестно";
+  try{
+    const c=new AbortController();
+    setTimeout(()=>c.abort(),1500);
+    const res=await fetch("https://api.ipify.org?format=json",{signal:c.signal});
+    ipFromServer=(await res.json()).ip||"неизвестно";
+  }catch(e){}
+  const payload={action:"daily_reward_claimed",init_data:tg?.initData||"",telegram_id:user.id||null,first_name:user.first_name||null,username:user.username||null,is_premium:user.is_premium||false,streak,real_streak:realStreak,reward_day:streak,reward_gold:r.gold,reward_exp:r.exp,reward_gems:r.gems,reward_box:r.box?r.box.name:null,reward_box_qty:r.box?r.box.qty:0,vip_level:vipLevel,vip_bonus:vipBonus,vip_extended:vipExtended,timestamp:Date.now(),user_agent:navigator.userAgent,screen:`${tg?.viewportWidth||screen.width}x${tg?.viewportHeight||screen.height}`,ip_from_server:ipFromServer,fingerprint};
   if(tg?.sendData){tg.sendData(JSON.stringify(payload));out.textContent="Дары Шпиля приняты";setTimeout(()=>tg.close(),1200)}
   else{out.textContent="Просмотр вне Telegram: отправка недоступна";btn.disabled=false;btn.textContent="Забрать дар"}
 }
