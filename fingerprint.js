@@ -1,32 +1,9 @@
-/*
- * NightmareFingerprint — восстановлено с нуля 24.08.2026.
- *
- * Исходный fingerprint.js пропал с tryx3x.github.io (404) в районе
- * 12.06.2026, из-за чего антифрод (docs/architecture/antifraud-v2.md)
- * больше двух месяцев не получал ни одного нового device/canvas/WebGL
- * сигнала. Файл реализует ровно тот контракт, который вызывает
- * daily_nms_test.html:
- *
- *   await NightmareFingerprint.collect() -> {
- *     device_uuid, canvas_hash, webgl_hash, webgl_vendor, webgl_renderer,
- *     audio_hash, fonts_hash, combined_hash,
- *     meta: { screen_resolution, color_depth, timezone_offset, language,
- *             platform, hardware_concurrency, device_memory, max_touch_points }
- *   }
- *   NightmareFingerprint.startSession()
- *
- * Это не байт-в-байт восстановление утерянного оригинала (его исходники
- * нигде не найдены), а чистая реализация того же контракта — сервер
- * (web_app/router.py::_process_fingerprint) читает только эти поля по
- * имени, так что для него разницы нет.
- */
 (function (global) {
   "use strict";
 
   var STORAGE_KEY = "nms_device_uuid";
   var SESSION_KEY = "nms_session_start";
 
-  // ── device_uuid — стабильный ID устройства/браузера, переживает сессии ──
   function getOrCreateDeviceUuid() {
     try {
       var existing = localStorage.getItem(STORAGE_KEY);
@@ -35,8 +12,6 @@
       localStorage.setItem(STORAGE_KEY, fresh);
       return fresh;
     } catch (e) {
-      // localStorage недоступен (приватный режим и т.п.) — новый UUID на сессию,
-      // не сохраняем, совпадений устройства для этого клиента не будет.
       return randomUuid();
     }
   }
@@ -45,7 +20,6 @@
     if (global.crypto && global.crypto.randomUUID) {
       return global.crypto.randomUUID();
     }
-    // Фолбэк на старые движки без crypto.randomUUID.
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
       var r = (Math.random() * 16) | 0;
       var v = c === "x" ? r : (r & 0x3) | 0x8;
@@ -53,7 +27,6 @@
     });
   }
 
-  // ── SHA-256 в hex, через SubtleCrypto (работает в любом контексте GH Pages — https) ──
   async function sha256Hex(input) {
     try {
       var data = typeof input === "string" ? new TextEncoder().encode(input) : input;
@@ -69,7 +42,6 @@
     }
   }
 
-  // ── Canvas fingerprint — рендерим текст+фигуры, хешируем dataURL ──
   function getCanvasDataUrl() {
     try {
       var canvas = document.createElement("canvas");
@@ -98,7 +70,6 @@
     }
   }
 
-  // ── WebGL fingerprint — vendor/renderer + рендер сцены ──
   function getWebglInfo() {
     var result = { hashSource: "", vendor: "", renderer: "" };
     try {
@@ -126,12 +97,10 @@
       ];
       result.hashSource = parts.join("|");
     } catch (e) {
-      // оставляем result как есть — частичная деградация допустима
     }
     return result;
   }
 
-  // ── Audio fingerprint — классический OfflineAudioContext-приём ──
   function getAudioFingerprint() {
     return new Promise(function (resolve) {
       try {
@@ -175,7 +144,6 @@
         };
 
         context.startRendering();
-        // Некоторые движки никогда не зовут oncomplete в фоновой вкладке — не блокируем сбор.
         setTimeout(function () { finish(""); }, 1200);
       } catch (e) {
         resolve("");
@@ -183,7 +151,6 @@
     });
   }
 
-  // ── Fonts fingerprint — какие из «редких» шрифтов реально стоят у пользователя ──
   function getFontsSignature() {
     try {
       var baseFonts = ["monospace", "sans-serif", "serif"];
@@ -277,11 +244,6 @@
     };
   }
 
-  // ── Session tracking — best-effort сигнал начала/конца сессии ──────────
-  // tg.sendData() пригоден только пока WebApp открыт: на pagehide/visibilitychange
-  // пытаемся отправить action="session_end", но Telegram может закрыть WebApp
-  // раньше, чем сообщение уйдёт — сервер это уже учитывает (просто не получит
-  // событие в редких случаях, не критично для антифрода).
   function startSession() {
     try {
       var startedAt = Date.now();
@@ -301,7 +263,6 @@
             end_reason: endReason,
           }));
         } catch (e) {
-          // WebApp уже закрыт — ничего не поделать, это ожидаемо.
         }
       };
 
@@ -312,7 +273,6 @@
         sendEnd("close");
       });
     } catch (e) {
-      // Сессионный трекинг — best-effort, не должен ронять основной флоу.
     }
   }
 
