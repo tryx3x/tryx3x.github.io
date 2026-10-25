@@ -48,7 +48,16 @@ document.addEventListener('DOMContentLoaded', async function() {
       return;
     }
     var p = document.body || document.documentElement;
-    var d = document.getElementById('__bundler_err') || p.appendChild(document.createElement('div'));
+    var d = document.getElementById('__bundler_err');
+    if (!d) {
+      // 25.10.2026: диагностика у игроков, у которых страница не собирается.
+      d = p.appendChild(document.createElement('div'));
+      var tgApp = window.Telegram && window.Telegram.WebApp;
+      d.textContent = 'UA: ' + navigator.userAgent +
+        String.fromCharCode(10) + 'DS: ' + (typeof DecompressionStream !== 'undefined') +
+        ' | TG: ' + (tgApp ? tgApp.platform + ' ' + tgApp.version : 'нет') +
+        ' | URL: ' + location.protocol + '//' + location.host;
+    }
     d.id = '__bundler_err';
     d.style.cssText = 'position:fixed;bottom:12px;left:12px;right:12px;font:12px/1.4 ui-monospace,monospace;background:#2a1215;color:#ff8a80;padding:10px 14px;border-radius:8px;border:1px solid #5c2b2e;z-index:99999;white-space:pre-wrap;max-height:40vh;overflow:auto';
     d.textContent = (d.textContent ? d.textContent + String.fromCharCode(10) : '') +
